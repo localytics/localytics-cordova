@@ -1,0 +1,26 @@
+{
+    "cordova-plugin-whitelist": {
+        "source": {
+            "type": "registry",
+            "id": "cordova-plugin-whitelist@1"
+        },
+        "is_top_level": true,
+        "variables": {}
+    },
+    "org.apache.cordova.device": {
+        "source": {
+            "type": "registry",
+            "id": "org.apache.cordova.device"
+        },
+        "is_top_level": false,
+        "variables": {}
+    },
+    "com.localytics.phonegap.LocalyticsPlugin": {
+        "source": {
+            "type": "local",
+            "path": "../Plugin"
+        },
+        "is_top_level": true,
+        "variables": {}
+    }
+}
