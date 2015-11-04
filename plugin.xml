@@ -34,6 +34,7 @@
     </platform>
 
     <platform name="android">
+        <framework src="com.android.support:support-v4:+" />
 
         <config-file target="config.xml" parent="/*">
             <feature name="LocalyticsPlugin" >
@@ -47,7 +48,6 @@
         </config-file>
 
         <source-file src="src/android/localytics.jar" target-dir="libs/" />
-        <source-file src="src/android/android-support-v4.jar" target-dir="libs" />
         <source-file src="src/android/LocalyticsPlugin.java" target-dir="src/com/localytics/phonegap/" />
 
     </platform>
