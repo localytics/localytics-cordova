@@ -372,16 +372,15 @@ var app = {
                         outputElement.value = result;
                     });
             } else if (targetId == "btnTriggerInApp") {
-                var triggerName = document.getElementById("inputTriggerInApp").value || null;
-                var list = document.getElementById("listTriggerInApp");
-                var numOfAttr = list.options[list.selectedIndex].value;
-                var attributes = null;
-                if (numOfAttr == 1) {
-                    attributes = { attr1: "attr1" };
-                } else if (numOfAttr == 2) {
-                    attributes = { attr1: "attr1", attr2: "attr2" };
+                var triggerName = document.getElementById("inputTriggerInAppName").value;
+                // Note: attributes must match event's attribute, so keep it simple
+                var attrKey = document.getElementById("inputTriggerInAppAttrKey").value || null;
+                var attrValue = document.getElementById("inputTriggerInAppAttrValue").value || null;
+                if (triggerName && attrKey) {
+                    var attributes = {};
+                    attributes[attrKey] = attrValue;
+                    Localytics.triggerInAppMessage(triggerName, attributes);
                 }
-                Localytics.triggerInAppMessage(triggerName, attributes);
             }
         }
     },

@@ -1,7 +1,12 @@
 //
 //  LocalyticsPlugin.m
+//  Copyright (C) 2015 Char Software Inc., DBA Localytics
 //
-//  Copyright 2015 Localytics. All rights reserved.
+//  This code is provided under the Localytics Modified BSD License.
+//  A copy of this license has been distributed in a file called LICENSE
+//  with this source code.
+//
+// Please visit www.localytics.com for more information.
 //
 
 #import "LocalyticsPlugin.h"
@@ -19,7 +24,7 @@ static NSDictionary* launchOptions;
 + (void)load {
     // Listen for UIApplicationDidFinishLaunchingNotification to get a hold of launchOptions
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onDidFinishLaunchingNotification:) name:UIApplicationDidFinishLaunchingNotification object:nil];
-    
+
     // Listen to re-broadcast events from Cordova's AppDelegate
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onDidRegisterForRemoteNotificationWithDeviceToken:) name:CDVRemoteNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onDidFailToRegisterForRemoteNotificationsWithError:) name:CDVRemoteNotificationError object:nil];
@@ -70,7 +75,7 @@ static NSDictionary* launchOptions;
     } else {
         appKey = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"LocalyticsAppKey"];
     }
-    
+
     if (appKey) {
         [Localytics integrate:appKey];
         launchOptions = nil; // Clear launchOptions on integrate
@@ -84,7 +89,7 @@ static NSDictionary* launchOptions;
     } else {
         appKey = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"LocalyticsAppKey"];
     }
-    
+
     if (appKey) {
         [Localytics autoIntegrate:appKey launchOptions: launchOptions];
         launchOptions = nil; // Clear launchOptions on integrate
@@ -111,7 +116,7 @@ static NSDictionary* launchOptions;
         NSString *eventName = [command argumentAtIndex:0];
         NSDictionary *attributes = [command argumentAtIndex:1];
         NSNumber *customerValueIncrease = [command argumentAtIndex:2];
-        
+
         if (eventName && [eventName isKindOfClass:[NSString class]] && [eventName length] > 0 &&
             customerValueIncrease && [customerValueIncrease isKindOfClass:[NSNumber class]]) {
             [Localytics tagEvent:eventName attributes:attributes customerValueIncrease:customerValueIncrease];
@@ -138,7 +143,7 @@ static NSDictionary* launchOptions;
     [self.commandDelegate runInBackground:^{
         NSNumber *dimension = [command argumentAtIndex:0];
         NSString *value = [Localytics valueForCustomDimension: [dimension intValue]];
-        
+
         CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:value];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }];
@@ -167,29 +172,29 @@ static NSDictionary* launchOptions;
     if (attribute && [attribute length] > 0) {
         NSObject<NSCopying> *value = [command argumentAtIndex:1];
         NSUInteger scope = [self getProfileScope:[command argumentAtIndex:2]];
-        
+
         [Localytics setValue:value forProfileAttribute:attribute withScope:scope];
     }
 }
 
 - (void)addProfileAttributesToSet:(CDVInvokedUrlCommand *)command {
     NSString *attribute = [command argumentAtIndex:0];
-    
+
     if (attribute && [attribute length] > 0) {
         NSArray *values = [command argumentAtIndex:1];
         NSUInteger scope = [self getProfileScope:[command argumentAtIndex:2]];
-        
+
         [Localytics addValues:values toSetForProfileAttribute:attribute withScope:scope];
     }
 }
 
 - (void)removeProfileAttributesFromSet:(CDVInvokedUrlCommand *)command {
     NSString *attribute = [command argumentAtIndex:0];
-    
+
     if (attribute && [attribute length] > 0) {
         NSArray *values = [command argumentAtIndex:1];
         NSUInteger scope = [self getProfileScope:[command argumentAtIndex:2]];
-        
+
         [Localytics removeValues:values fromSetForProfileAttribute:attribute withScope:scope];
     }
 }
@@ -199,10 +204,10 @@ static NSDictionary* launchOptions;
     if (attribute && [attribute length] > 0) {
         NSInteger value = [[command argumentAtIndex:1 withDefault:0] intValue];
         NSUInteger scope = [self getProfileScope:[command argumentAtIndex:2]];
-        
+
         [Localytics incrementValueBy:value forProfileAttribute:attribute withScope:scope];
     }
-    
+
 }
 
 - (void)decrementProfileAttribute:(CDVInvokedUrlCommand *)command {
@@ -210,7 +215,7 @@ static NSDictionary* launchOptions;
     if (attribute && [attribute length] > 0) {
         NSInteger value = [[command argumentAtIndex:1 withDefault:0] intValue];
         NSUInteger scope = [self getProfileScope:[command argumentAtIndex:2]];
-        
+
         [Localytics decrementValueBy:value forProfileAttribute:attribute withScope:scope];
     }
 }
@@ -219,7 +224,7 @@ static NSDictionary* launchOptions;
     NSString *attribute = [command argumentAtIndex:0];
     if (attribute && [attribute length] > 0) {
         NSUInteger scope = [self getProfileScope:[command argumentAtIndex:1]];
-        
+
         [Localytics deleteProfileAttribute:attribute withScope:scope];
     }
 }
@@ -247,12 +252,12 @@ static NSDictionary* launchOptions;
 
 - (void)setCustomerFirstName:(CDVInvokedUrlCommand *)command {
     NSString *firstName = [command argumentAtIndex:0];
-    [Localytics setCustomerEmail:firstName];
+    [Localytics setCustomerFirstName:firstName];
 }
 
 - (void)setCustomerLastName:(CDVInvokedUrlCommand *)command {
     NSString *lastName = [command argumentAtIndex:0];
-    [Localytics setCustomerEmail:lastName];
+    [Localytics setCustomerLastName:lastName];
 }
 
 - (void)setCustomerEmail:(CDVInvokedUrlCommand *)command {

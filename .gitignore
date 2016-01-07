@@ -1,2 +1,4 @@
 
 *.xcuserstate
+SampleApp/platforms/android/CordovaLib/build/
+SampleApp/platforms/android/.gradle/

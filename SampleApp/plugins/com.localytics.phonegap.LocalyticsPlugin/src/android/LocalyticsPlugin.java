@@ -1,7 +1,12 @@
 //
 //  LocalyticsPlugin.java
+//  Copyright (C) 2015 Char Software Inc., DBA Localytics
 //
-//  Copyright 2015 Localytics. All rights reserved.
+//  This code is provided under the Localytics Modified BSD License.
+//  A copy of this license has been distributed in a file called LICENSE
+//  with this source code.
+//
+// Please visit www.localytics.com for more information.
 //
 
 package com.localytics.phonegap;
@@ -385,7 +390,7 @@ public class LocalyticsPlugin extends CordovaPlugin {
                 Location location = new Location("");
 				location.setLatitude(args.getDouble(0));
 				location.setLongitude(args.getDouble(1));
-				
+
             	Localytics.setLocation(location);
             	callbackContext.success();
             } else {
@@ -489,7 +494,7 @@ public class LocalyticsPlugin extends CordovaPlugin {
                     callbackContext.success(result);
                 }
             });
-            
+
             return true;
         } else if (action.equals("getLibraryVersion")) {
             cordova.getThreadPool().execute(new Runnable() {

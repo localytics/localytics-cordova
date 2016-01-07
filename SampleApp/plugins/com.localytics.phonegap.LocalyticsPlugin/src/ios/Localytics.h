@@ -1,6 +1,6 @@
 //
 //  Localytics.h
-//  Copyright (C) 2014 Char Software Inc., DBA Localytics
+//  Copyright (C) 2015 Char Software Inc., DBA Localytics
 //
 //  This code is provided under the Localytics Modified BSD License.
 //  A copy of this license has been distributed in a file called LICENSE
@@ -27,7 +27,7 @@ typedef NS_ENUM(NSInteger, LLProfileScope){
 @protocol LLMessagingDelegate;
 @protocol LLAnalyticsDelegate;
 
-/** 
+/**
  @discussion The class which manages creating, collecting, & uploading a Localytics session.
  Please see the following guides for information on how to best use this
  library, sample code, and other useful information:
@@ -35,7 +35,7 @@ typedef NS_ENUM(NSInteger, LLProfileScope){
  <li><a href="http://wiki.localytics.com/index.php?title=Developer's_Integration_Guide">
  Main Developer's Integration Guide</a></li>
  </ul>
- 
+
  <strong>Best Practices</strong>
  <ul>
  <li>Integrate Localytics in <code>applicationDidFinishLaunching</code>.</li>
@@ -64,18 +64,18 @@ typedef NS_ENUM(NSInteger, LLProfileScope){
  integration is accomplished by proxing the AppDelegate and "inserting" a Localytics AppDelegate
  behind the applications AppDelegate. The proxy will first call the applications AppDelegate and
  then call the Localytics AppDelegate.
- 
+
  @param appKey The unique key for each application generated at www.localytics.com
  @param launchOptions The launchOptions provided by application:DidFinishLaunchingWithOptions:
  */
 + (void)autoIntegrate:(NSString *)appKey launchOptions:(NSDictionary *)launchOptions;
 
 /** Manually integrate the Localytic SDK into the application.
- 
+
  Use this method to manually integrate the Localytics SDK. The developer still has to make sure to
- open and close the Localytics session as well as call upload to ensure data is uploaded to 
+ open and close the Localytics session as well as call upload to ensure data is uploaded to
  Localytics
- 
+
  @param appKey The unique key for each application generated at www.localytics.com
  @see openSession
  @see closeSession
@@ -205,7 +205,7 @@ typedef NS_ENUM(NSInteger, LLProfileScope){
 
 /** Sets the value of a custom identifier. Identifiers are a form of key/value storage
  which contain custom user data. Identifiers might include things like email addresses,
- customer IDs, twitter handles, and facebook IDs. Once a value is set, the device it was set 
+ customer IDs, twitter handles, and facebook IDs. Once a value is set, the device it was set
  on will continue to upload that value until the value is changed.
  To delete a property, pass in nil as the value.
  @param value The value to set the identifier to. To delete a propert set the value to nil
@@ -605,10 +605,10 @@ typedef NS_ENUM(NSInteger, LLProfileScope){
  */
 
 /** Handle calls to the SDK from a WatchKit Extension app
- 
- Call this in the UIApplicationDelegate's application:handleWatchKitExtensionRequest:reply: 
+
+ Call this in the UIApplicationDelegate's application:handleWatchKitExtensionRequest:reply:
  method.
- 
+
  @param userInfo the userInfo provided by application:handleWatchKitExtensionRequest:reply:
  @param reply The reply provided by application:handleWatchKitExtensionRequest:reply:
  @return YES if the Localytics SDK has handled replying to the WatchKit Extension; NO otherwise
