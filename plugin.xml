@@ -47,8 +47,11 @@
         </config-file>
 
         <source-file src="src/android/localytics.jar" target-dir="libs/" />
-        <source-file src="src/android/android-support-v4.jar" target-dir="libs" />
         <source-file src="src/android/LocalyticsPlugin.java" target-dir="src/com/localytics/phonegap/" />
+
+        <framework src="com.android.support:support-v4:23.1.0" />
+        <framework src="com.google.android.gms:play-services-gcm:8.1.0" />
+        <framework src="com.google.android.gms:play-services-ads:8.1.0" />
 
     </platform>
 
