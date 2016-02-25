@@ -5,7 +5,7 @@
     <license>Apache 2.0</license>
     <keywords>localytics</keywords>
 
-    <js-module src="www/Localytics.js" name="Localytics">
+    <js-module src="www/localytics.js" name="Localytics">
         <clobbers target="Localytics" />
     </js-module>
     
