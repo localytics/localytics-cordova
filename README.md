@@ -147,11 +147,6 @@ Afterwards, simply call the following after the integration code in the previous
 
 [Follow these instructions to set up push notifications for your app.](http://docs.localytics.com/dev/android.html#push-messaging-android)
 
-Next, copy the Google Play Services library and add it as a dependency to your project:
-
-1. Copy the folder \<ANDROID_SDK_DIR\>/extras/google/google\_play\_services\_lib/ to \<YOUR_PROJECT\>/platforms/android/
-2. Add an extra line to \<YOUR_PROJECT\>/platforms/android/project.properties: "android.library.reference.2=google-play-services_lib
-
 In your AndroidManifest.xml, ensure the following are added _before_ your \<application\> tag:
 
 >*Note*: replace YOUR.PACKAGE.NAME with your package name, ie, com.yourcompany.yourapp
