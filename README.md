@@ -84,6 +84,49 @@ Add the following for manual integration.
         Localytics.upload();
     },
 
+
+Additionally, for each platform:
+
+#### iOS
+
+Ensure the following libraries are added to your project's .xcodeproj:
+
+    AdSupport.framework
+    libsqlite3.tbd
+    libz.tbd
+    SystemConfiguration.framework
+    
+If compiling against iOS 9 SDK, add an App Transport Security exception to Info.plist:
+
+    <key>NSAppTransportSecurity</key>
+        <dict>
+            <key>NSExceptionDomains</key>
+            <dict>
+                <key>public.localytics.s3.amazonaws.com</key>
+                <dict>
+                    <key>NSExceptionAllowsInsecureHTTPLoads</key>
+                    <true/>
+                </dict>
+                <key>pushapi.localytics.com</key>
+                <dict>
+                    <key>NSExceptionAllowsInsecureHTTPLoads</key>
+                    <true/>
+                </dict>
+            </dict>
+        </dict>
+
+#### Android
+
+Ensure the following ReferralReceiver is added to AndroidManifest.xml within the application tag:
+
+	<receiver android:name="com.localytics.android.ReferralReceiver"
+	android:exported="true">
+		<intent-filter>
+			<action android:name="com.android.vending.INSTALL_REFERRER" />
+		</intent-filter>
+	</receiver>
+
+    
 ### 3. Set up and register for push notifications
 
 iOS uses Apple Push Notification (APN) while Android uses Google Cloud Messaging (GCM). Follow the instructions for each respective push notification service to set up the necessary configurations and upload the certificate to the Localytics Dashboard before continuing with these instructions.
@@ -92,7 +135,7 @@ iOS uses Apple Push Notification (APN) while Android uses Google Cloud Messaging
 
 #### iOS
 
-[Follow these instructions to set up push notifications for your app.]( http://docs.localytics.com/index.html#Dev/Instrument/ios-push-title.html)
+[Follow these instructions to set up push notifications for your app.]( http://docs.localytics.com/dev/ios.html#enable-background-modes-ios)
 
 Afterwards, simply call the following after the integration code in the previous step.
 
@@ -102,7 +145,12 @@ Afterwards, simply call the following after the integration code in the previous
 
 #### Android
 
-[Follow these instructions to set up push notifications for your app.](http://docs.localytics.com/index.html#Dev/Instrument/android-push-title.html)
+[Follow these instructions to set up push notifications for your app.](http://docs.localytics.com/dev/android.html#push-messaging-android)
+
+Next, copy the Google Play Services library and add it as a dependency to your project:
+
+1. Copy the folder \<ANDROID_SDK_DIR\>/extras/google/google\_play\_services\_lib/ to \<YOUR_PROJECT\>/platforms/android/
+2. Add an extra line to \<YOUR_PROJECT\>/platforms/android/project.properties: "android.library.reference.2=google-play-services_lib
 
 In your AndroidManifest.xml, ensure the following are added _before_ your \<application\> tag:
 
