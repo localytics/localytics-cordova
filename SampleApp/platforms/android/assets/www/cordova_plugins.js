@@ -6,8 +6,11 @@ module.exports = [
         "runs": true
     },
     {
-        "file": "plugins/com.localytics.phonegap.LocalyticsPlugin/www/Localytics.js",
+
+    {
+        "file": "plugins/com.localytics.phonegap.LocalyticsPlugin/www/localytics.js",
         "id": "com.localytics.phonegap.LocalyticsPlugin.Localytics",
+        "pluginId": "com.localytics.phonegap.LocalyticsPlugin",
         "clobbers": [
             "Localytics"
         ]

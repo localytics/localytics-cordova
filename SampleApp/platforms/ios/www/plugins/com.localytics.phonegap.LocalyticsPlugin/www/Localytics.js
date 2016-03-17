@@ -52,8 +52,8 @@ Localytics.prototype.closeSession = function() {
 // event = Name of the event
 // attributes = a hash of key/value pairs containing the event attributes
 // customerValueIncrease = customer value increase as an int
-Localytics.prototype.tagEvent = function (event, attributes, customerValueIncrease) {
-	cordova.exec(null, null, "LocalyticsPlugin", "tagEvent", [event, attributes, customerValueIncrease]);
+Localytics.prototype.tagEvent = function (event, attributes, customerValueIncrease, successCallback, errorCallback) {
+	cordova.exec(successCallback, errorCallback, "LocalyticsPlugin", "tagEvent", [event, attributes, customerValueIncrease]);
 }
 
 // Tags a screen

@@ -18,7 +18,7 @@
     "com.localytics.phonegap.LocalyticsPlugin": {
         "source": {
             "type": "local",
-            "path": "../Plugin"
+            "path": "../localytics-cordova"
         },
         "is_top_level": true,
         "variables": {}

@@ -1,8 +1,9 @@
 cordova.define('cordova/plugin_list', function(require, exports, module) {
 module.exports = [
     {
-        "file": "plugins/com.localytics.phonegap.LocalyticsPlugin/www/Localytics.js",
+        "file": "plugins/com.localytics.phonegap.LocalyticsPlugin/www/localytics.js",
         "id": "com.localytics.phonegap.LocalyticsPlugin.Localytics",
+        "pluginId": "com.localytics.phonegap.LocalyticsPlugin",
         "clobbers": [
             "Localytics"
         ]
