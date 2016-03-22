@@ -98,6 +98,12 @@ h1 {
     text-align: center;
 }
 
+.versionLabel {
+	font-size: 10px;
+	width: 100%;
+	text-align:right;
+}
+
 .hr_break {
     width: 100%;
 }

@@ -9,11 +9,22 @@
 // Please visit www.localytics.com for more information.
 //
 
+#import "AppDelegate.h"
 #import "LocalyticsPlugin.h"
 #import "Localytics.h"
 
 #define PROFILE_SCOPE_ORG @"org"
 #define PROFILE_SCOPE_APP @"app"
+
+#pragma mark AppDelegate+LLPushNotification implementation
+@implementation AppDelegate (LLPushNotification)
+- (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
+    
+    [Localytics handlePushNotificationOpened:userInfo];
+    completionHandler(UIBackgroundFetchResultNoData);
+}
+
+@end
 
 @implementation LocalyticsPlugin
 
