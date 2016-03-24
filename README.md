@@ -8,7 +8,7 @@ Cordova v3.6.3-0.2.13, 4.0.0, & 5.0.0.
 
 ## Installation
 
-	cordova plugin add https://github.com/localytics/localytics-cordova.git
+	cordova plugin add localytics-cordova
 
 ## Integration
 
@@ -95,7 +95,7 @@ Ensure the following libraries are added to your project's .xcodeproj:
     libsqlite3.tbd
     libz.tbd
     SystemConfiguration.framework
-    
+
 If compiling against iOS 9 SDK, add an App Transport Security exception to Info.plist:
 
     <key>NSAppTransportSecurity</key>
@@ -126,7 +126,7 @@ Ensure the following ReferralReceiver is added to AndroidManifest.xml within the
 		</intent-filter>
 	</receiver>
 
-    
+
 ### 3. Set up and register for push notifications
 
 iOS uses Apple Push Notification (APN) while Android uses Google Cloud Messaging (GCM). Follow the instructions for each respective push notification service to set up the necessary configurations and upload the certificate to the Localytics Dashboard before continuing with these instructions.
