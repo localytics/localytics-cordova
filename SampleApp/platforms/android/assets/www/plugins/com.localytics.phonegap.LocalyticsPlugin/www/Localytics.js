@@ -1,12 +1,8 @@
-cordova.define("com.localytics.phonegap.LocalyticsPlugin.Localytics", function(require, exports, module) { //
+cordova.define("com.localytics.phonegap.LocalyticsPlugin.Localytics", function(require, exports, module) {
+//
 //  Localytics.js
-//  Copyright (C) 2015 Char Software Inc., DBA Localytics
 //
-//  This code is provided under the Localytics Modified BSD License.
-//  A copy of this license has been distributed in a file called LICENSE
-//  with this source code.
-//
-// Please visit www.localytics.com for more information.
+//  Copyright 2015 Localytics. All rights reserved.
 //
 
 var Localytics = function () {
@@ -52,8 +48,8 @@ Localytics.prototype.closeSession = function() {
 // event = Name of the event
 // attributes = a hash of key/value pairs containing the event attributes
 // customerValueIncrease = customer value increase as an int
-Localytics.prototype.tagEvent = function (event, attributes, customerValueIncrease, successCallback, errorCallback) {
-	cordova.exec(successCallback, errorCallback, "LocalyticsPlugin", "tagEvent", [event, attributes, customerValueIncrease]);
+Localytics.prototype.tagEvent = function (event, attributes, customerValueIncrease) {
+	cordova.exec(null, null, "LocalyticsPlugin", "tagEvent", [event, attributes, customerValueIncrease]);
 }
 
 // Tags a screen
@@ -115,8 +111,8 @@ Localytics.prototype.isOptedOut = function (successCallback) {
  Localytics.prototype.deleteProfileAttribute = function (name, scope) {
 	cordova.exec(null, null, "LocalyticsPlugin", "deleteProfileAttribute", [name, scope]);
 }
-
-
+ 
+ 
 /*******************
  * User Information
  ******************/

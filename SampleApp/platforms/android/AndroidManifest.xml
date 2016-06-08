@@ -18,10 +18,10 @@
                 <category android:name="com.localytics.sample" />
             </intent-filter>
         </receiver>
-        <meta-data android:name="LOCALYTICS_APP_KEY" android:value="YOUR_APP_KEY" />
-        <meta-data android:name="com.localytics.android_push_sender_id" android:value="\ PUSH_SENDER_ID" />
+        <meta-data android:name="LOCALYTICS_APP_KEY" android:value="YOUR_LOCALYTICS_APP_KEY" />
+        <meta-data android:name="com.localytics.android_push_sender_id" android:value="\ YOUR_SENDER_ID" />
     </application>
-    <uses-sdk android:minSdkVersion="10" android:targetSdkVersion="22" />
+    <uses-sdk android:minSdkVersion="14" android:targetSdkVersion="22" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
     <permission android:name="com.localytics.sample.permission.C2D_MESSAGE" android:protectionLevel="signature" />

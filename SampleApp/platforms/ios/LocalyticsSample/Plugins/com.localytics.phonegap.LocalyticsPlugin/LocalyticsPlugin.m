@@ -1,30 +1,92 @@
 //
 //  LocalyticsPlugin.m
-//  Copyright (C) 2015 Char Software Inc., DBA Localytics
 //
-//  This code is provided under the Localytics Modified BSD License.
-//  A copy of this license has been distributed in a file called LICENSE
-//  with this source code.
-//
-// Please visit www.localytics.com for more information.
+//  Copyright 2015 Localytics. All rights reserved.
 //
 
 #import "AppDelegate.h"
 #import "LocalyticsPlugin.h"
 #import "Localytics.h"
+#import <objc/runtime.h>
 
 #define PROFILE_SCOPE_ORG @"org"
 #define PROFILE_SCOPE_APP @"app"
 
+static BOOL localyticsIsAutoIntegrate = NO;
+static BOOL localyticsDidReceiveRemoteNotificationSwizzled = NO;
+static BOOL localyticsRemoteNotificationSwizzled = NO;
+static BOOL localyticsRemoteNotificationErrorSwizzled = NO;
+static BOOL localyticsSourceApplicationOpenURLSwizzled = NO;
+
+BOOL MethodSwizzle(Class clazz, SEL originalSelector, SEL overrideSelector)
+{
+    // Code by example from http://nshipster.com/method-swizzling/
+    Method originalMethod = class_getInstanceMethod(clazz, originalSelector);
+    Method overrideMethod = class_getInstanceMethod(clazz, overrideSelector);
+    
+    if (class_addMethod(clazz, originalSelector, method_getImplementation(overrideMethod), method_getTypeEncoding(overrideMethod))) {
+        
+        class_replaceMethod(clazz, overrideSelector, method_getImplementation(originalMethod), method_getTypeEncoding(originalMethod));
+        return NO;
+    } else {
+        method_exchangeImplementations(originalMethod, overrideMethod);
+    }
+    return YES;
+}
+
+
 #pragma mark AppDelegate+LLPushNotification implementation
 @implementation AppDelegate (LLPushNotification)
-- (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
-    
+
++ (void)load
+{
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        Class clazz = [self class];
+
+        localyticsDidReceiveRemoteNotificationSwizzled = MethodSwizzle(clazz, @selector(application:didReceiveRemoteNotification:fetchCompletionHandler:), @selector(localytics_swizzled_Application:didReceiveRemoteNotification:fetchCompletionHandler:));
+        localyticsRemoteNotificationSwizzled = MethodSwizzle(clazz, @selector(application:didRegisterForRemoteNotificationsWithDeviceToken:), @selector(localytics_swizzled_Application:didRegisterForRemoteNotificationsWithDeviceToken:));
+        localyticsRemoteNotificationErrorSwizzled = MethodSwizzle(clazz, @selector(application:didFailToRegisterForRemoteNotificationsWithError:), @selector(localytics_swizzled_Application:didFailToRegisterForRemoteNotificationsWithError:));
+        localyticsSourceApplicationOpenURLSwizzled = MethodSwizzle(clazz, @selector(application:openURL:sourceApplication:annotation:), @selector(localytics_swizzled_Application:openURL:sourceApplication:annotation:));
+    });
+}
+
+- (void) localytics_swizzled_Application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler
+{
     [Localytics handlePushNotificationOpened:userInfo];
     completionHandler(UIBackgroundFetchResultNoData);
+    
+    if (localyticsDidReceiveRemoteNotificationSwizzled) {
+        [self localytics_swizzled_Application:application didReceiveRemoteNotification:userInfo fetchCompletionHandler:completionHandler];
+    }
+}
+
+- (void) localytics_swizzled_Application:(UIApplication*)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData*)deviceToken;
+{
+    if (!localyticsIsAutoIntegrate) {
+        [Localytics setPushToken:deviceToken];
+    }
+    if (localyticsRemoteNotificationSwizzled) {
+        [self localytics_swizzled_Application:application didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
+    }
+}
+
+- (void) localytics_swizzled_Application:(UIApplication*)application didFailToRegisterForRemoteNotificationsWithError:(NSError*)error;
+{
+    NSLog(@"onRemoteRegisterFail: %@", [error description]);
+    if (localyticsRemoteNotificationErrorSwizzled) {
+        [self localytics_swizzled_Application:application didFailToRegisterForRemoteNotificationsWithError:error];
+    }
+}
+
+- (BOOL) localytics_swizzled_Application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation
+{
+    [Localytics handleTestModeURL: url];
+    return localyticsSourceApplicationOpenURLSwizzled? [self localytics_swizzled_Application:application openURL:url sourceApplication:sourceApplication annotation:annotation] : YES;
 }
 
 @end
+
 
 @implementation LocalyticsPlugin
 
@@ -35,11 +97,6 @@ static NSDictionary* launchOptions;
 + (void)load {
     // Listen for UIApplicationDidFinishLaunchingNotification to get a hold of launchOptions
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onDidFinishLaunchingNotification:) name:UIApplicationDidFinishLaunchingNotification object:nil];
-
-    // Listen to re-broadcast events from Cordova's AppDelegate
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onDidRegisterForRemoteNotificationWithDeviceToken:) name:CDVRemoteNotification object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onDidFailToRegisterForRemoteNotificationsWithError:) name:CDVRemoteNotificationError object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onHandleOpenURLNotification:) name:CDVPluginHandleOpenURLNotification object:nil];
 }
 
 + (void)onDidFinishLaunchingNotification:(NSNotification *)notification {
@@ -47,20 +104,6 @@ static NSDictionary* launchOptions;
     if (launchOptions && launchOptions[UIApplicationLaunchOptionsRemoteNotificationKey]) {
         [Localytics handlePushNotificationOpened: launchOptions[UIApplicationLaunchOptionsRemoteNotificationKey]];
     }
-}
-
-+ (void)onDidRegisterForRemoteNotificationWithDeviceToken:(NSNotification *)notification {
-    //NSLog(@"onRemoteRegister: %@", notification.object);
-    [Localytics setPushToken:notification.object];
-}
-
-+ (void)onDidFailToRegisterForRemoteNotificationsWithError:(NSNotification *)notification {
-    //Log Failures
-    NSLog(@"onRemoteRegisterFail: %@", notification.object);
-}
-
-+ (void)onHandleOpenURLNotification:(NSNotification *)notification {
-    [Localytics handleTestModeURL: notification.object];
 }
 
 - (NSUInteger)getProfileScope:(NSString*)scope {
@@ -81,6 +124,7 @@ static NSDictionary* launchOptions;
 
 - (void)integrate:(CDVInvokedUrlCommand *)command {
     NSString *appKey = nil;
+
     if ([command argumentAtIndex: 0]) {
         appKey = [command argumentAtIndex:0];
     } else {
@@ -100,8 +144,9 @@ static NSDictionary* launchOptions;
     } else {
         appKey = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"LocalyticsAppKey"];
     }
-
+    
     if (appKey) {
+        localyticsIsAutoIntegrate = YES;
         [Localytics autoIntegrate:appKey launchOptions: launchOptions];
         launchOptions = nil; // Clear launchOptions on integrate
     }
@@ -127,7 +172,7 @@ static NSDictionary* launchOptions;
         NSString *eventName = [command argumentAtIndex:0];
         NSDictionary *attributes = [command argumentAtIndex:1];
         NSNumber *customerValueIncrease = [command argumentAtIndex:2];
-
+        
         if (eventName && [eventName isKindOfClass:[NSString class]] && [eventName length] > 0 &&
             customerValueIncrease && [customerValueIncrease isKindOfClass:[NSNumber class]]) {
             [Localytics tagEvent:eventName attributes:attributes customerValueIncrease:customerValueIncrease];
@@ -154,7 +199,7 @@ static NSDictionary* launchOptions;
     [self.commandDelegate runInBackground:^{
         NSNumber *dimension = [command argumentAtIndex:0];
         NSString *value = [Localytics valueForCustomDimension: [dimension intValue]];
-
+        
         CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:value];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }];
@@ -183,29 +228,29 @@ static NSDictionary* launchOptions;
     if (attribute && [attribute length] > 0) {
         NSObject<NSCopying> *value = [command argumentAtIndex:1];
         NSUInteger scope = [self getProfileScope:[command argumentAtIndex:2]];
-
+        
         [Localytics setValue:value forProfileAttribute:attribute withScope:scope];
     }
 }
 
 - (void)addProfileAttributesToSet:(CDVInvokedUrlCommand *)command {
     NSString *attribute = [command argumentAtIndex:0];
-
+    
     if (attribute && [attribute length] > 0) {
         NSArray *values = [command argumentAtIndex:1];
         NSUInteger scope = [self getProfileScope:[command argumentAtIndex:2]];
-
+        
         [Localytics addValues:values toSetForProfileAttribute:attribute withScope:scope];
     }
 }
 
 - (void)removeProfileAttributesFromSet:(CDVInvokedUrlCommand *)command {
     NSString *attribute = [command argumentAtIndex:0];
-
+    
     if (attribute && [attribute length] > 0) {
         NSArray *values = [command argumentAtIndex:1];
         NSUInteger scope = [self getProfileScope:[command argumentAtIndex:2]];
-
+        
         [Localytics removeValues:values fromSetForProfileAttribute:attribute withScope:scope];
     }
 }
@@ -215,10 +260,10 @@ static NSDictionary* launchOptions;
     if (attribute && [attribute length] > 0) {
         NSInteger value = [[command argumentAtIndex:1 withDefault:0] intValue];
         NSUInteger scope = [self getProfileScope:[command argumentAtIndex:2]];
-
+        
         [Localytics incrementValueBy:value forProfileAttribute:attribute withScope:scope];
     }
-
+    
 }
 
 - (void)decrementProfileAttribute:(CDVInvokedUrlCommand *)command {
@@ -226,7 +271,7 @@ static NSDictionary* launchOptions;
     if (attribute && [attribute length] > 0) {
         NSInteger value = [[command argumentAtIndex:1 withDefault:0] intValue];
         NSUInteger scope = [self getProfileScope:[command argumentAtIndex:2]];
-
+        
         [Localytics decrementValueBy:value forProfileAttribute:attribute withScope:scope];
     }
 }
@@ -235,7 +280,7 @@ static NSDictionary* launchOptions;
     NSString *attribute = [command argumentAtIndex:0];
     if (attribute && [attribute length] > 0) {
         NSUInteger scope = [self getProfileScope:[command argumentAtIndex:1]];
-
+        
         [Localytics deleteProfileAttribute:attribute withScope:scope];
     }
 }

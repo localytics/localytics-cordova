@@ -1,12 +1,7 @@
 //
 //  LocalyticsPlugin.java
-//  Copyright (C) 2015 Char Software Inc., DBA Localytics
 //
-//  This code is provided under the Localytics Modified BSD License.
-//  A copy of this license has been distributed in a file called LICENSE
-//  with this source code.
-//
-// Please visit www.localytics.com for more information.
+//  Copyright 2015 Localytics. All rights reserved.
 //
 
 package com.localytics.phonegap;
@@ -52,7 +47,7 @@ public class LocalyticsPlugin extends CordovaPlugin {
     @Override
     public boolean execute(String action, JSONArray args, final CallbackContext callbackContext) throws JSONException {
         if (action.equals("integrate")) {
-            String localyticsKey = (args.length() == 1? args.getString(0) : null);
+            String localyticsKey = (args.length() == 1 && !args.isNull(0)? args.getString(0) : null);
             Localytics.integrate(cordova.getActivity().getApplicationContext(), localyticsKey);
             callbackContext.success();
             return true;
@@ -270,14 +265,14 @@ public class LocalyticsPlugin extends CordovaPlugin {
                         if (parseISO8601Date((String)item) != null) {
                             Date[] dates = buildDateArray(array);
                             if (dates != null) {
-                                Localytics.addProfileAttributesToSet(attributeName, dates, getProfileScope(scope));
+                                Localytics.removeProfileAttributesFromSet(attributeName, dates, getProfileScope(scope));
                             } else {
                                 errorString = ERROR_INVALID_ARRAY;
                             }
                         } else {
                             String[] strings = buildStringArray(array);
                             if (strings != null) {
-                                Localytics.addProfileAttributesToSet(attributeName, strings, getProfileScope(scope));
+                                Localytics.removeProfileAttributesFromSet(attributeName, strings, getProfileScope(scope));
                             } else {
                                 errorString = ERROR_INVALID_ARRAY;
                             }
@@ -390,7 +385,7 @@ public class LocalyticsPlugin extends CordovaPlugin {
                 Location location = new Location("");
 				location.setLatitude(args.getDouble(0));
 				location.setLongitude(args.getDouble(1));
-
+				
             	Localytics.setLocation(location);
             	callbackContext.success();
             } else {
@@ -494,7 +489,7 @@ public class LocalyticsPlugin extends CordovaPlugin {
                     callbackContext.success(result);
                 }
             });
-
+            
             return true;
         } else if (action.equals("getLibraryVersion")) {
             cordova.getThreadPool().execute(new Runnable() {

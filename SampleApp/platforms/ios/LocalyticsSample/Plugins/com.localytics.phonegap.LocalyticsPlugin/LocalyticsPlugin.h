@@ -1,12 +1,7 @@
 //
 //  LocalyticsPlugin.h
-//  Copyright (C) 2015 Char Software Inc., DBA Localytics
 //
-//  This code is provided under the Localytics Modified BSD License.
-//  A copy of this license has been distributed in a file called LICENSE
-//  with this source code.
-//
-// Please visit www.localytics.com for more information.
+//  Copyright 2015 Localytics. All rights reserved.
 //
 
 #import <Cordova/CDVPlugin.h>

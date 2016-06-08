@@ -1,6 +1,6 @@
 //
 //  Localytics.h
-//  Copyright (C) 2015 Char Software Inc., DBA Localytics
+//  Copyright (C) 2014 Char Software Inc., DBA Localytics
 //
 //  This code is provided under the Localytics Modified BSD License.
 //  A copy of this license has been distributed in a file called LICENSE
@@ -12,7 +12,7 @@
 #import <UIKit/UIKit.h>
 #import <CoreLocation/CoreLocation.h>
 
-#define LOCALYTICS_LIBRARY_VERSION      @"3.4.0"
+#define LOCALYTICS_LIBRARY_VERSION      @"3.8.0"
 
 typedef NS_ENUM(NSUInteger, LLInAppMessageDismissButtonLocation){
     LLInAppMessageDismissButtonLocationLeft,
@@ -27,7 +27,10 @@ typedef NS_ENUM(NSInteger, LLProfileScope){
 @protocol LLMessagingDelegate;
 @protocol LLAnalyticsDelegate;
 
-/**
+@class LLInboxCampaign;
+@class LLInboxDetailViewController;
+
+/** 
  @discussion The class which manages creating, collecting, & uploading a Localytics session.
  Please see the following guides for information on how to best use this
  library, sample code, and other useful information:
@@ -35,7 +38,7 @@ typedef NS_ENUM(NSInteger, LLProfileScope){
  <li><a href="http://wiki.localytics.com/index.php?title=Developer's_Integration_Guide">
  Main Developer's Integration Guide</a></li>
  </ul>
-
+ 
  <strong>Best Practices</strong>
  <ul>
  <li>Integrate Localytics in <code>applicationDidFinishLaunching</code>.</li>
@@ -64,18 +67,18 @@ typedef NS_ENUM(NSInteger, LLProfileScope){
  integration is accomplished by proxing the AppDelegate and "inserting" a Localytics AppDelegate
  behind the applications AppDelegate. The proxy will first call the applications AppDelegate and
  then call the Localytics AppDelegate.
-
+ 
  @param appKey The unique key for each application generated at www.localytics.com
  @param launchOptions The launchOptions provided by application:DidFinishLaunchingWithOptions:
  */
 + (void)autoIntegrate:(NSString *)appKey launchOptions:(NSDictionary *)launchOptions;
 
 /** Manually integrate the Localytic SDK into the application.
-
+ 
  Use this method to manually integrate the Localytics SDK. The developer still has to make sure to
- open and close the Localytics session as well as call upload to ensure data is uploaded to
+ open and close the Localytics session as well as call upload to ensure data is uploaded to 
  Localytics
-
+ 
  @param appKey The unique key for each application generated at www.localytics.com
  @see openSession
  @see closeSession
@@ -205,7 +208,7 @@ typedef NS_ENUM(NSInteger, LLProfileScope){
 
 /** Sets the value of a custom identifier. Identifiers are a form of key/value storage
  which contain custom user data. Identifiers might include things like email addresses,
- customer IDs, twitter handles, and facebook IDs. Once a value is set, the device it was set
+ customer IDs, twitter handles, and facebook IDs. Once a value is set, the device it was set 
  on will continue to upload that value until the value is changed.
  To delete a property, pass in nil as the value.
  @param value The value to set the identifier to. To delete a propert set the value to nil
@@ -256,7 +259,7 @@ typedef NS_ENUM(NSInteger, LLProfileScope){
  @param scope The scope of the attribute governs the visability of the profile attribute (application
  only or organization wide)
  */
-+ (void)setValue:(NSObject<NSCopying> *)value forProfileAttribute:(NSString *)attribute withScope:(LLProfileScope)scope;
++ (void)setValue:(NSObject *)value forProfileAttribute:(NSString *)attribute withScope:(LLProfileScope)scope;
 
 /** Sets the value of a profile attribute (scope: Application).
  @param value The value to set the profile attribute to. value can be one of the following: NSString,
@@ -264,7 +267,7 @@ typedef NS_ENUM(NSInteger, LLProfileScope){
  nil. Passing in a 'nil' value will result in that attribute being deleted from the profile
  @param attribute The name of the profile attribute to be set
  */
-+ (void)setValue:(NSObject<NSCopying> *)value forProfileAttribute:(NSString *)attribute;
++ (void)setValue:(NSObject *)value forProfileAttribute:(NSString *)attribute;
 
 /** Adds values to a profile attribute that is a set
  @param values The value to be added to the profile attributes set
@@ -425,6 +428,31 @@ typedef NS_ENUM(NSInteger, LLProfileScope){
 
 + (void)dismissCurrentInAppMessage;
 
+#pragma mark - Inbox
+
+/** Returns an array of all Inbox campaigns that are enabled and ready for display.
+ @return an array of LLInboxCampaign objects
+ */
++ (NSArray<LLInboxCampaign *> *)inboxCampaigns;
+
+/** Refresh inbox campaigns from the Localytics server.
+ @param completionBlock the block invoked with refresh is complete
+ */
++ (void)refreshInboxCampaigns:(void (^)(NSArray<LLInboxCampaign *> *inboxCampaigns))completionBlock;
+
+/** Set an Inbox campaign as read. Read state can be used to display opened but not disabled Inbox
+ campaigns differently (e.g. greyed out).
+ @param campaignId the campaign ID of the Inbox campaign.
+ @param read YES to mark the campaign as read, NO to mark it as unread
+ @see [LLInboxCampaign class]
+ */
++ (void)setInboxCampaignId:(NSInteger)campaignId asRead:(BOOL)read;
+
+/** Returns a inbox campaign detail view controller with the given inbox campaign data.
+ @return a LLInboxDetailViewController from a given LLInboxCampaign object
+ */
++ (LLInboxDetailViewController *)inboxDetailViewControllerForCampaign:(LLInboxCampaign *)campaign;
+
 #pragma mark - Developer Options
 /** ---------------------------------------------------------------------------------------
  * @name Developer Options
@@ -548,6 +576,16 @@ typedef NS_ENUM(NSInteger, LLProfileScope){
  */
 + (void)setProfilesHost:(NSString *)profilesHost;
 
+/** Returns the manifest API hostname
+ @return the manifest API hostname currently set in Localytics as an NSString
+ */
++ (NSString *)manifestHost;
+
+/** Sets the manifest API hostname
+ @param manifestHost The hostname for manifest API requests
+ */
++ (void)setManifestHost:(NSString *)manifestHost;
+
 #pragma mark - In-App Message Delegate
 /** ---------------------------------------------------------------------------------------
  * @name In-App Message Delegate
@@ -605,10 +643,10 @@ typedef NS_ENUM(NSInteger, LLProfileScope){
  */
 
 /** Handle calls to the SDK from a WatchKit Extension app
-
- Call this in the UIApplicationDelegate's application:handleWatchKitExtensionRequest:reply:
+ 
+ Call this in the UIApplicationDelegate's application:handleWatchKitExtensionRequest:reply: 
  method.
-
+ 
  @param userInfo the userInfo provided by application:handleWatchKitExtensionRequest:reply:
  @param reply The reply provided by application:handleWatchKitExtensionRequest:reply:
  @return YES if the Localytics SDK has handled replying to the WatchKit Extension; NO otherwise
@@ -638,5 +676,228 @@ typedef NS_ENUM(NSInteger, LLProfileScope){
 - (void)localyticsDidDisplayInAppMessage;
 - (void)localyticsWillDismissInAppMessage;
 - (void)localyticsDidDismissInAppMessage;
+
+@end
+
+@protocol LLInboxCampaignsRefreshingDelegate <NSObject>
+@optional
+
+- (void)localyticsDidBeginRefreshingInboxCampaigns;
+- (void)localyticsDidFinishRefreshingInboxCampaigns;
+
+@end
+
+/**
+ * A base campaign class containing information relevant to all campaign types
+ */
+@interface LLCampaignBase : NSObject
+
+/**
+ * The unique campaign id.
+ */
+@property (nonatomic, assign, readonly) NSInteger campaignId;
+
+/**
+ * The campaign name
+ */
+@property (nonatomic, copy, readonly) NSString *name;
+
+/**
+ * The attributes associated with the campaign.
+ */
+@property (nonatomic, copy, readonly) NSDictionary *attributes;
+
+@end
+
+/**
+ * A base campaign class containing information relevant to campaigns which
+ * include a web component.
+ *
+ * @see LLInboxCampaign
+ */
+@interface LLWebViewCampaign : LLCampaignBase
+@end
+
+/**
+ * The campaign class containing information relevant to a single inbox campaign.
+ * 
+ * @see LLWebViewCampaign
+ * @see LLCampaignBase
+ */
+@interface LLInboxCampaign : LLWebViewCampaign
+
+/**
+ * The flag indicating whether the campaign has been read.
+ *
+ * Note: Changing this value will automatically update the inbox campaign record
+ * in the Localytics database.
+ */
+@property (nonatomic, assign, getter=isRead) BOOL read;
+
+/**
+ * The preview title text.
+ */
+@property (nonatomic, copy, readonly) NSString *titleText;
+
+/**
+ * The preview description text.
+ */
+@property (nonatomic, copy, readonly) NSString *summaryText;
+
+/**
+ * The remote url of the thumbnail.
+ */
+@property (nonatomic, copy, readonly) NSURL *thumbnailUrl;
+
+/**
+ * Value indicating if the campaign has a creative.
+ */
+@property (nonatomic, assign, readonly) BOOL hasCreative;
+
+/**
+ * The sort order of the campaign.
+ */
+@property (nonatomic, assign, readonly) NSInteger sortOrder;
+
+/**
+ * The received date of the campaign.
+ */
+@property (nonatomic, assign, readonly) NSTimeInterval receivedDate;
+
+@end
+
+/**
+ * UIViewController class that loads inbox campaigns and displays them in a UITableView.
+ * This class also handles marking inbox campaigns as read and displaying the inbox 
+ * campaign's full creative when it is tapped by pushing an LLInboxDetailViewController
+ * onto the UINavigationController stack.
+ *
+ * By default this class uses custom UITableViewCells which include an unread indicator, title text,
+ * summary text (when available), thumbnail image (when available), and created time text.
+ *
+ * Customization options:
+ * - Empty campaigns view, @see property emptyCampaignsView
+ * - Show UIActivityIndicatorView while loading campaigns, @see property showsActivityIndicatorView
+ * - UITableViewCells, override tableView:cellForRowAtIndexPath:
+ * - Full creative display, override tableView:didSelectRowAtIndexPath:, Note: You must also handle
+ *   setting the LLInboxCampaign to be read and checking the existense of the creativeUrl property of
+ *   the LLInboxCampaign object.
+ *
+ * @see LLInboxDetailViewController
+ */
+@interface LLInboxViewController : UIViewController <UITableViewDelegate, UITableViewDataSource, LLInboxCampaignsRefreshingDelegate>
+
+/**
+ * The UITableView that shows the inbox campaigns.
+ */
+@property (nonatomic, strong) UITableView *tableView;
+
+/**
+ * The UIView to show when there are no inbox campaigns to display.
+ *
+ * Note: All subviews of this view should include appropriate Auto Layout constraints because this
+ * view's leading edge, top edge, trailing edge, and bottom edge will be constrained to match 
+ * the main view in LLInboxViewController.
+ */
+@property (nonatomic, strong) UIView *emptyCampaignsView;
+
+/**
+ * Flag indicating whether a UIActivityIndicatorView should be shown will campaigns are loading.
+ */
+@property (nonatomic, assign) BOOL showsActivityIndicatorView;
+
+/**
+ * Flag indicating whether thumbnail images are automatically downloaded and loading into LLInboxThumbnailCell.
+ * Defaults to YES. Set this property to NO to manually manage thumbnail downloading and caching (such as through
+ * a 3rd party networking library).
+ */
+@property (nonatomic, assign) BOOL downloadsThumbnails;
+
+/**
+ * The font of the UITableViewCell textLabel. Default is 16 point system bold.
+ */
+@property (nonatomic, strong) UIFont *textLabelFont;
+
+/**
+ * The color of the UITableViewCell textLabel. Default is black.
+ */
+@property (nonatomic, strong) UIColor *textLabelColor;
+
+/**
+ * The font of the UITableViewCell detailTextLabel. Default is 14 point system.
+ */
+@property (nonatomic, strong) UIFont *detailTextLabelFont;
+
+/**
+ * The color of the UITableViewCell detailTextLabel. Default is black.
+ */
+@property (nonatomic, strong) UIColor *detailTextLabelColor;
+
+/**
+ * The font of the UITableViewCell timeTextLabel. Default is 10 point system.
+ */
+@property (nonatomic, strong) UIFont *timeTextLabelFont;
+
+/**
+ * The color of the UITableViewCell timeTextLabel. Default is gray.
+ */
+@property (nonatomic, strong) UIColor *timeTextLabelColor;
+
+/**
+ * The color of the UITableViewCell unread indicator. Default is #007AFF.
+ */
+@property (nonatomic, strong) UIColor *unreadIndicatorColor;
+
+/**
+ * The color of the UITablviewCell background
+ */
+@property (nonatomic, strong) UIColor *cellBackgroundColor;
+
+/**
+ * The UIView to show when a creative fails to load in a detail view. This property is used to set the
+ * creativeLoadErrorView of LLInboxDetailViewControllers created when the user opens a campaign.
+ * If this property is not set, a gray 'X' will be shown in the center of the view.
+ *
+ * Note: All subviews of this view should include appropriate Auto Layout constraints because this
+ * view's leading edge, top edge, trailing edge, and bottom edge will be constrained to match
+ * the main view in LLInboxDetailViewController.
+ */
+@property (nonatomic, strong) UIView *creativeLoadErrorView;
+
+/**
+ * Returns the inbox campaign for an index path (useful for overriding tableView:cellForRowAtIndexPath:)
+ *
+ * @return An LLInboxCampaign object for the index path.
+ */
+- (LLInboxCampaign *)campaignForRowAtIndexPath:(NSIndexPath *)indexPath;
+
+@end
+
+/**
+ * UIViewController class that displays an inbox campaign's full creative. This class also handles tagging
+ * impression events when a call to action is tapped within the creative or when the UIViewController is
+ * dismissed.
+ *
+ * Customization options:
+ * - Error view, @see errorView
+ *
+ * @see LLInboxViewController
+ */
+@interface LLInboxDetailViewController : UIViewController
+
+/**
+ * The inbox campaign being displayed
+ */
+@property (nonatomic, strong, readonly) LLInboxCampaign *campaign;
+
+/**
+ * The UIView to show when the full creative fails to load. If this property is not set, a gray 'X' will
+ * be shown in the center of the view.
+ *
+ * Note: All subviews of this view should include appropriate Auto Layout constraints because this
+ * view's leading edge, top edge, trailing edge, and bottom edge will be constrained to match
+ * the main view in LLInboxDetailViewController.
+ */
+@property (nonatomic, strong) UIView *creativeLoadErrorView;
 
 @end
