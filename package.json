@@ -1,0 +1,36 @@
+{
+  "name": "localytics-cordova",
+  "version": "3.8.0",
+  "description": "Localytics Plugin for Cordova/PhoneGap",
+  "cordova": {
+    "id": "com.localytics.phonegap.LocalyticsPlugin",
+    "platforms": [
+      "ios",
+      "android"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/localytics/localytics-cordova.git"
+  },
+  "keywords": [
+    "localytics",
+    "ecosystem:cordova",
+    "cordova-ios",
+    "cordova-android",
+    "analytics",
+    "push messaging"
+  ],
+  "engines": [
+    {
+      "name": "cordova",
+      "version": ">=3.0.0"
+    }
+  ],
+  "author": "Localytics",
+  "license": "SEE LICENSE IN 'LICENSE' file",
+  "bugs": {
+    "url": "https://github.com/localytics/localytics-cordova/issues"
+  },
+  "homepage": "https://Localytics.com"
+}
