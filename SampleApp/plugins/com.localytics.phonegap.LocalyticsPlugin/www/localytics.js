@@ -110,8 +110,8 @@ Localytics.prototype.isOptedOut = function (successCallback) {
  Localytics.prototype.deleteProfileAttribute = function (name, scope) {
 	cordova.exec(null, null, "LocalyticsPlugin", "deleteProfileAttribute", [name, scope]);
 }
- 
- 
+
+
 /*******************
  * User Information
  ******************/
@@ -156,6 +156,19 @@ Localytics.prototype.setLocation = function (latitude, longitude) {
 	cordova.exec(null, null, "LocalyticsPlugin", "setLocation", [latitude, longitude]);
 }
 
+// Gets a custom idenitifer
+// key = identifier name as a string
+// value = identifier value as a string
+Localytics.prototype.getIdentifier = function (key, successCallback) {
+	cordova.exec(successCallback, null, "LocalyticsPlugin", "getIdentifier", [key]);
+}
+
+// Get customer ID
+// successCallback = callback function for result
+Localytics.prototype.getCustomerId = function (successCallback) {
+	cordova.exec(successCallback, null, "LocalyticsPlugin", "getCustomerId", []);
+}
+
 /*******************
  * Marketing
  ******************/
@@ -163,6 +176,18 @@ Localytics.prototype.setLocation = function (latitude, longitude) {
 // successCallback = callback function for result
 Localytics.prototype.registerPush = function () {
 	cordova.exec(null, null, "LocalyticsPlugin", "registerPush", []);
+}
+
+// Sets the push token
+// pushToken = push token as a string
+Localytics.prototype.setPushToken = function (pushToken) {
+	cordova.exec(null, null, "LocalyticsPlugin", "setPushToken", [pushToken]);
+}
+
+// Gets the push token
+// successCallback = allback function for result
+Localytics.prototype.getPushToken = function (successCallback) {
+	cordova.exec(successCallback, null, "LocalyticsPlugin", "getPushToken", []);
 }
 
 // Toggles push disabled

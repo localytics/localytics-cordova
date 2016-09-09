@@ -18,8 +18,8 @@
                 <category android:name="com.localytics.sample" />
             </intent-filter>
         </receiver>
-        <meta-data android:name="LOCALYTICS_APP_KEY" android:value="YOUR_LOCALYTICS_APP_KEY" />
-        <meta-data android:name="com.localytics.android_push_sender_id" android:value="\ YOUR_SENDER_ID" />
+        <meta-data android:name="LOCALYTICS_APP_KEY" android:value="dcdf9cb70fff87655848357-8f7e9180-385a-11e4-a3d0-009c5fda0a25" />
+        <meta-data android:name="com.localytics.android_push_sender_id" android:value="\ 297912149290" />
     </application>
     <uses-sdk android:minSdkVersion="14" android:targetSdkVersion="22" />
     <uses-permission android:name="android.permission.VIBRATE" />
