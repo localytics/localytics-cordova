@@ -36,9 +36,14 @@
 - (void)setCustomerEmail:(CDVInvokedUrlCommand *)command;
 - (void)setLocation:(CDVInvokedUrlCommand *)command;
 
+- (void)getIdentifier:(CDVInvokedUrlCommand *)command;
+- (void)getCustomerId:(CDVInvokedUrlCommand *)command;
+
 - (void)registerPush:(CDVInvokedUrlCommand *)command;
 - (void)setPushDisabled:(CDVInvokedUrlCommand *)command;
 - (void)isPushDisabled:(CDVInvokedUrlCommand *)command;
+- (void)setPushToken:(CDVInvokedUrlCommand *)command;
+- (void)getPushToken:(CDVInvokedUrlCommand *)command;
 - (void)setTestModeEnabled:(CDVInvokedUrlCommand *)command;
 - (void)isTestModeEnabled:(CDVInvokedUrlCommand *)command;
 - (void)setInAppMessageDismissButtonImageWithName:(CDVInvokedUrlCommand *)command;

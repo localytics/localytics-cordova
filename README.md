@@ -3,7 +3,7 @@ Localytics for PhoneGap/Cordova
 
 ## Version
 
-This version of the PhoneGap/Cordova SDK wraps v3.8.2 of the Localytics Andriod and v3.8.0 of the Localytics iOS SDKs
+This version of the PhoneGap/Cordova SDK wraps v3.8.2 of the Localytics Android and v3.8.0 of the Localytics iOS SDKs
 
 ## Supported Versions
 

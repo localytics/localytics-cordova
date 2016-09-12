@@ -23,9 +23,9 @@ BOOL MethodSwizzle(Class clazz, SEL originalSelector, SEL overrideSelector)
     // Code by example from http://nshipster.com/method-swizzling/
     Method originalMethod = class_getInstanceMethod(clazz, originalSelector);
     Method overrideMethod = class_getInstanceMethod(clazz, overrideSelector);
-    
+
     if (class_addMethod(clazz, originalSelector, method_getImplementation(overrideMethod), method_getTypeEncoding(overrideMethod))) {
-        
+
         class_replaceMethod(clazz, overrideSelector, method_getImplementation(originalMethod), method_getTypeEncoding(originalMethod));
         return NO;
     } else {
@@ -55,7 +55,7 @@ BOOL MethodSwizzle(Class clazz, SEL originalSelector, SEL overrideSelector)
 {
     [Localytics handlePushNotificationOpened:userInfo];
     completionHandler(UIBackgroundFetchResultNoData);
-    
+
     if (localyticsDidReceiveRemoteNotificationSwizzled) {
         [self localytics_swizzled_Application:application didReceiveRemoteNotification:userInfo fetchCompletionHandler:completionHandler];
     }
@@ -144,7 +144,7 @@ static NSDictionary* launchOptions;
     } else {
         appKey = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"LocalyticsAppKey"];
     }
-    
+
     if (appKey) {
         localyticsIsAutoIntegrate = YES;
         [Localytics autoIntegrate:appKey launchOptions: launchOptions];
@@ -172,7 +172,7 @@ static NSDictionary* launchOptions;
         NSString *eventName = [command argumentAtIndex:0];
         NSDictionary *attributes = [command argumentAtIndex:1];
         NSNumber *customerValueIncrease = [command argumentAtIndex:2];
-        
+
         if (eventName && [eventName isKindOfClass:[NSString class]] && [eventName length] > 0 &&
             customerValueIncrease && [customerValueIncrease isKindOfClass:[NSNumber class]]) {
             [Localytics tagEvent:eventName attributes:attributes customerValueIncrease:customerValueIncrease];
@@ -199,7 +199,7 @@ static NSDictionary* launchOptions;
     [self.commandDelegate runInBackground:^{
         NSNumber *dimension = [command argumentAtIndex:0];
         NSString *value = [Localytics valueForCustomDimension: [dimension intValue]];
-        
+
         CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:value];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }];
@@ -228,29 +228,29 @@ static NSDictionary* launchOptions;
     if (attribute && [attribute length] > 0) {
         NSObject<NSCopying> *value = [command argumentAtIndex:1];
         NSUInteger scope = [self getProfileScope:[command argumentAtIndex:2]];
-        
+
         [Localytics setValue:value forProfileAttribute:attribute withScope:scope];
     }
 }
 
 - (void)addProfileAttributesToSet:(CDVInvokedUrlCommand *)command {
     NSString *attribute = [command argumentAtIndex:0];
-    
+
     if (attribute && [attribute length] > 0) {
         NSArray *values = [command argumentAtIndex:1];
         NSUInteger scope = [self getProfileScope:[command argumentAtIndex:2]];
-        
+
         [Localytics addValues:values toSetForProfileAttribute:attribute withScope:scope];
     }
 }
 
 - (void)removeProfileAttributesFromSet:(CDVInvokedUrlCommand *)command {
     NSString *attribute = [command argumentAtIndex:0];
-    
+
     if (attribute && [attribute length] > 0) {
         NSArray *values = [command argumentAtIndex:1];
         NSUInteger scope = [self getProfileScope:[command argumentAtIndex:2]];
-        
+
         [Localytics removeValues:values fromSetForProfileAttribute:attribute withScope:scope];
     }
 }
@@ -260,10 +260,10 @@ static NSDictionary* launchOptions;
     if (attribute && [attribute length] > 0) {
         NSInteger value = [[command argumentAtIndex:1 withDefault:0] intValue];
         NSUInteger scope = [self getProfileScope:[command argumentAtIndex:2]];
-        
+
         [Localytics incrementValueBy:value forProfileAttribute:attribute withScope:scope];
     }
-    
+
 }
 
 - (void)decrementProfileAttribute:(CDVInvokedUrlCommand *)command {
@@ -271,7 +271,7 @@ static NSDictionary* launchOptions;
     if (attribute && [attribute length] > 0) {
         NSInteger value = [[command argumentAtIndex:1 withDefault:0] intValue];
         NSUInteger scope = [self getProfileScope:[command argumentAtIndex:2]];
-        
+
         [Localytics decrementValueBy:value forProfileAttribute:attribute withScope:scope];
     }
 }
@@ -280,7 +280,7 @@ static NSDictionary* launchOptions;
     NSString *attribute = [command argumentAtIndex:0];
     if (attribute && [attribute length] > 0) {
         NSUInteger scope = [self getProfileScope:[command argumentAtIndex:1]];
-        
+
         [Localytics deleteProfileAttribute:attribute withScope:scope];
     }
 }
@@ -332,6 +332,23 @@ static NSDictionary* launchOptions;
     }
 }
 
+- (void)getIdentifier:(CDVInvokedUrlCommand *)command {
+    [self.commandDelegate runInBackground:^{
+        NSNumber *identifier = [command argumentAtIndex:0];
+        NSString *value = [Localytics valueForIdentifier:identifier];
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:value];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    }];
+}
+
+- (void)getCustomerId:(CDVInvokedUrlCommand *)command {
+    [self.commandDelegate runInBackground:^{
+        NSString *value = [Localytics customerId];
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:value];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    }];
+}
+
 
 #pragma mark Marketing
 
@@ -351,6 +368,32 @@ static NSDictionary* launchOptions;
 }
 - (void)isPushDisabled:(CDVInvokedUrlCommand *)command {
     // No-Op
+}
+
+- (void)setPushToken:(CDVInvokedUrlCommand *)command {
+    NSString *pushToken = [command argumentAtIndex:0];
+    if (pushToken) {
+        if (pushToken.length % 2) {
+            pushToken = [NSString stringWithFormat:@"0%@", pushToken];
+        }
+        NSMutableData *deviceToken = [NSMutableData data];
+        for (int i = 0; i < pushToken.length; i += 2) {
+            unsigned value;
+            NSScanner *scanner = [NSScanner scannerWithString:[pushToken substringWithRange:NSMakeRange(i, 2)]];
+            [scanner scanHexInt:&value];
+            uint8_t byte = value;
+            [deviceToken appendBytes:&byte length:1];
+        }
+        [Localytics setPushToken:deviceToken];
+    }
+}
+
+- (void)getPushToken:(CDVInvokedUrlCommand *)command {
+    [self.commandDelegate runInBackground:^{
+        NSString *value = [Localytics pushToken];
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:value];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    }];
 }
 
 - (void)setTestModeEnabled:(CDVInvokedUrlCommand *)command {

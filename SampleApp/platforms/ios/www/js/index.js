@@ -19,7 +19,7 @@
 var app = {
 
     enableLogging: false,
-    
+
     // Application Constructor
     initialize: function() {
         this.bindEvents();
@@ -29,41 +29,41 @@ var app = {
     // Bind any events that are required on startup. Common events are:
     // 'load', 'deviceready', 'offline', and 'online'.
     bindEvents: function() {
-        document.addEventListener('deviceready', this.onDeviceReady, false);        
+        document.addEventListener('deviceready', this.onDeviceReady, false);
     },
-   
+
     onDeviceReady: function() {
         Localytics.setLoggingEnabled(true);
-        
+
         document.getElementById("btnIntegrate").addEventListener("click", app.onIntegrate);
         document.getElementById("btnAutoIntegrate").addEventListener("click", app.onAutoIntegrate);
 
         app.outputDebug(' onDeviceReady ');
     },
-    
+
     onIntegrate: function () {
         document.addEventListener("resume", app.onResume, false);
         document.addEventListener("pause", app.onPause, false);
         Localytics.integrate();
-        Localytics.openSession();                
+        Localytics.openSession();
         Localytics.upload();
-        
+
         app.onIntegrationComplete();
     },
-    
+
     onAutoIntegrate: function () {
         Localytics.autoIntegrate();
-        Localytics.openSession();                
-        
+        Localytics.openSession();
+
         app.onIntegrationComplete();
     },
-    
+
     onIntegrationComplete: function() {
         document.getElementById("integrationContainer").style["display"] = "none"
         document.getElementById("controlContainer").style["display"] = ""
         app.setupListeners();
     },
-    
+
     setupListeners: function() {
         document.getElementById("btnTagEvent").addEventListener("click", app.onTagEvent);
         document.getElementById("btnTagScreen").addEventListener("click", app.onTagScreen);
@@ -71,14 +71,14 @@ var app = {
         document.getElementById("btnGetCustomDimension").addEventListener("click", app.onGetCustomDimension);
         document.getElementById("btnSetOptedOut").addEventListener("click", app.onOptedOutAction);
         document.getElementById("btnGetOptedOut").addEventListener("click", app.onOptedOutAction);
-        
+
         document.getElementById("btnSetProfile").addEventListener("click", app.onProfileAction);
         document.getElementById("btnDeleteProfile").addEventListener("click", app.onProfileAction);
         document.getElementById("btnAddToSetProfile").addEventListener("click", app.onProfileAction);
         document.getElementById("btnRemoveFromSetProfile").addEventListener("click", app.onProfileAction);
         document.getElementById("btnIncrementProfile").addEventListener("click", app.onProfileAction);
         document.getElementById("btnDecrementProfile").addEventListener("click", app.onProfileAction);
-        
+
         document.getElementById("btnSetIdentifier").addEventListener("click", app.onUserInfoAction);
         document.getElementById("btnSetCustomerId").addEventListener("click", app.onUserInfoAction);
         document.getElementById("btnSetCustomerFullName").addEventListener("click", app.onUserInfoAction);
@@ -86,17 +86,21 @@ var app = {
         document.getElementById("btnSetCustomerLastName").addEventListener("click", app.onUserInfoAction);
         document.getElementById("btnSetCustomerEmail").addEventListener("click", app.onUserInfoAction);
         document.getElementById("btnSetLocation").addEventListener("click", app.onUserInfoAction);
+        document.getElementById("btnGetIdentifier").addEventListener("click", app.onUserInfoAction);
+        document.getElementById("btnGetCustomerId").addEventListener("click", app.onUserInfoAction);
 
         document.getElementById("btnRegisterPush").addEventListener("click", app.onRegisterPush);
         document.getElementById("btnSetPushDisabled").addEventListener("click", app.onPushDisabledAction);
         document.getElementById("btnGetPushDisabled").addEventListener("click", app.onPushDisabledAction);
+        document.getElementById("btnSetPushToken").addEventListener("click", app.onPushTokenAction);
+        document.getElementById("btnGetPushToken").addEventListener("click", app.onPushTokenAction);
         document.getElementById("btnSetTestModeEnabled").addEventListener("click", app.onTestModeEnabledAction);
         document.getElementById("btnGetTestModeEnabled").addEventListener("click", app.onTestModeEnabledAction);
         document.getElementById("btnSetDismissButtonImageName").addEventListener("click", app.onMarketingAction);
         document.getElementById("btnSetDismissButtonLocation").addEventListener("click", app.onMarketingAction);
         document.getElementById("btnGetDismissButtonLocation").addEventListener("click", app.onMarketingAction);
         document.getElementById("btnTriggerInApp").addEventListener("click", app.onMarketingAction);
-        
+
         document.getElementById("btnSetLoggingEnabled").addEventListener("click", app.onLoggingEnabledAction);
         document.getElementById("btnGetLoggingEnabled").addEventListener("click", app.onLoggingEnabledAction);
         document.getElementById("btnSetSessionTimeout").addEventListener("click", app.onSessionTimeoutAction);
@@ -104,12 +108,12 @@ var app = {
         document.getElementById("btnGetInstallId").addEventListener("click", app.onGetInstallId);
         document.getElementById("btnGetAppKey").addEventListener("click", app.onGetAppKey);
         document.getElementById("btnGetLibraryVersion").addEventListener("click", app.onGetLibraryVersion);
-        
+
         document.getElementById("btnOpenSession").addEventListener("click", app.onOpenSession);
         document.getElementById("btnCloseSession").addEventListener("click", app.onCloseSession);
         document.getElementById("btnUpload").addEventListener("click", app.onUpload);
     },
-    
+
     onResume: function () {
     	Localytics.dismissCurrentInAppMessage();
         Localytics.openSession();
@@ -122,28 +126,28 @@ var app = {
         Localytics.upload();
         app.outputDebug(' onPause ');
     },
-    
+
     onTagEvent: function (ev) {
         var list = document.getElementById("listEvents");
         var selectedItem = list.options[list.selectedIndex].text;
         Localytics.tagEvent(selectedItem, { "Click Origin" : "Cordova" }, 0);
         app.outputDebug(' tagEvent: ' +selectedItem+ ' ');
     },
-    
+
     onTagScreen: function (ev) {
         var list = document.getElementById("listScreens");
         var selectedItem = list.options[list.selectedIndex].text;
         Localytics.tagScreen(selectedItem);
         app.outputDebug(' tagScreen: ' +selectedItem+ ' ');
     },
-    
+
     onSetCustomDimension: function (ev) {
         var list = document.getElementById("listCustomDimensions");
         var value = document.getElementById("inputCustomDimension").value || null;
         Localytics.setCustomDimension(list.selectedIndex, value);
         app.outputDebug(' setCustomDimension: ' +list.selectedIndex+ ', value: '+value+' ');
     },
-    
+
     onGetCustomDimension: function (ev) {
         var list = document.getElementById("listCustomDimensions");
         var outputElement = document.getElementById("outputCustomDimension");
@@ -153,10 +157,10 @@ var app = {
                 outputElement.value = value || "no value";
                 app.outputDebug(' getCustomDimension: value - '+value+' ');
             });
-        
+
         app.outputDebug(' getCustomDimension: ' +list.selectedIndex+ ' ');
     },
-    
+
     onOptedOutAction: function (ev) {
         if (ev.currentTarget) {
             var targetId = ev.currentTarget.id;
@@ -173,7 +177,7 @@ var app = {
             }
         }
     },
-    
+
     onProfileAction: function (ev) {
         if (ev.currentTarget) {
             var targetId = ev.currentTarget.id;
@@ -181,7 +185,7 @@ var app = {
             var value = document.getElementById("inputProfileAttributeValue").value || null;
             var scope = document.getElementById("inputProfileAttributeScope").value;
             var increment = document.getElementById("inputProfileAttributeIncrementValue").value;
-            
+
             var generateProfileSet = function () {
                 var setListType = document.getElementById("listProfileSetType");
                 var setListLength = document.getElementById("listProfileSetLength");
@@ -194,19 +198,19 @@ var app = {
                     result = [new Date(), new Date(), new Date(), new Date()];
                 else
                     result = [1, 2, 3, 4];
-                        
+
                 result.length = length;
-                
+
                 console.log(result);
                 return result;
             };
-            
+
 
             //app.outputDebug(' onProfileAction: ' +targetId+ ', attr: ' +attribute+', val: ' +value+', scope: ' +scope+', inc: ' +increment+ ' ');
 
             if (!attribute)
                 return;
-            
+
             switch (targetId) {
                 case "btnSetProfile":
                     Localytics.setProfileAttribute(attribute, value, scope);
@@ -233,13 +237,13 @@ var app = {
             }
         }
     },
-    
+
     onUserInfoAction: function (ev) {
         if (ev.currentTarget) {
             var targetId = ev.currentTarget.id;
 
             var logString = "target: " + targetId;
-            
+
             var value = null;
             switch (targetId) {
                 case "btnSetIdentifier":
@@ -273,19 +277,40 @@ var app = {
                     Localytics.setCustomerEmail(value);
                     logString += ", value: " + value + ", function: setCustomerEmail";
                     break;
-            	case "btnSetLocation":
-            		var latitude = document.getElementById("inputLocationLatitude").value;
-            		var longitude = document.getElementById("inputLocationLongitude").value;
-            		Localytics.setLocation(latitude, longitude);
+              	case "btnSetLocation":
+                    var latitude = document.getElementById("inputLocationLatitude").value;
+                    var longitude = document.getElementById("inputLocationLongitude").value;
+                    Localytics.setLocation(latitude, longitude);
+                    logString += ", location: (" + latitude + ", " + longitude + "), function: setLocation";
+                    break;
+                case "btnGetIdentifier":
+                    var key = document.getElementById("outputIdentifierKey").value;
+                    var outputElement = document.getElementById("outputIdentifierValue");
+                    Localytics.getIdentifier(key,
+                        function success(value) {
+                            outputElement.value = value || "no value";
+                            app.outputDebug(' getIdentifier: value - ' + value + ' ');
+                        });
+                    logString += ", key: " + key + ", function: getIdentifier";
+                    break;
+                case "btnGetCustomerId":
+                    var outputElement = document.getElementById("outputCustomerId");
+                    Localytics.getCustomerId(
+                        function success(value) {
+                            outputElement.value = value;
+                            app.outputDebug(' getCustomerId: value - ' + value + ' ');
+                        });
+                    logString += ", function: getCustomerId";
+                    break;
                 default:
                     app.outputDebug(' onUserInfoAction: no match ');
                     return;
                     break;
             }
-            app.outputDebug(' onUserInfoAction: ' +logString+ ' ')
+            app.outputDebug(' onUserInfoAction: ' + logString + ' ')
         }
     },
-    
+
     onLoggingEnabledAction: function (ev) {
         if (ev.currentTarget) {
             var targetId = ev.currentTarget.id;
@@ -302,7 +327,7 @@ var app = {
             }
         }
     },
-    
+
     onSessionTimeoutAction: function (ev) {
         if (ev.currentTarget) {
             var targetId = ev.currentTarget.id;
@@ -318,11 +343,11 @@ var app = {
             }
         }
     },
-    
+
     onRegisterPush: function (ev) {
         Localytics.registerPush();
     },
-    
+
     onPushDisabledAction: function (ev) {
         if (ev.currentTarget) {
             var targetId = ev.currentTarget.id;
@@ -339,6 +364,23 @@ var app = {
             }
         }
     },
+
+    onPushTokenAction: function (ev) {
+        if (ev.currentTarget) {
+            var targetId = ev.currentTarget.id;
+            if (targetId == "btnSetPushToken") {
+                var value = document.getElementById("inputPushToken").value || null;
+                Localytics.setPushToken(value);
+            } else {
+                var outputElement = document.getElementById("outputPushToken");
+                Localytics.getPushToken(
+                    function success(result) {
+                        outputElement.value = result;
+                    });
+            }
+        }
+    },
+
     onTestModeEnabledAction: function (ev) {
         if (ev.currentTarget) {
             var targetId = ev.currentTarget.id;
@@ -385,7 +427,7 @@ var app = {
         }
     },
 
-    
+
     onGetInstallId: function (ev) {
         var outputElement = document.getElementById("outputInstallId");
         Localytics.getInstallId(
@@ -393,7 +435,7 @@ var app = {
                 outputElement.value = result;
             });
     },
-    
+
     onGetAppKey: function (ev) {
         var outputElement = document.getElementById("outputAppKey");
         Localytics.getAppKey(
@@ -401,7 +443,7 @@ var app = {
                 outputElement.value = result;
             });
     },
-    
+
     onGetLibraryVersion: function (ev) {
         var outputElement = document.getElementById("outputLibraryVersion");
         Localytics.getLibraryVersion(
@@ -409,24 +451,24 @@ var app = {
                 outputElement.value = result;
             });
     },
-    
+
     onOpenSession: function (ev) {
         Localytics.openSession();
         Localytics.upload();
         app.outputDebug(' openSession ');
     },
-    
+
     onCloseSession: function (ev) {
         Localytics.closeSession();
         Localytics.upload();
         app.outputDebug(' closeSession ');
     },
- 
+
     onUpload: function (ev) {
         Localytics.upload();
         app.outputDebug(' upload ');
     },
-    
+
     outputDebug: function (message) {
         if (app.enableLogging) {
             console.log("************** " +message+" **************");
