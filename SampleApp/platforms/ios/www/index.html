@@ -38,7 +38,7 @@
     <body>
         <div class="app">
             <h1>Localytics Debug</h1>
-            
+
             <br>
             <div id="integrationContainer" class="integration_container">
             <div class="label">Integration</div>
@@ -49,8 +49,8 @@
             	<div class="versionLabel">v2015.10.13</div>
             	<br><br>
             </div>
-            
-            <div id="controlContainer" class="control_container" style="display:none;"> 
+
+            <div id="controlContainer" class="control_container" style="display:none;">
             <br>
             <div class="label">Tagging</div>
                 <button id="btnTagEvent" class="localytics_button tag_event">Tag Event</button>
@@ -102,8 +102,8 @@
                 <button id="btnGetOptedOut" class="localytics_button get_opted_out">Get</button>
                 <hr class="hr_break">
             <br><br>
-            
-            
+
+
             <div class="label">Profile Attributes</div>
             <form>
                 attribute: <input id="inputProfileAttribute" type="text" value="attribute"><br>
@@ -137,13 +137,13 @@
             <hr class="hr_break">
             <br><br>
 
-            
-            <div class="label">User Info</div>
+
+            <div class="label">User Info (Set)</div>
                 key: <input id="inputIdentifierKey" type="text" value="key1" style="width:40px">
                 value: <input id="inputIdentifierValue" type="text" value="value1" style="width:40px">
                 <button id="btnSetIdentifier" class="localytics_button set_identifier">Set Identifier</button>
                 <hr class="hr_break">
-            
+
                 <input id="inputCustomerId" type="text" value="customerId">
                 <button id="btnSetCustomerId" class="localytics_button set_identifier">Set Customer Id</button>
                 <hr class="hr_break">
@@ -164,7 +164,18 @@
                 <button id="btnSetLocation" class="localytics_button set_location">Set Location</button>
                 <hr class="hr_break">
             <br><br>
-            
+
+            <div class="label">User Info (Get)</div>
+                key: <input id="outputIdentifierKey" type="text" value="key1" style="width:40px">
+                value: <input id="outputIdentifierValue" type="text" value="" readonly><br>
+                <button id="btnGetIdentifier" class="localytics_button get_identifier">Get Identifier</button>
+                <hr class="hr_break">
+
+                <input id="outputCustomerId" type="text" value="" readonly>
+                <button id="btnGetCustomerId" class="localytics_button get_customer_id">Get Customer Id</button>
+                <hr class="hr_break">
+            <br><br>
+
             <div class="label">Marketing</div>
                 Register Push:
                 <button id="btnRegisterPush" class="localytics_button register_push">Register</button>
@@ -178,6 +189,12 @@
                 <hr class="hr_break">
                 output (Android): <input id="outputPushDisabled" type="text" value="" readonly><br>
                 <button id="btnGetPushDisabled" class="localytics_button get_push_disabled">Get</button>
+                <hr class="hr_break">
+                Push Token: <input id="inputPushToken" type="text" value=""><br>
+                <button id="btnSetPushToken" class="localytics_button set_push_token">Set</button>
+                <hr class="hr_break">
+                output: <input id="outputPushToken" type="text" value="" readonly><br>
+                <button id="btnGetPushToken" class="localytics_button get_push_token">Get</button>
                 <hr class="hr_break">
                 Test Mode Toggle:
                 <select id="listTestMode">
@@ -211,7 +228,7 @@
                 <button id="btnTriggerInApp" class="localytics_button trigger_inapp_button">Trigger In-App Message</button>
                 <hr class="hr_break">
             <br><br>
-            
+
             <div class="label">Development</div>
                 Logging Toggle:
                 <select id="listLoggingEnabled">
@@ -239,7 +256,7 @@
                 <button id="btnGetLibraryVersion" class="localytics_button get_library_version">Get</button>
                 <hr class="hr_break">
             <br><br>
-            
+
             <br><br>
             <div class="label">Sessions</div>
             <button id="btnOpenSession" class="localytics_button open_session">Open</button>
