@@ -340,6 +340,15 @@ public class LocalyticsPlugin extends CordovaPlugin {
                 callbackContext.error("Expected two arguments.");
             }
             return true;
+        } else if (action.equals("getIdentifier")) {
+            final String key = args.getString(0);
+            cordova.getThreadPool().execute(new Runnable() {
+                public void run() {
+                    String value = Localytics.getIdentifier(key);
+                    callbackContext.success(value);
+                }
+            });
+            return true;
         } else if (action.equals("setCustomerId")) {
             String id = null;
             if (!args.isNull(0)) {
@@ -347,6 +356,14 @@ public class LocalyticsPlugin extends CordovaPlugin {
             }
             Localytics.setCustomerId(id);
             callbackContext.success();
+            return true;
+        } else if (action.equals("getCustomerId")) {
+            cordova.getThreadPool().execute(new Runnable() {
+                public void run() {
+                    String result = Localytics.getCustomerId();
+                    callbackContext.success(result);
+                }
+            });
             return true;
         } else if (action.equals("setCustomerFullName")) {
             String fullName = null;
@@ -383,11 +400,11 @@ public class LocalyticsPlugin extends CordovaPlugin {
         } else if (action.equals("setLocation")) {
             if (args.length() == 2) {
                 Location location = new Location("");
-				location.setLatitude(args.getDouble(0));
-				location.setLongitude(args.getDouble(1));
-				
-            	Localytics.setLocation(location);
-            	callbackContext.success();
+                location.setLatitude(args.getDouble(0));
+                location.setLongitude(args.getDouble(1));
+
+                Localytics.setLocation(location);
+                callbackContext.success();
             } else {
                 callbackContext.error("Expected two arguments.");
             }
@@ -406,6 +423,22 @@ public class LocalyticsPlugin extends CordovaPlugin {
 
             Localytics.registerPush(senderId);
             callbackContext.success();
+            return true;
+        } else if (action.equals("setPushToken")) {
+            String registrationId = null;
+            if (!args.isNull(0)) {
+                registrationId = args.getString(0);
+            }
+            Localytics.setPushRegistrationId(registrationId);
+            callbackContext.success();
+            return true;
+        } else if (action.equals("getPushToken")) {
+            cordova.getThreadPool().execute(new Runnable() {
+                public void run() {
+                    String result = Localytics.getPushRegistrationId();
+                    callbackContext.success(result);
+                }
+            });
             return true;
         } else if (action.equals("setPushDisabled")) {
             boolean enabled = args.getBoolean(0);
@@ -489,7 +522,7 @@ public class LocalyticsPlugin extends CordovaPlugin {
                     callbackContext.success(result);
                 }
             });
-            
+
             return true;
         } else if (action.equals("getLibraryVersion")) {
             cordova.getThreadPool().execute(new Runnable() {
