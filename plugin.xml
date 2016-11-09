@@ -50,6 +50,7 @@
         <source-file src="src/android/localytics.jar" target-dir="libs/" />
         <source-file src="src/android/LocalyticsPlugin.java" target-dir="src/com/localytics/phonegap/" />
 
+        <framework src="src/android/localytics.gradle" custom="true" type="gradleReference" />
         <framework src="com.android.support:support-v4:+" />
         <framework src="com.google.android.gms:play-services-gcm:+" />
         <framework src="com.google.android.gms:play-services-ads:+" />
