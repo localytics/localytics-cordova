@@ -1,6 +1,6 @@
 {
   "name": "localytics-cordova",
-  "version": "3.8.3",
+  "version": "3.9.0",
   "description": "Localytics Plugin for Cordova/PhoneGap",
   "cordova": {
     "id": "com.localytics.phonegap.LocalyticsPlugin",
@@ -21,12 +21,10 @@
     "analytics",
     "push messaging"
   ],
-  "engines": [
-    {
-      "name": "cordova",
-      "version": ">=3.0.0"
-    }
-  ],
+  "engines": [{
+    "name": "cordova",
+    "version": ">=3.0.0"
+  }],
   "author": "Localytics",
   "license": "SEE LICENSE IN 'LICENSE' file",
   "bugs": {
