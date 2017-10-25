@@ -144,7 +144,7 @@ AndroidManifest.prototype.setDebuggable = function(value) {
 };
 
 /**
- * Writes manifest to disk syncronously. If filename is specified, then manifest
+ * Writes manifest to disk synchronously. If filename is specified, then manifest
  *   will be written to that file
  *
  * @param   {String}  [destPath]  File to write manifest to. If omitted,

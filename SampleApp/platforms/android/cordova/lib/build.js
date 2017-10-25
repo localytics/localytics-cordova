@@ -82,7 +82,7 @@ function parseOpts(options, resolvedTarget, projectRoot) {
     var buildConfig = options.buildConfig;
 
     // If some values are not specified as command line arguments - use build config to supplement them.
-    // Command line arguemnts have precedence over build config.
+    // Command line arguments have precedence over build config.
     if (buildConfig) {
         if (!fs.existsSync(buildConfig)) {
             throw new Error('Specified build config file does not exist: ' + buildConfig);
@@ -122,7 +122,7 @@ function parseOpts(options, resolvedTarget, projectRoot) {
 }
 
 /*
- * Builds the project with the specifed options
+ * Builds the project with the specified options
  * Returns a promise.
  */
 module.exports.runClean = function(options) {
@@ -135,7 +135,7 @@ module.exports.runClean = function(options) {
 };
 
 /**
- * Builds the project with the specifed options.
+ * Builds the project with the specified options.
  *
  * @param   {BuildOptions}  options      A set of options. See PlatformApi.build
  *   method documentation for reference.
