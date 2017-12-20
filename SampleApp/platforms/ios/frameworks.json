@@ -1,7 +1,0 @@
-{
-    "libsqlite3.dylib": 1,
-    "libz.dylib": 1,
-    "SystemConfiguration.framework": 1,
-    "AdSupport.framework": 1,
-    "CoreLocation.framework": 1
-}
