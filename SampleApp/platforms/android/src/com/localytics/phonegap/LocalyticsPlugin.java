@@ -360,8 +360,8 @@ public class LocalyticsPlugin extends CordovaPlugin {
         } else if (action.equals("getCustomerId")) {
             cordova.getThreadPool().execute(new Runnable() {
                 public void run() {
-                    String result = Localytics.getCustomerId();
-                    callbackContext.success(result);
+                    String customerId = Localytics.getCustomerId();
+                    callbackContext.success(customerId);
                 }
             });
             return true;

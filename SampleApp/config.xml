@@ -9,10 +9,10 @@
     </author>
     <content src="index.html" />
     <feature name="Device">
-        <param name="ios-package" value="CDVDevice"/>
+        <param name="ios-package" value="CDVDevice" />
     </feature>
     <feature name="LocalyticsPlugin">
-        <param name="ios-package" value="LocalyticsPlugin"/>
+        <param name="ios-package" value="LocalyticsPlugin" />
     </feature>
     <access origin="*" />
     <allow-intent href="http://*/*" />
@@ -28,4 +28,6 @@
         <allow-intent href="itms:*" />
         <allow-intent href="itms-apps:*" />
     </platform>
+    <engine name="android" spec="~6.3.0" />
+    <engine name="ios" spec="^4.5.4" />
 </widget>
