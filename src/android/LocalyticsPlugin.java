@@ -60,9 +60,9 @@ public class LocalyticsPlugin extends CordovaPlugin {
     private final SparseArray<PushCampaign> pushCampaignCache = new SparseArray<PushCampaign>();
     private final SparseArray<PlacesCampaign> placesCampaignCache = new SparseArray<PlacesCampaign>();
 
-    private LLAnalyticsListener analyticsListener;
-    private LLLocationListener locationListener;
-    private LLMessagingListener messagingListener;
+    private CDAnalyticsListener analyticsListener;
+    private CDLocationListener locationListener;
+    private CDMessagingListener messagingListener;
 
     @Override
     public void initialize(CordovaInterface cordova, CordovaWebView webView) {
@@ -327,10 +327,10 @@ public class LocalyticsPlugin extends CordovaPlugin {
         } else if (action.equals("tagPlacesPushOpened")) {
             if (args.length() == 2) {
                 int campaignId = args.getInt(0);
-                String impressionType = optString(args, 1);
+                String action = optString(args, 1);
                 PlacesCampaign campaign = placesCampaignCache.get(campaignId);
                 if (campaign != null) {
-                    Localytics.tagPlacesPushOpened(campaign, impressionType);
+                    Localytics.tagPlacesPushOpened(campaign, action);
                     callbackContext.success();
                 } else {
                     callbackContext.error("Campaign not cached. Use setMessagingListener to ensure caching.");
@@ -368,7 +368,7 @@ public class LocalyticsPlugin extends CordovaPlugin {
             });
             return true;
         } else if (action.equals("setAnalyticsListener")) {
-            analyticsListener = new LLAnalyticsListener(callbackContext);
+            analyticsListener = new CDAnalyticsListener(callbackContext);
             Localytics.setAnalyticsListener(analyticsListener);
             return true;
         } else if (action.equals("removeAnalyticsListener")) {
@@ -746,6 +746,12 @@ public class LocalyticsPlugin extends CordovaPlugin {
                 callbackContext.error("Call setMessagingListener before setting configuration.");
             }
             return true;
+        } else if (action.equals("isInAppAdIdParameterEnabled")) {
+            //No-op (iOS only)
+            return true;
+        } else if (action.equals("setInAppAdIdParameterEnabled")) {
+            //No-op (iOS only)
+            return true;
         } else if (action.equals("getInboxCampaigns")) {
             cordova.getThreadPool().execute(new Runnable() {
                 public void run() {
@@ -869,7 +875,7 @@ public class LocalyticsPlugin extends CordovaPlugin {
             }
             return true;
         } else if (action.equals("setMessagingListener")) {
-            messagingListener = new LLMessagingListener(callbackContext, inAppCampaignCache, pushCampaignCache, placesCampaignCache);
+            messagingListener = new CDMessagingListener(callbackContext, inAppCampaignCache, pushCampaignCache, placesCampaignCache);
             Localytics.setMessagingListener(messagingListener);
             return true;
         } else if (action.equals("removeMessagingListener")) {
@@ -920,7 +926,7 @@ public class LocalyticsPlugin extends CordovaPlugin {
             }
             return true;
         } else if (action.equals("setLocationListener")) {
-            locationListener = new LLLocationListener(callbackContext);
+            locationListener = new CDLocationListener(callbackContext);
             Localytics.setLocationListener(locationListener);
             return true;
         } else if (action.equals("removeLocationListener")) {

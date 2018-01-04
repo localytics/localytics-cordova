@@ -184,8 +184,9 @@ Localytics.prototype.tagInboxImpression = function (campaignId, action) {
 
 // A standard event to tag a Push to Inbox impression
 // campaignId = The Inbox campaign ID for which to tag an impression
-Localytics.prototype.tagPushToInboxImpression = function (campaignId) {
-	cordova.exec(null, null, "LocalyticsPlugin", "tagPushToInboxImpression", [campaignId]);
+// success = Whether or not the deep link was successful (iOS only)
+Localytics.prototype.tagPushToInboxImpression = function (campaignId, success) {
+	cordova.exec(null, null, "LocalyticsPlugin", "tagPushToInboxImpression", [campaignId, success]);
 }
 
 // A standard event to tag a Places Push Received
@@ -196,6 +197,8 @@ Localytics.prototype.tagPlacesPushReceived = function (campaignId) {
 
 // A standard event to tag a Places Push Opened
 // campaignId = The Places campaign ID for which to tag an event
+// action = The title of the button that was pressed. This property will be passed
+// as the value of the 'Action' attribute ('Click' will be used if null).
 Localytics.prototype.tagPlacesPushOpened = function (campaignId, action) {
 	cordova.exec(null, null, "LocalyticsPlugin", "tagPlacesPushOpened", [campaignId, action]);
 }
@@ -366,19 +369,19 @@ Localytics.prototype.getPushToken = function (successCallback) {
 	cordova.exec(successCallback, null, "LocalyticsPlugin", "getPushToken", []);
 }
 
-// Toggles push disabled
+// Android only: Toggles push disabled
 // enabled = boolean
 Localytics.prototype.setNotificationsDisabled = function (disabled) {
 	cordova.exec(null, null, "LocalyticsPlugin", "setNotificationsDisabled", [disabled]);
 }
 
-// Gets push status
+// Android only: Gets push status
 // successCallback = callback function for result
 Localytics.prototype.areNotificationsDisabled = function (successCallback) {
 	cordova.exec(successCallback, null, "LocalyticsPlugin", "areNotificationsDisabled", []);
 }
 
-// Set the default Localytics notification channel and description
+// Android only: Set the default Localytics notification channel and description
 // name = The name of the default notification channel
 // description = The description of the default notification channel
 Localytics.prototype.setDefaultNotificationChannel = function (name, description) {
@@ -448,6 +451,19 @@ Localytics.prototype.dismissCurrentInAppMessage = function () {
 // config = The JSON config object
 Localytics.prototype.setInAppMessageConfiguration = function (config) {
 	cordova.exec(null, null, "LocalyticsPlugin", "setInAppMessageConfiguration", [config]);
+}
+
+// iOS only: Returns whether the ADID parameter is added to In-App call to action URLs
+// successCallback = callback function for result
+Localytics.prototype.isInAppAdIdParameterEnabled = function (successCallback) {
+	cordova.exec(successCallback, null, "LocalyticsPlugin", "isInAppAdIdParameterEnabled", []);
+}
+
+// iOS only: Set whether ADID parameter is added to In-App call to action URLs. By default
+// the ADID parameter will be added to call to action URLs.
+// enabled = true to enable the ADID parameter or false to disable it
+Localytics.prototype.setInAppAdIdParameterEnabled = function (enabled) {
+	cordova.exec(null, null, "LocalyticsPlugin", "setInAppAdIdParameterEnabled", [enabled]);
 }
 
 // Get all Inbox campaigns that can be displayed
@@ -598,7 +614,7 @@ Localytics.prototype.setOption = function (key, value) {
 	cordova.exec(null, null, "LocalyticsPlugin", "setOption", [key, value]);
 }
 
-// No production builds should call this method.
+// Android only: No production builds should call this method.
 // Enable/Disable log rerouting to a file on disk.  Calling this method will allow logs to be
 // copied later. The method allows two options:
 //   * writeExternally set to true will write the logs to files/console.log within the app's directory

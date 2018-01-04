@@ -20,16 +20,18 @@
                 <param name="ios-package" value="LocalyticsPlugin"/>
             </feature>
         </config-file>
-        <source-file src="src/ios/libLocalytics.a" framework="true"/>
-        <header-file src="src/ios/Localytics.h" />
+
         <header-file src="src/ios/LocalyticsPlugin.h" />
         <source-file src="src/ios/LocalyticsPlugin.m" />
+        <header-file src="src/ios/CDAnalyticsDelegate.h" />
+        <source-file src="src/ios/CDAnalyticsDelegate.m" />
+        <header-file src="src/ios/CDLocationDelegate.h" />
+        <source-file src="src/ios/CDLocationDelegate.m" />
+        <header-file src="src/ios/CDMessagingDelegate.h" />
+        <source-file src="src/ios/CDMessagingDelegate.m" />
 
-        <framework src="libsqlite3.dylib" />
-        <framework src="libz.dylib" />
-        <framework src="SystemConfiguration.framework" />
-        <framework src="AdSupport.framework" weak="true" />
-        <framework src="CoreLocation.framework" weak="true" />
+        <framework src="LocalyticsStaticFramework" type="podspec" spec="~> 4.4" />
+        <framework src="UserNotifications" type="framework" />
 
     </platform>
 
@@ -51,9 +53,9 @@
 
         <source-file src="src/android/localytics.jar" target-dir="libs/" />
         <source-file src="src/android/LocalyticsPlugin.java" target-dir="src/com/localytics/phonegap/" />
-        <source-file src="src/android/LLAnalyticsListener.java" target-dir="src/com/localytics/phonegap/" />
-        <source-file src="src/android/LLLocationListener.java" target-dir="src/com/localytics/phonegap/" />
-        <source-file src="src/android/LLMessagingListener.java" target-dir="src/com/localytics/phonegap/" />
+        <source-file src="src/android/CDAnalyticsListener.java" target-dir="src/com/localytics/phonegap/" />
+        <source-file src="src/android/CDLocationListener.java" target-dir="src/com/localytics/phonegap/" />
+        <source-file src="src/android/CDMessagingListener.java" target-dir="src/com/localytics/phonegap/" />
 
         <framework src="com.android.support:support-v4:25.3.1" />
         <framework src="com.google.android.gms:play-services-ads:9.8.0" />
