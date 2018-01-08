@@ -327,10 +327,10 @@ public class LocalyticsPlugin extends CordovaPlugin {
         } else if (action.equals("tagPlacesPushOpened")) {
             if (args.length() == 2) {
                 int campaignId = args.getInt(0);
-                String action = optString(args, 1);
+                String impressionType = optString(args, 1);
                 PlacesCampaign campaign = placesCampaignCache.get(campaignId);
                 if (campaign != null) {
-                    Localytics.tagPlacesPushOpened(campaign, action);
+                    Localytics.tagPlacesPushOpened(campaign, impressionType);
                     callbackContext.success();
                 } else {
                     callbackContext.error("Campaign not cached. Use setMessagingListener to ensure caching.");
