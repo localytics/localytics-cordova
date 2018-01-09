@@ -849,6 +849,7 @@ static NSDictionary *launchOptions;
                                                                                 [Localytics didRequestUserNotificationAuthorizationWithOptions:options
                                                                                                                                        granted:granted];
                                                                             }];
+        [[UIApplication sharedApplication] registerForRemoteNotifications];
     } else if ([[UIApplication sharedApplication] respondsToSelector:@selector(registerUserNotificationSettings:)]) {
         UIUserNotificationType types = (UIUserNotificationTypeAlert | UIUserNotificationTypeBadge | UIUserNotificationTypeSound);
         UIUserNotificationSettings *settings = [UIUserNotificationSettings settingsForTypes:types categories:nil];
