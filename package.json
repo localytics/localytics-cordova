@@ -1,6 +1,6 @@
 {
   "name": "localytics-cordova",
-  "version": "3.8.3",
+  "version": "4.5.1",
   "description": "Localytics Plugin for Cordova/PhoneGap",
   "cordova": {
     "id": "com.localytics.phonegap.LocalyticsPlugin",
@@ -32,5 +32,5 @@
   "bugs": {
     "url": "https://github.com/localytics/localytics-cordova/issues"
   },
-  "homepage": "https://Localytics.com"
+  "homepage": "https://www.localytics.com/"
 }
