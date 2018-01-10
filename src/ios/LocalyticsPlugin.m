@@ -1,13 +1,21 @@
 //
 //  LocalyticsPlugin.m
+//  Copyright (C) 2015 Char Software Inc., DBA Localytics
 //
-//  Copyright 2015 Localytics. All rights reserved.
+//  This code is provided under the Localytics Modified BSD License.
+//  A copy of this license has been distributed in a file called LICENSE
+//  with this source code.
+//
+// Please visit www.localytics.com for more information.
 //
 
+#import <UserNotifications/UNUserNotificationCenter.h>
 #import "AppDelegate.h"
 #import "LocalyticsPlugin.h"
-#import "Localytics.h"
+#import <Localytics/Localytics.h>
 #import <objc/runtime.h>
+#import "Branch.h"
+#import <WebKit/WebKit.h>
 
 #define PROFILE_SCOPE_ORG @"org"
 #define PROFILE_SCOPE_APP @"app"
@@ -17,15 +25,16 @@ static BOOL localyticsDidReceiveRemoteNotificationSwizzled = NO;
 static BOOL localyticsRemoteNotificationSwizzled = NO;
 static BOOL localyticsRemoteNotificationErrorSwizzled = NO;
 static BOOL localyticsSourceApplicationOpenURLSwizzled = NO;
+static BOOL localyticsSourceApplicationOpenURLSwizzled3 = NO;
 
 BOOL MethodSwizzle(Class clazz, SEL originalSelector, SEL overrideSelector)
 {
     // Code by example from http://nshipster.com/method-swizzling/
     Method originalMethod = class_getInstanceMethod(clazz, originalSelector);
     Method overrideMethod = class_getInstanceMethod(clazz, overrideSelector);
-
+    
     if (class_addMethod(clazz, originalSelector, method_getImplementation(overrideMethod), method_getTypeEncoding(overrideMethod))) {
-
+        
         class_replaceMethod(clazz, overrideSelector, method_getImplementation(originalMethod), method_getTypeEncoding(originalMethod));
         return NO;
     } else {
@@ -33,7 +42,6 @@ BOOL MethodSwizzle(Class clazz, SEL originalSelector, SEL overrideSelector)
     }
     return YES;
 }
-
 
 #pragma mark AppDelegate+LLPushNotification implementation
 @implementation AppDelegate (LLPushNotification)
@@ -43,19 +51,60 @@ BOOL MethodSwizzle(Class clazz, SEL originalSelector, SEL overrideSelector)
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         Class clazz = [self class];
-
+        
         localyticsDidReceiveRemoteNotificationSwizzled = MethodSwizzle(clazz, @selector(application:didReceiveRemoteNotification:fetchCompletionHandler:), @selector(localytics_swizzled_Application:didReceiveRemoteNotification:fetchCompletionHandler:));
         localyticsRemoteNotificationSwizzled = MethodSwizzle(clazz, @selector(application:didRegisterForRemoteNotificationsWithDeviceToken:), @selector(localytics_swizzled_Application:didRegisterForRemoteNotificationsWithDeviceToken:));
         localyticsRemoteNotificationErrorSwizzled = MethodSwizzle(clazz, @selector(application:didFailToRegisterForRemoteNotificationsWithError:), @selector(localytics_swizzled_Application:didFailToRegisterForRemoteNotificationsWithError:));
         localyticsSourceApplicationOpenURLSwizzled = MethodSwizzle(clazz, @selector(application:openURL:sourceApplication:annotation:), @selector(localytics_swizzled_Application:openURL:sourceApplication:annotation:));
+        
+        localyticsSourceApplicationOpenURLSwizzled3 = MethodSwizzle(clazz, @selector(application:didRegisterUserNotificationSettings:), @selector(localytics_swizzled_Application:didRegisterUserNotificationSettings:));
+        
+        
     });
+}
+
+
+
+
+- (void)localytics_swizzled_Application:(UIApplication *)application didRegisterUserNotificationSettings:(UIUserNotificationSettings *)notificationSettings{
+    NSLog(@"%@", notificationSettings);
+    [Localytics didRegisterUserNotificationSettings:notificationSettings];
+}
+
+- (void)registerForBackground {
+    NSLog(@"registered task");
+    
+    if (self.backgroundTask == UIBackgroundTaskInvalid) {
+        self.backgroundTask = [[UIApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:^{
+            [self endBackgroundTask];
+        }];
+    }
+}
+
+- (void)endBackgroundTask {
+    NSLog(@"endBackgroundTask");
+    
+    [[UIApplication sharedApplication] endBackgroundTask:self.backgroundTask];
+    self.backgroundTask = UIBackgroundTaskInvalid;
 }
 
 - (void) localytics_swizzled_Application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler
 {
-    [Localytics handlePushNotificationOpened:userInfo];
+    [self registerForBackground];
+    NSLog(@"FIRED NOTIFICATIONS");
+    NSString *ministryId = userInfo[@"ministryId"];
+    WKWebView *webView = (WKWebView *)self.viewController.webView;
+    [webView evaluateJavaScript:[NSString stringWithFormat:@"window.Localytics.notoficationReceived(\"%@\")", ministryId] completionHandler:^(id result, NSError *error) {
+        if (error == nil) {
+            if (result != nil) {
+            NSLog(@"%@", result);
+            }
+        } else {
+            NSLog(@"evaluateJavaScript error : %@", error.localizedDescription);
+        }
+    }];
     completionHandler(UIBackgroundFetchResultNoData);
-
+    
     if (localyticsDidReceiveRemoteNotificationSwizzled) {
         [self localytics_swizzled_Application:application didReceiveRemoteNotification:userInfo fetchCompletionHandler:completionHandler];
     }
@@ -66,6 +115,7 @@ BOOL MethodSwizzle(Class clazz, SEL originalSelector, SEL overrideSelector)
     if (!localyticsIsAutoIntegrate) {
         [Localytics setPushToken:deviceToken];
     }
+    [self setCategoryButton];
     if (localyticsRemoteNotificationSwizzled) {
         [self localytics_swizzled_Application:application didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
     }
@@ -81,29 +131,105 @@ BOOL MethodSwizzle(Class clazz, SEL originalSelector, SEL overrideSelector)
 
 - (BOOL) localytics_swizzled_Application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation
 {
-    [Localytics handleTestModeURL: url];
-    return localyticsSourceApplicationOpenURLSwizzled? [self localytics_swizzled_Application:application openURL:url sourceApplication:sourceApplication annotation:annotation] : YES;
+    return [Localytics handleTestModeURL: url];
 }
+
+-(void)setCategoryButton{
+    UNNotificationAction *subscribe = [UNNotificationAction actionWithIdentifier:@"subscribe" title:@"Subscribe" options:UNNotificationActionOptionForeground];
+    UNNotificationAction *listen = [UNNotificationAction actionWithIdentifier:@"listen" title:@"Listen Now" options:UNNotificationActionOptionForeground];
+    UNNotificationCategory *podcastAction = [UNNotificationCategory categoryWithIdentifier:@"podcastAction" actions:@[subscribe, listen] intentIdentifiers:@[] options:UNNotificationCategoryOptionNone];
+    UNNotificationCategory *subscribedPodcast = [UNNotificationCategory categoryWithIdentifier:@"subscribedPodcast" actions:@[listen] intentIdentifiers:@[] options:UNNotificationCategoryOptionNone];
+    
+    UNNotificationAction *more = [UNNotificationAction actionWithIdentifier:@"more" title:@"More like this" options:UNNotificationActionOptionForeground];
+    UNNotificationAction *less = [UNNotificationAction actionWithIdentifier:@"less" title:@"Less like this" options:UNNotificationActionOptionForeground];
+    UNNotificationCategory *notificationAction = [UNNotificationCategory categoryWithIdentifier:@"notificationAction" actions:@[more, less] intentIdentifiers:@[] options:UNNotificationCategoryOptionNone];
+    UNNotificationAction *listening = [UNNotificationAction actionWithIdentifier:@"listening" title:@"Yes,Keep Listening" options:UNNotificationActionOptionForeground];
+    UNNotificationAction *nextPlay = [UNNotificationAction actionWithIdentifier:@"nextPlay" title:@"Play next" options:UNNotificationActionOptionForeground];
+    UNNotificationCategory *localNotificationAction = [UNNotificationCategory categoryWithIdentifier:@"localNotificationAction" actions:@[listening, nextPlay] intentIdentifiers:@[] options:UNNotificationCategoryOptionNone];
+    NSSet *categories = [NSSet setWithArray:@[podcastAction,subscribedPodcast, notificationAction,localNotificationAction]];
+    [[UNUserNotificationCenter currentNotificationCenter] setNotificationCategories:categories];
+    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(callSubscribe:) name:@"callSubscribe" object:nil];
+    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(localNotificationHandler:) name:@"localNotificationHandler" object:nil];
+}
+
+-(void)callSubscribe:(NSNotification *)notification{
+    NSString *type = notification.userInfo[@"type"];
+    NSString *ministryId = notification.userInfo[@"ministryId"];
+    NSString *ministryName = notification.userInfo[@"ministryName"];
+    NSString *feedId = notification.userInfo[@"feedId"];
+    NSString *title = notification.userInfo[@"title"];
+    NSString *body = notification.userInfo[@"body"];
+    NSString *campingId = notification.userInfo[@"campingId"];
+    WKWebView *webView = (WKWebView *)self.viewController.webView;
+    [webView evaluateJavaScript:[NSString stringWithFormat:@"window.Localytics.notoficationActionReceived(\"%@\",\"%@\",\"%@\",\"%@\",\"%@\",\"%@\",\"%@\")", ministryId,feedId,ministryName,type,campingId,title,body] completionHandler:nil];
+}
+
+-(void)localNotificationHandler:(NSNotification *)notification{
+    NSString *type = notification.userInfo[@"type"];
+    NSString *clipId = notification.userInfo[@"clipId"];
+    NSString *feedId = notification.userInfo[@"feedId"];
+    WKWebView *webView = (WKWebView *)self.viewController.webView;
+    [webView evaluateJavaScript:[NSString stringWithFormat:@"window.Localytics.localNotoficationActionReceived(\"%@\",\"%@\",\"%@\")", clipId,feedId,type] completionHandler:nil];
+}
+
 
 @end
 
+@interface LocalyticsPlugin ()
+
+@property (strong, nonatomic) UNUserNotificationCenter* center;
+@property (strong, nonatomic) NSDictionary *pendingNotification;
+
+@end
 
 @implementation LocalyticsPlugin
 
 #pragma mark Private
 
 static NSDictionary* launchOptions;
+/**
+ * Registers obervers after plugin was initialized.
+ */
+- (void) pluginInitialize
+{
+    _center    = [UNUserNotificationCenter currentNotificationCenter];
+    _center.delegate = self;
+}
+
 
 + (void)load {
     // Listen for UIApplicationDidFinishLaunchingNotification to get a hold of launchOptions
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onDidFinishLaunchingNotification:) name:UIApplicationDidFinishLaunchingNotification object:nil];
+    
+    // Listen to re-broadcast events from Cordova's AppDelegate
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onDidRegisterForRemoteNotificationWithDeviceToken:) name:CDVRemoteNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onDidFailToRegisterForRemoteNotificationsWithError:) name:CDVRemoteNotificationError object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onHandleOpenURLNotification:) name:CDVPluginHandleOpenURLNotification object:nil];
 }
 
 + (void)onDidFinishLaunchingNotification:(NSNotification *)notification {
     launchOptions = notification.userInfo;
     if (launchOptions && launchOptions[UIApplicationLaunchOptionsRemoteNotificationKey]) {
-        [Localytics handlePushNotificationOpened: launchOptions[UIApplicationLaunchOptionsRemoteNotificationKey]];
+        [Localytics handleNotification: launchOptions];
     }
+    
+    
+    
+    [Localytics handleNotification: launchOptions];
+}
+
++ (void)onDidRegisterForRemoteNotificationWithDeviceToken:(NSNotification *)notification {
+    NSLog(@"onRemoteRegister: %@", notification.object);
+    [Localytics setPushToken:notification.object];
+}
+
++ (void)onDidFailToRegisterForRemoteNotificationsWithError:(NSNotification *)notification {
+    //Log Failures
+    NSLog(@"onRemoteRegisterFail: %@", notification.object);
+}
+
++ (void)onHandleOpenURLNotification:(NSNotification *)notification {
+    [Localytics handleTestModeURL: notification.object];
 }
 
 - (NSUInteger)getProfileScope:(NSString*)scope {
@@ -124,15 +250,19 @@ static NSDictionary* launchOptions;
 
 - (void)integrate:(CDVInvokedUrlCommand *)command {
     NSString *appKey = nil;
-
     if ([command argumentAtIndex: 0]) {
         appKey = [command argumentAtIndex:0];
     } else {
         appKey = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"LocalyticsAppKey"];
     }
-
+    
     if (appKey) {
         [Localytics integrate:appKey];
+        if(_pendingNotification){
+            [Localytics didReceiveNotificationResponseWithUserInfo:_pendingNotification];
+            _pendingNotification = nil;
+        }
+        
         launchOptions = nil; // Clear launchOptions on integrate
     }
 }
@@ -144,9 +274,8 @@ static NSDictionary* launchOptions;
     } else {
         appKey = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"LocalyticsAppKey"];
     }
-
+    
     if (appKey) {
-        localyticsIsAutoIntegrate = YES;
         [Localytics autoIntegrate:appKey launchOptions: launchOptions];
         launchOptions = nil; // Clear launchOptions on integrate
     }
@@ -172,7 +301,7 @@ static NSDictionary* launchOptions;
         NSString *eventName = [command argumentAtIndex:0];
         NSDictionary *attributes = [command argumentAtIndex:1];
         NSNumber *customerValueIncrease = [command argumentAtIndex:2];
-
+        
         if (eventName && [eventName isKindOfClass:[NSString class]] && [eventName length] > 0 &&
             customerValueIncrease && [customerValueIncrease isKindOfClass:[NSNumber class]]) {
             [Localytics tagEvent:eventName attributes:attributes customerValueIncrease:customerValueIncrease];
@@ -199,7 +328,7 @@ static NSDictionary* launchOptions;
     [self.commandDelegate runInBackground:^{
         NSNumber *dimension = [command argumentAtIndex:0];
         NSString *value = [Localytics valueForCustomDimension: [dimension intValue]];
-
+        
         CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:value];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }];
@@ -220,6 +349,53 @@ static NSDictionary* launchOptions;
     }];
 }
 
+#pragma mark Analytics - Standard events
+- (void)tagCustomerRegistered: (CDVInvokedUrlCommand *)command {
+    NSDictionary *customer = [command argumentAtIndex:0];
+    NSString *method = [command argumentAtIndex:1];
+    NSDictionary *attributes = [command argumentAtIndex:2];
+    
+    [Localytics tagCustomerRegistered:[LLCustomer customerWithBlock:^(LLCustomerBuilder *builder) {
+        builder.customerId = [customer valueForKey: @"customerId"];
+        builder.firstName = [customer valueForKey: @"firstName"];
+        builder.lastName = [customer valueForKey: @"lastName"];
+        builder.fullName = [customer valueForKey: @"fullName"];
+        builder.emailAddress = [customer valueForKey: @"emailAddress"];
+    }] methodName: method attributes: attributes];
+}
+
+- (void)tagCustomerLoggedIn: (CDVInvokedUrlCommand *)command {
+    NSDictionary *customer = [command argumentAtIndex:0];
+    NSString *method = [command argumentAtIndex:1];
+    NSDictionary *attributes = [command argumentAtIndex:2];
+    
+    // [Localytics tagCustomerRegistered:[LLCustomer customerWithBlock:^(LLCustomerBuilder *builder) {
+    [Localytics tagCustomerLoggedIn:[LLCustomer customerWithBlock:^(LLCustomerBuilder *builder) {
+        builder.customerId = [customer valueForKey: @"customerId"];
+        builder.firstName = [customer valueForKey: @"firstName"];
+        builder.lastName = [customer valueForKey: @"lastName"];
+        builder.fullName = [customer valueForKey: @"fullName"];
+        builder.emailAddress = [customer valueForKey: @"emailAddress"];
+    }] methodName: method attributes: attributes];
+}
+
+- (void)tagCustomerLoggedOut: (CDVInvokedUrlCommand *)command {
+    NSDictionary *attributes = [command argumentAtIndex:0];
+    [Localytics tagCustomerLoggedOut:attributes];
+}
+
+- (void)tagContentViewed: (CDVInvokedUrlCommand *)command {
+    NSString *contentName = [command argumentAtIndex:0];
+    NSString *contentId = [command argumentAtIndex:1];
+    NSString *contentType = [command argumentAtIndex:2];
+    NSDictionary *attributes = [command argumentAtIndex:3];
+    
+    [Localytics tagContentViewed:contentName
+                       contentId:contentId
+                     contentType:contentType
+                      attributes:attributes];
+}
+
 
 #pragma mark Profiles
 
@@ -228,29 +404,29 @@ static NSDictionary* launchOptions;
     if (attribute && [attribute length] > 0) {
         NSObject<NSCopying> *value = [command argumentAtIndex:1];
         NSUInteger scope = [self getProfileScope:[command argumentAtIndex:2]];
-
+        
         [Localytics setValue:value forProfileAttribute:attribute withScope:scope];
     }
 }
 
 - (void)addProfileAttributesToSet:(CDVInvokedUrlCommand *)command {
     NSString *attribute = [command argumentAtIndex:0];
-
+    
     if (attribute && [attribute length] > 0) {
         NSArray *values = [command argumentAtIndex:1];
         NSUInteger scope = [self getProfileScope:[command argumentAtIndex:2]];
-
+        
         [Localytics addValues:values toSetForProfileAttribute:attribute withScope:scope];
     }
 }
 
 - (void)removeProfileAttributesFromSet:(CDVInvokedUrlCommand *)command {
     NSString *attribute = [command argumentAtIndex:0];
-
+    
     if (attribute && [attribute length] > 0) {
         NSArray *values = [command argumentAtIndex:1];
         NSUInteger scope = [self getProfileScope:[command argumentAtIndex:2]];
-
+        
         [Localytics removeValues:values fromSetForProfileAttribute:attribute withScope:scope];
     }
 }
@@ -260,10 +436,10 @@ static NSDictionary* launchOptions;
     if (attribute && [attribute length] > 0) {
         NSInteger value = [[command argumentAtIndex:1 withDefault:0] intValue];
         NSUInteger scope = [self getProfileScope:[command argumentAtIndex:2]];
-
+        
         [Localytics incrementValueBy:value forProfileAttribute:attribute withScope:scope];
     }
-
+    
 }
 
 - (void)decrementProfileAttribute:(CDVInvokedUrlCommand *)command {
@@ -271,7 +447,7 @@ static NSDictionary* launchOptions;
     if (attribute && [attribute length] > 0) {
         NSInteger value = [[command argumentAtIndex:1 withDefault:0] intValue];
         NSUInteger scope = [self getProfileScope:[command argumentAtIndex:2]];
-
+        
         [Localytics decrementValueBy:value forProfileAttribute:attribute withScope:scope];
     }
 }
@@ -280,7 +456,7 @@ static NSDictionary* launchOptions;
     NSString *attribute = [command argumentAtIndex:0];
     if (attribute && [attribute length] > 0) {
         NSUInteger scope = [self getProfileScope:[command argumentAtIndex:1]];
-
+        
         [Localytics deleteProfileAttribute:attribute withScope:scope];
     }
 }
@@ -349,18 +525,159 @@ static NSDictionary* launchOptions;
     }];
 }
 
-
 #pragma mark Marketing
 
 - (void)registerPush:(CDVInvokedUrlCommand *)command {
-    if ([[UIApplication sharedApplication] respondsToSelector:@selector(registerUserNotificationSettings:)]) {
+    if (NSClassFromString(@"UNUserNotificationCenter"))
+    {
+        UNAuthorizationOptions options = (UNAuthorizationOptionBadge | UNAuthorizationOptionSound |UNAuthorizationOptionAlert);
+        UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
+        center.delegate = self;
+        [center requestAuthorizationWithOptions:options
+                              completionHandler:^(BOOL granted, NSError * _Nullable error) {
+                                  [[UIApplication sharedApplication] registerForRemoteNotifications];
+                                  [Localytics didRequestUserNotificationAuthorizationWithOptions:options
+                                                                                         granted:granted];
+                              }];
+        
+    }
+    else if ([[UIApplication sharedApplication] respondsToSelector:@selector(registerUserNotificationSettings:)])
+    {
         UIUserNotificationType types = (UIUserNotificationTypeAlert | UIUserNotificationTypeBadge | UIUserNotificationTypeSound);
         UIUserNotificationSettings *settings = [UIUserNotificationSettings settingsForTypes:types categories:nil];
         [[UIApplication sharedApplication] registerUserNotificationSettings:settings];
         [[UIApplication sharedApplication] registerForRemoteNotifications];
-    } else {
+    }
+    else
+    {
         [[UIApplication sharedApplication] registerForRemoteNotificationTypes:(UIRemoteNotificationTypeAlert | UIRemoteNotificationTypeBadge | UIRemoteNotificationTypeSound)];
     }
+    
+    
+}
+
+/**
+ * Set the badge number.
+ */
+- (void) setBadgeCount:(CDVInvokedUrlCommand *)command {
+    NSArray* args = [command arguments];
+    int number    = [[args objectAtIndex:0] intValue];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [ [UIApplication sharedApplication] setApplicationIconBadgeNumber:number];
+    });
+}
+
+- (void)userNotificationCenter:(UNUserNotificationCenter *)center
+       willPresentNotification:(UNNotification *)notification
+         withCompletionHandler:(void (^)(UNNotificationPresentationOptions options))completionHandler
+{
+    NSLog( @"Handle push from foreground" );
+    completionHandler(UNNotificationPresentationOptionAlert);
+    // custom code to handle push while app is in the foreground
+}
+
+- (void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void (^)(void))completionHandler{
+    
+    if(![Localytics appKey]){
+        _pendingNotification = response.notification.request.content.userInfo;
+    }else{
+        // do work in the UI thread here
+        [Localytics didReceiveNotificationResponseWithUserInfo:response.notification.request.content.userInfo];
+    }
+    
+    //    if (![@"less" isEqualToString:response.actionIdentifier]) {
+    //        [Localytics didReceiveNotificationResponseWithUserInfo:response.notification.request.content.userInfo];
+    //        completionHandler();
+    //    }
+    
+    if ([@"subscribe" isEqualToString:response.actionIdentifier]) {
+        NSString *ministryId = response.notification.request.content.userInfo[@"ministryId"];
+        NSString *ministryName = response.notification.request.content.userInfo[@"ministryName"];
+        NSMutableDictionary *notificationData = [[NSMutableDictionary alloc] init];
+        if(ministryId != nil){
+            [notificationData setValue:ministryId forKey:@"ministryId"];
+        }
+        [notificationData setValue:ministryName forKey:@"ministryName"];
+        [notificationData setValue:@"subscribe" forKey:@"type"];
+        double delayInSeconds =  [[UIApplication sharedApplication] applicationState] == UIApplicationStateInactive? 2.0:0.0;
+        dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
+        dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+            [[NSNotificationCenter defaultCenter]postNotificationName:@"callSubscribe" object:nil userInfo:notificationData];
+        });
+    } else if ([@"listen" isEqualToString:response.actionIdentifier]) {
+        NSString *ministryId = response.notification.request.content.userInfo[@"ministryId"];
+        NSString *feedId = response.notification.request.content.userInfo[@"feedId"];
+        NSString *ministryName = response.notification.request.content.userInfo[@"ministryName"];
+        NSMutableDictionary *notificationData = [[NSMutableDictionary alloc] init];
+        if(feedId != nil){
+            [notificationData setValue:feedId forKey:@"feedId"];
+        }
+        if(ministryId != nil){
+            [notificationData setValue:ministryId forKey:@"ministryId"];
+        }
+        [notificationData setValue:ministryName forKey:@"ministryName"];
+        [notificationData setValue:@"listen" forKey:@"type"];
+        double delayInSeconds =  [[UIApplication sharedApplication] applicationState] == UIApplicationStateInactive? 2.0:0.0;
+        dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
+        dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+            [[NSNotificationCenter defaultCenter]postNotificationName:@"callSubscribe" object:nil userInfo:notificationData];
+        });
+    }else if ([@"more" isEqualToString:response.actionIdentifier]){
+        NSDictionary *localyticsData = response.notification.request.content.userInfo[@"ll"];
+        NSString *campingId = localyticsData[@"ca"];
+        NSDictionary *aps = response.notification.request.content.userInfo[@"aps"];
+        NSDictionary *alertData = aps[@"alert"];
+        NSString *title = alertData[@"title"];
+        NSString *body = alertData[@"body"];
+        NSDictionary *notificationData = [[NSDictionary alloc]initWithObjectsAndKeys:campingId,@"campingId",title,@"title",body,@"body",@"more",@"type", nil];
+        double delayInSeconds =  [[UIApplication sharedApplication] applicationState] == UIApplicationStateInactive? 2.0:0.0;
+        dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
+        dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+            [[NSNotificationCenter defaultCenter]postNotificationName:@"callSubscribe" object:nil userInfo:notificationData];
+        });
+    }else if ([@"less" isEqualToString:response.actionIdentifier]){
+        NSDictionary *localyticsData = response.notification.request.content.userInfo[@"ll"];
+        NSDictionary *aps = response.notification.request.content.userInfo[@"aps"];
+        NSDictionary *alertData = aps[@"alert"];
+        NSString *title = alertData[@"title"];
+        NSString *body = alertData[@"body"];
+        NSString *campingId = localyticsData[@"ca"];
+        NSDictionary *notificationData = [[NSDictionary alloc]initWithObjectsAndKeys:campingId,@"campingId",title,@"title",body,@"body",@"less",@"type", nil];
+        double delayInSeconds =  [[UIApplication sharedApplication] applicationState] == UIApplicationStateInactive? 2.0:0.0;
+        dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
+        dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+            [[NSNotificationCenter defaultCenter]postNotificationName:@"callSubscribe" object:nil userInfo:notificationData];
+        });
+    }else if ([@"listening" isEqualToString:response.actionIdentifier]){
+        NSString *dataStr = response.notification.request.content.userInfo[@"data"];
+        NSData *dataObj = [dataStr dataUsingEncoding:NSUTF8StringEncoding];
+        NSDictionary *data = [NSJSONSerialization JSONObjectWithData:dataObj options:0 error:nil];
+        NSLog(@"%@",data);
+        NSDictionary *notificationData = [[NSDictionary alloc]initWithObjectsAndKeys:data[@"clipId"],@"clipId",data[@"feedId"],@"feedId",@"Keep Listening",@"type", nil];
+        double delayInSeconds =  [[UIApplication sharedApplication] applicationState] == UIApplicationStateInactive? 2.0:0.0;
+        dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
+        dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+            [[NSNotificationCenter defaultCenter]postNotificationName:@"localNotificationHandler" object:nil userInfo:notificationData];
+        });
+    }else if ([@"nextPlay" isEqualToString:response.actionIdentifier]){
+        NSString *dataStr = response.notification.request.content.userInfo[@"data"];
+        NSData *dataObj = [dataStr dataUsingEncoding:NSUTF8StringEncoding];
+        NSDictionary *data = [NSJSONSerialization JSONObjectWithData:dataObj options:0 error:nil];
+        NSLog(@"%@",data);
+        NSDictionary *notificationData = [[NSDictionary alloc]initWithObjectsAndKeys:data[@"clipId"],@"clipId",data[@"feedId"],@"feedId",@"Play next",@"type", nil];
+        double delayInSeconds =  [[UIApplication sharedApplication] applicationState] == UIApplicationStateInactive? 2.0:0.0;
+        dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
+        dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+            [[NSNotificationCenter defaultCenter]postNotificationName:@"localNotificationHandler" object:nil userInfo:notificationData];
+        });
+    }else{
+        NSLog( @"Handle push from background or closed" );
+        // if you set a member variable in didReceiveRemoteNotification, you  will know if this is from closed or background
+        NSLog(@"%@", response.notification.request.content.userInfo);
+        [[Branch getInstance] handlePushNotification:response.notification.request.content.userInfo];
+    }
+    
+    completionHandler();
 }
 
 - (void)setPushDisabled:(CDVInvokedUrlCommand *)command {
@@ -434,7 +751,7 @@ static NSDictionary* launchOptions;
 - (void)triggerInAppMessage:(CDVInvokedUrlCommand *)command {
     NSString *triggerName = [command argumentAtIndex:0];
     NSDictionary *attributes = [command argumentAtIndex:1];
-
+    
     if (triggerName && [triggerName isKindOfClass:[NSString class]] && [triggerName length] > 0) {
         [Localytics triggerInAppMessage:triggerName withAttributes:attributes];
     }
@@ -465,13 +782,14 @@ static NSDictionary* launchOptions;
 - (void)setSessionTimeoutInterval:(CDVInvokedUrlCommand *)command {
     NSNumber *timeout = [command argumentAtIndex:0];
     if (timeout) {
-        [Localytics setSessionTimeoutInterval:[timeout doubleValue]];
+        [Localytics setOptions:@{@"session_timeout": timeout}];
     }
 }
 
 - (void)getSessionTimeoutInterval:(CDVInvokedUrlCommand *)command {
     [self.commandDelegate runInBackground:^{
-        NSTimeInterval value = [Localytics sessionTimeoutInterval];
+        // FIXME: There is no way to get session timeout interval
+        NSTimeInterval value = 30;
         CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDouble:value];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }];
@@ -500,5 +818,4 @@ static NSDictionary* launchOptions;
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }];
 }
-
 @end

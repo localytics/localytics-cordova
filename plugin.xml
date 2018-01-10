@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0" id="com.localytics.phonegap.LocalyticsPlugin"  xmlns:android="http://schemas.android.com/apk/res/android" version="1.0.0">
+<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0" id="com.localytics.phonegap.LocalyticsPlugin" version="1.0.0">
     <name>Localytics</name>
     <description>Localytics Plugin for Cordova/PhoneGap</description>
     <license>Apache 2.0</license>
@@ -8,20 +8,19 @@
     <js-module src="www/localytics.js" name="Localytics">
         <clobbers target="Localytics" />
     </js-module>
-    
+
     <engines>
         <engine name="cordova" version=">=3.0.0" />
     </engines>
 
     <platform name="ios">
-
         <config-file target="config.xml" parent="/*">
             <feature name="LocalyticsPlugin">
-                <param name="ios-package" value="LocalyticsPlugin"/>
+                <param name="ios-package" value="LocalyticsPlugin" onload="true"/>
             </feature>
         </config-file>
-        <source-file src="src/ios/libLocalytics.a" framework="true"/>
-        <header-file src="src/ios/Localytics.h" />
+
+        <framework src="src/ios/Localytics.framework" custom="true"/>
         <header-file src="src/ios/LocalyticsPlugin.h" />
         <source-file src="src/ios/LocalyticsPlugin.m" />
 
@@ -30,12 +29,12 @@
         <framework src="SystemConfiguration.framework" />
         <framework src="AdSupport.framework" weak="true" />
         <framework src="CoreLocation.framework" weak="true" />
-        
+
     </platform>
 
-    <platform name="android">
-        <framework src="com.android.support:support-v4:+" />
+    <preference name="SENDER_ID" />
 
+    <platform name="android">
         <config-file target="config.xml" parent="/*">
             <feature name="LocalyticsPlugin" >
                 <param name="android-package" value="com.localytics.phonegap.LocalyticsPlugin"/>
@@ -43,11 +42,54 @@
         </config-file>
 
         <config-file target="AndroidManifest.xml" parent="/manifest">
+            
             <uses-permission android:name="android.permission.INTERNET" />
             <uses-permission android:name="android.permission.WAKE_LOCK" />
+            
+            <uses-permission
+                android:name="com.google.android.c2dm.permission.RECEIVE" />
+            <permission
+                android:name="$PACKAGE_NAME.permission.C2D_MESSAGE"
+                android:protectionLevel="signature" />
+            <uses-permission
+                android:name="$PACKAGE_NAME.permission.C2D_MESSAGE" />
+
+            <activity android:name="com.localytics.android.PushTrackingActivity"/>
+
+            <receiver
+                android:name="com.google.android.gms.gcm.GcmReceiver"
+                android:exported="true"
+                android:permission="com.google.android.c2dm.permission.SEND" >
+                <intent-filter>
+                    <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+                    <category android:name="$PACKAGE_NAME" />
+                </intent-filter>
+            </receiver>
+
+            <service
+                android:name="com.localytics.android.GcmListenerService"
+                android:exported="false" >
+                <intent-filter>
+                    <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+                </intent-filter>
+            </service>
+
+            <service
+                android:name="com.localytics.android.InstanceIDListenerService"
+                android:exported="false" >
+                <intent-filter>
+                    <action android:name="com.google.android.gms.iid.InstanceID" />
+                </intent-filter>
+            </service>
+
+            
         </config-file>
 
-        <source-file src="src/android/localytics.jar" target-dir="libs/" />
+        <config-file target="AndroidManifest.xml" parent="application">
+            <meta-data android:name="com.localytics.android_push_sender_id" android:value="\ $SENDER_ID" />
+        </config-file>
+
+        <framework src="src/android/plugin.gradle" custom="true" type="gradleReference"/>
         <source-file src="src/android/LocalyticsPlugin.java" target-dir="src/com/localytics/phonegap/" />
 
         <framework src="com.android.support:support-v4:+" />

@@ -1,0 +1,15 @@
+apply plugin: 'com.android.application'
+
+repositories
+{
+  jcenter()
+  maven
+  {
+    url 'http://maven.localytics.com/public'
+  }
+}
+
+dependencies
+{
+  compile 'com.localytics.android:library:4.2+'
+}

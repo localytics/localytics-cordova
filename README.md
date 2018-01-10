@@ -58,6 +58,28 @@ Regardless of the integration method you choose, start by adding the following l
 	document.addEventListener('deviceready', this.onDeviceReady, false);        
 
 
+### 3. For Localytics push open count:
+Add following code  in MainActivity.Java
+
+  private static Intent receivedIntent;
+
+  @Override
+    protected void onResume() {
+        super.onResume();
+        receivedIntent = getIntent();
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        Localytics.handlePushNotificationOpened(intent);
+    }
+
+    public static Intent getReceivedIntent(){
+            return receivedIntent;
+    }
+
+
 #### Automatic integration
 
 Add the following for automatic integration.

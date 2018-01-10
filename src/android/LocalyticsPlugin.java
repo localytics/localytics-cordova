@@ -28,6 +28,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 
+import com.localytics.android.Customer;
 import com.localytics.android.Localytics;
 import com.localytics.android.LocalyticsActivityLifecycleCallbacks;
 
@@ -39,6 +40,8 @@ public class LocalyticsPlugin extends CordovaPlugin {
     private static final String ERROR_UNSUPPORTED_TYPE = "Unsupported type for attribute value.";
     private static final String ERROR_INVALID_ARRAY = "Invalid array type for attribute value.";
 
+    private int sessionTimeOut = 15;
+
     @Override
     public void initialize(CordovaInterface cordova, CordovaWebView webView) {
         super.initialize(cordova, webView);
@@ -47,8 +50,12 @@ public class LocalyticsPlugin extends CordovaPlugin {
     @Override
     public boolean execute(String action, JSONArray args, final CallbackContext callbackContext) throws JSONException {
         if (action.equals("integrate")) {
-            String localyticsKey = (args.length() == 1 && !args.isNull(0)? args.getString(0) : null);
+              String localyticsKey = (args.length() == 1 && !args.isNull(0)? args.getString(0) : null);
             Localytics.integrate(cordova.getActivity().getApplicationContext(), localyticsKey);
+            Intent receivedIntent = ((MainActivity)cordova.getActivity()).getReceivedIntent();
+            if(receivedIntent != null){
+                Localytics.handlePushNotificationOpened(receivedIntent);
+            }
             callbackContext.success();
             return true;
         } else if (action.equals("upload")) {
@@ -400,16 +407,125 @@ public class LocalyticsPlugin extends CordovaPlugin {
         } else if (action.equals("setLocation")) {
             if (args.length() == 2) {
                 Location location = new Location("");
-                location.setLatitude(args.getDouble(0));
-                location.setLongitude(args.getDouble(1));
+				location.setLatitude(args.getDouble(0));
+				location.setLongitude(args.getDouble(1));
 
-                Localytics.setLocation(location);
-                callbackContext.success();
+            	Localytics.setLocation(location);
+            	callbackContext.success();
             } else {
                 callbackContext.error("Expected two arguments.");
             }
             return true;
-        } else if (action.equals("registerPush")) {
+        }
+        else if (action.equals("tagCustomerRegistered")) {
+            JSONObject customer = args.getJSONObject(0);
+            String method = args.getString(1);
+
+            JSONObject attributes = null;
+            if (!args.isNull(2)) {
+                attributes = args.getJSONObject(2);
+            }
+
+            HashMap<String, String> a = null;
+            if (attributes != null && attributes.length() > 0) {
+                a = new HashMap<String, String>();
+                Iterator<?> keys = attributes.keys();
+                while (keys.hasNext()) {
+                    String key = (String)keys.next();
+                    String value = attributes.getString(key);
+                    a.put(key, value);
+                }
+            }
+
+            Localytics.tagCustomerRegistered(new Customer.Builder()
+                            .setCustomerId(customer.getString("customerId"))
+                            .setFirstName(customer.getString("firstName"))
+                            .setLastName(customer.getString("lastName"))
+                            .setFullName(customer.getString("fullName"))
+                            .setEmailAddress(customer.getString("emailAddress"))
+                            .build(),
+                    method,
+                    a
+            );
+            callbackContext.success();
+            return true;
+        }
+        else if (action.equals("tagCustomerLoggedIn")) {
+            JSONObject customer = args.getJSONObject(0);
+            String method = args.getString(1);
+            JSONObject attributes = null;
+            if (!args.isNull(2)) {
+                attributes = args.getJSONObject(2);
+            }
+
+            HashMap<String, String> a = null;
+            if (attributes != null && attributes.length() > 0) {
+                a = new HashMap<String, String>();
+                Iterator<?> keys = attributes.keys();
+                while (keys.hasNext()) {
+                    String key = (String)keys.next();
+                    String value = attributes.getString(key);
+                    a.put(key, value);
+                }
+            }
+
+            Localytics.tagCustomerLoggedIn(new Customer.Builder()
+                            .setCustomerId(customer.getString("customerId"))
+                            .setFirstName(customer.getString("firstName"))
+                            .setLastName(customer.getString("lastName"))
+                            .setFullName(customer.getString("fullName"))
+                            .setEmailAddress(customer.getString("emailAddress"))
+                            .build(),
+                    method,
+                    a
+            );
+            callbackContext.success();
+            return true;
+        }
+        else if (action.equals("tagCustomerLoggedOut")) {
+            JSONObject attributes = null;
+            if (!args.isNull(0)) {
+                attributes = args.getJSONObject(0);
+            }
+
+            HashMap<String, String> a = null;
+            if (attributes != null && attributes.length() > 0) {
+                a = new HashMap<String, String>();
+                Iterator<?> keys = attributes.keys();
+                while (keys.hasNext()) {
+                    String key = (String)keys.next();
+                    String value = attributes.getString(key);
+                    a.put(key, value);
+                }
+            }
+            Localytics.tagCustomerLoggedOut(a);
+            callbackContext.success();
+            return true;
+        }
+        else if (action.equals("tagContentViewed")) {
+            String contentName = args.getString(0);
+            String contentId = args.getString(1);
+            String contentType = args.getString(2);
+            JSONObject attributes = null;
+            if (!args.isNull(3)) {
+                attributes = args.getJSONObject(3);
+            }
+
+            HashMap<String, String> a = null;
+            if (attributes != null && attributes.length() > 0) {
+                a = new HashMap<String, String>();
+                Iterator<?> keys = attributes.keys();
+                while (keys.hasNext()) {
+                    String key = (String)keys.next();
+                    String value = attributes.getString(key);
+                    a.put(key, value);
+                }
+            }
+            Localytics.tagContentViewed(contentName, contentId, contentType, a);
+            callbackContext.success();
+            return true;
+        }
+        else if (action.equals("registerPush")) {
             String senderId = null;
 
             try {
@@ -441,18 +557,10 @@ public class LocalyticsPlugin extends CordovaPlugin {
             });
             return true;
         } else if (action.equals("setPushDisabled")) {
-            boolean enabled = args.getBoolean(0);
-            Localytics.setPushDisabled(enabled);
-            callbackContext.success();
+            callbackContext.error("Method removed from latest Localytics SDK");
             return true;
         } else if (action.equals("isPushDisabled")) {
-            cordova.getThreadPool().execute(new Runnable() {
-                public void run() {
-                    boolean enabled = Localytics.isPushDisabled();
-                    callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK, enabled));
-                }
-            });
-            return true;
+            callbackContext.error("Method removed from latest Localytics SDK");
         } else if (action.equals("setTestModeEnabled")) {
             boolean enabled = args.getBoolean(0);
             Localytics.setTestModeEnabled(enabled);
@@ -496,14 +604,16 @@ public class LocalyticsPlugin extends CordovaPlugin {
             return true;
         } else if (action.equals("setSessionTimeoutInterval")) {
             int seconds = args.getInt(0);
-            Localytics.setSessionTimeoutInterval(seconds);
+            this.sessionTimeOut = seconds;
+            HashMap<String, Object> options = new HashMap<String, Object>();
+            options.put("session_timeout", seconds);
+            Localytics.setOptions(options);
             callbackContext.success();
             return true;
         } else if (action.equals("getSessionTimeoutInterval")) {
             cordova.getThreadPool().execute(new Runnable() {
                 public void run() {
-                    long timeout = Localytics.getSessionTimeoutInterval();
-                    callbackContext.success(Long.valueOf(timeout).toString());
+                    callbackContext.success(Long.valueOf(LocalyticsPlugin.this.sessionTimeOut).toString());
                 }
             });
             return true;
