@@ -72,14 +72,12 @@ public class LocalyticsPlugin extends CordovaPlugin {
     @Override
     public boolean execute(String action, JSONArray args, final CallbackContext callbackContext) throws JSONException {
         if (action.equals("integrate")) {
-            String localyticsKey = optString(args, 0);
-            Localytics.integrate(cordova.getActivity().getApplicationContext(), localyticsKey);
+            Localytics.integrate(cordova.getActivity().getApplicationContext());
             Localytics.setInAppMessageDisplayActivity(cordova.getActivity());
             callbackContext.success();
             return true;
         } else if (action.equals("autoIntegrate")) {
-            String localyticsKey = optString(args, 0);
-            Localytics.autoIntegrate(cordova.getActivity().getApplication(), localyticsKey);
+            Localytics.autoIntegrate(cordova.getActivity().getApplication());
             Localytics.setInAppMessageDisplayActivity(cordova.getActivity());
             callbackContext.success();
             return true;
@@ -87,6 +85,10 @@ public class LocalyticsPlugin extends CordovaPlugin {
             Localytics.upload();
             callbackContext.success();
             return true;
+        } else if (action.equals("pauseDataUploading")) {
+            boolean pause = args.getBoolean(0);
+            Localytics.pauseDataUploading(pause);
+            callbackContext.success();
         } else if (action.equals("openSession")) {
             Localytics.openSession();
             callbackContext.success();
@@ -100,10 +102,23 @@ public class LocalyticsPlugin extends CordovaPlugin {
             Localytics.setOptedOut(enabled);
             callbackContext.success();
             return true;
+        } else if (action.equals("setPrivacyOptedOut")) {
+            boolean enabled = args.getBoolean(0);
+            Localytics.setPrivacyOptedOut(enabled);
+            callbackContext.success();
+            return true;
         } else if (action.equals("isOptedOut")) {
             cordova.getThreadPool().execute(new Runnable() {
                 public void run() {
                     boolean enabled = Localytics.isOptedOut();
+                    callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK, enabled));
+                }
+            });
+            return true;
+        } else if (action.equals("isPrivacyOptedOut")) {
+            cordova.getThreadPool().execute(new Runnable() {
+                public void run() {
+                    boolean enabled = Localytics.isPrivacyOptedOut();
                     callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK, enabled));
                 }
             });
@@ -606,6 +621,12 @@ public class LocalyticsPlugin extends CordovaPlugin {
             Localytics.setCustomerId(id);
             callbackContext.success();
             return true;
+        } else if (action.equals("setCustomerIdWithPrivacyOptedOut")) {
+            String id = optString(args, 0);
+            boolean optedOut = args.getBoolean(1);
+            Localytics.setCustomerIdWithPrivacyOptedOut(id, optedOut);
+            callbackContext.success();
+            return true;
         } else if (action.equals("getCustomerId")) {
             cordova.getThreadPool().execute(new Runnable() {
                 public void run() {
@@ -627,18 +648,7 @@ public class LocalyticsPlugin extends CordovaPlugin {
             }
             return true;
         } else if (action.equals("registerPush")) {
-            String senderId = null;
-
-            try {
-                PackageManager pm = cordova.getActivity().getPackageManager();
-                ApplicationInfo ai = pm.getApplicationInfo(cordova.getActivity().getPackageName(), PackageManager.GET_META_DATA);
-                Bundle metaData = ai.metaData;
-                senderId = metaData.getString(PROP_SENDER_ID);
-            } catch (PackageManager.NameNotFoundException e) {
-                //No-op
-            }
-
-            Localytics.registerPush(senderId);
+            Localytics.registerPush();
             callbackContext.success();
             return true;
         } else if (action.equals("setPushToken")) {
@@ -669,16 +679,6 @@ public class LocalyticsPlugin extends CordovaPlugin {
                     callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK, disabled));
                 }
             });
-            return true;
-        } else if (action.equals("setDefaultNotificationChannel")) {
-            if (args.length() == 2) {
-                String name = args.getString(0);
-                String description = optString(args, 1);
-                Localytics.setDefaultNotificationChannel(name, description);
-                callbackContext.success();
-            } else {
-                callbackContext.error("Expected two arguments.");
-            }
             return true;
         } else if (action.equals("setPushMessageConfiguration")) {
             if (messagingListener != null) {
@@ -747,10 +747,30 @@ public class LocalyticsPlugin extends CordovaPlugin {
             }
             return true;
         } else if (action.equals("isInAppAdIdParameterEnabled")) {
-            //No-op (iOS only)
+          cordova.getThreadPool().execute(new Runnable() {
+              public void run() {
+                  boolean adidAppended = Localytics.isAdidAppendedToInAppUrls();
+                  callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK, adidAppended));
+              }
+          });
             return true;
         } else if (action.equals("setInAppAdIdParameterEnabled")) {
-            //No-op (iOS only)
+            boolean enabled = args.getBoolean(0);
+            Localytics.appendAdidToInAppUrls(enabled);
+            callbackContext.success();
+            return true;
+        } else if (action.equals("setInboxAdIdParameterEnabled")) {
+            boolean enabled = args.getBoolean(0);
+            Localytics.appendAdidToInboxUrls(enabled);
+            callbackContext.success();
+            return true;
+        } else if (action.equals("isInboxAdIdParameterEnabled")) {
+          cordova.getThreadPool().execute(new Runnable() {
+              public void run() {
+                  boolean adidAppended = Localytics.isAdidAppendedToInboxUrls();
+                  callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK, adidAppended));
+              }
+          });
             return true;
         } else if (action.equals("getInboxCampaigns")) {
             cordova.getThreadPool().execute(new Runnable() {
@@ -837,10 +857,10 @@ public class LocalyticsPlugin extends CordovaPlugin {
                 InboxCampaign campaign = inboxCampaignCache.get(campaignId);
                 if (campaign != null) {
                     Localytics.setInboxCampaignRead(campaign, read);
+                    callbackContext.success();
                 } else {
-                    Localytics.setInboxCampaignRead(campaignId, read);
+                    callbackContext.error("Campaign not cached. Couldn't find Inbox campaign with ID " + campaignId);
                 }
-                callbackContext.success();
                 updateInboxCampaignCache();
             } else {
                 callbackContext.error("Expected two arguments.");
@@ -906,20 +926,38 @@ public class LocalyticsPlugin extends CordovaPlugin {
             }
             return true;
         } else if (action.equals("triggerRegion")) {
-            if (args.length() == 2) {
+            if (args.length() >= 2) {
                 JSONObject region = args.getJSONObject(0);
                 String event = args.getString(1);
-                Localytics.triggerRegion(toCircularRegion(region), toEvent(event));
+                double latitude = args.optDouble(2);
+                double longitude = args.getDouble(3);
+                if (latitude != Double.NaN && longitude != Double.NaN) {
+                  Location location = new Location("");
+                  location.setLatitude(latitude);
+                  location.setLongitude(longitude);
+                  Localytics.triggerRegion(toCircularRegion(region), toEvent(event), location);
+                } else {
+                  Localytics.triggerRegion(toCircularRegion(region), toEvent(event), null);
+                }
                 callbackContext.success();
             } else {
                 callbackContext.error("Expected two arguments.");
             }
             return true;
         } else if (action.equals("triggerRegions")) {
-            if (args.length() == 2) {
+            if (args.length() >= 2) {
                 JSONArray regions = args.getJSONArray(0);
                 String event = args.getString(1);
-                Localytics.triggerRegions(toCircularRegions(regions), toEvent(event));
+                double latitude = args.optDouble(2);
+                double longitude = args.getDouble(3);
+                if (latitude != Double.NaN && longitude != Double.NaN) {
+                  Location location = new Location("");
+                  location.setLatitude(latitude);
+                  location.setLongitude(longitude);
+                  Localytics.triggerRegions(toCircularRegions(regions), toEvent(event), location);
+                } else {
+                  Localytics.triggerRegions(toCircularRegions(regions), toEvent(event), null);
+                }
                 callbackContext.success();
             } else {
                 callbackContext.error("Expected two arguments.");

@@ -8,5 +8,5 @@ dependencies {
     compile 'com.android.support:support-v4:25.3.1'
     compile 'com.google.android.gms:play-services-ads:9.8.0'
     compile 'com.google.android.gms:play-services-gcm:9.8.0'
-    compile 'com.localytics.android:library:4.5.1'
+    compile 'com.localytics.android:library:5.1.0'
 }
