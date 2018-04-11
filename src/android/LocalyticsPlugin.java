@@ -45,6 +45,7 @@ import com.localytics.android.Localytics;
 import com.localytics.android.PlacesCampaign;
 import com.localytics.android.PushCampaign;
 import com.localytics.android.Region;
+import com.localytics.android.ConstantsHelper;
 
 /**
  * This class echoes a string called from JavaScript.
@@ -67,6 +68,7 @@ public class LocalyticsPlugin extends CordovaPlugin {
     @Override
     public void initialize(CordovaInterface cordova, CordovaWebView webView) {
         super.initialize(cordova, webView);
+        com.localytics.android.ConstantsHelper.updatePluginVersion();
     }
 
     @Override

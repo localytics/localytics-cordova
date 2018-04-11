@@ -48,6 +48,7 @@
         <source-file src="src/android/CDAnalyticsListener.java" target-dir="src/com/localytics/phonegap/" />
         <source-file src="src/android/CDLocationListener.java" target-dir="src/com/localytics/phonegap/" />
         <source-file src="src/android/CDMessagingListener.java" target-dir="src/com/localytics/phonegap/" />
+        <source-file src="src/android/ConstantsHelper.java" target-dir="src/com/localytics/android/" />
 
     </platform>
 

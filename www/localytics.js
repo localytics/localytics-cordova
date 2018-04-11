@@ -366,7 +366,6 @@ Localytics.prototype.setCustomerIdWithPrivacyOptedOut = function (id, enabled) {
 	cordova.exec(null, null, "LocalyticsPlugin", "setCustomerIdWithPrivacyOptedOut", [id, enabled]);
 }
 
-
 // Set a user's location
 // latitude = The latitude value
 // longitude = The longitude value
@@ -680,6 +679,5 @@ Localytics.prototype.getAppKey = function (successCallback) {
 Localytics.prototype.getLibraryVersion = function (successCallback) {
 	cordova.exec(successCallback, null, "LocalyticsPlugin", "getLibraryVersion", []);
 }
-
 
 module.exports = new Localytics();
