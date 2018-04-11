@@ -14,6 +14,8 @@
 @import UserNotifications;
 @import Localytics;
 
+#define PLUGIN_VERSION @"Cordova_5.1.0"
+
 #define PROFILE_SCOPE_ORG @"org"
 #define PROFILE_SCOPE_APP @"app"
 
@@ -30,7 +32,6 @@ static BOOL localyticsHandleActionWithIdentifierForRemoteNotificationWithRespons
 static BOOL localyticsHandleActionWithIdentifierForLocalNotificationCompletionHandlerSwizzled = NO;
 static BOOL localyticsHandleActionWithIdentifierForLocalNotificationWithResponseInfoCompletionHandlerSwizzled = NO;
 static BOOL localyticsDidReceiveLocalNotificationSwizzled = NO;
-static BOOL localyticsDidRegisterUserNotificationSettingsSwizzled = NO;
 
 BOOL MethodSwizzle(Class clazz, SEL originalSelector, SEL overrideSelector) {
     // Code by example from http://nshipster.com/method-swizzling/
@@ -60,7 +61,6 @@ BOOL MethodSwizzle(Class clazz, SEL originalSelector, SEL overrideSelector) {
         localyticsDidReceiveRemoteNotificationFetchCompletionHandlerSwizzled = MethodSwizzle(clazz, @selector(application:didReceiveRemoteNotification:fetchCompletionHandler:), @selector(localytics_swizzled_Application:didReceiveRemoteNotification:fetchCompletionHandler:));
         localyticsDidRegisterForRemoteNotificationsWithDeviceTokenSwizzled = MethodSwizzle(clazz, @selector(application:didRegisterForRemoteNotificationsWithDeviceToken:), @selector(localytics_swizzled_Application:didRegisterForRemoteNotificationsWithDeviceToken:));
         localyticsDidFailToRegisterForRemoteNotificationWithErrorSwizzled = MethodSwizzle(clazz, @selector(application:didFailToRegisterForRemoteNotificationsWithError:), @selector(localytics_swizzled_Application:didFailToRegisterForRemoteNotificationsWithError:));
-        localyticsDidRegisterUserNotificationSettingsSwizzled = MethodSwizzle(clazz, @selector(application:didRegisterUserNotificationSettings:), @selector(localytics_swizzled_Application:didRegisterUserNotificationSettings:));
         localyticsHandleOpenURLSwizzled = MethodSwizzle(clazz, @selector(application:handleOpenURL:), @selector(localytics_swizzled_Application:handleOpenURL:));
         localyticsOpenURLSourceApplicationAnnotationSwizzled = MethodSwizzle(clazz, @selector(application:openURL:sourceApplication:annotation:), @selector(localytics_swizzled_Application:openURL:sourceApplication:annotation:));
         localyticsOpenURLOptionsSwizzled = MethodSwizzle(clazz, @selector(application:openURL:options:), @selector(localytics_swizzled_Application:openURL:options:));
@@ -69,6 +69,8 @@ BOOL MethodSwizzle(Class clazz, SEL originalSelector, SEL overrideSelector) {
         localyticsHandleActionWithIdentifierForLocalNotificationCompletionHandlerSwizzled = MethodSwizzle(clazz, @selector(application:handleActionWithIdentifier:forLocalNotification:completionHandler:), @selector(localytics_swizzled_Application:handleActionWithIdentifier:forLocalNotification:completionHandler:));
         localyticsHandleActionWithIdentifierForLocalNotificationWithResponseInfoCompletionHandlerSwizzled = MethodSwizzle(clazz, @selector(application:handleActionWithIdentifier:forLocalNotification:withResponseInfo:completionHandler:), @selector(localytics_swizzled_Application:handleActionWithIdentifier:forLocalNotification:withResponseInfo:completionHandler:));
         localyticsDidReceiveLocalNotificationSwizzled = MethodSwizzle(clazz, @selector(application:didReceiveLocalNotification:), @selector(localytics_swizzled_Application:didReceiveLocalNotification:));
+
+        [Localytics setOptions:@{@"plugin_library": PLUGIN_VERSION}];
     });
 }
 
@@ -156,14 +158,6 @@ BOOL MethodSwizzle(Class clazz, SEL originalSelector, SEL overrideSelector) {
     NSLog(@"onRemoteRegisterFail: %@", [error description]);
     if (localyticsDidFailToRegisterForRemoteNotificationWithErrorSwizzled) {
         [self localytics_swizzled_Application:application didFailToRegisterForRemoteNotificationsWithError:error];
-    }
-}
-
-- (void)localytics_swizzled_Application:(UIApplication *)application didRegisterUserNotificationSettings:(UIUserNotificationSettings *)notificationSettings {
-    [Localytics didRegisterUserNotificationSettings:notificationSettings];
-
-    if (localyticsDidRegisterUserNotificationSettingsSwizzled) {
-        [self localytics_swizzled_Application:application didRegisterUserNotificationSettings:notificationSettings];
     }
 }
 
@@ -424,6 +418,7 @@ static NSDictionary *launchOptions;
 
 - (void)integrate:(CDVInvokedUrlCommand *)command {
     NSString *appKey = nil;
+    NSDictionary *localyticsOptions = nil;
 
     if ([command argumentAtIndex:0]) {
         appKey = [command argumentAtIndex:0];
@@ -431,23 +426,33 @@ static NSDictionary *launchOptions;
         appKey = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"LocalyticsAppKey"];
     }
 
+    if ([command argumentAtIndex:1]) {
+      localyticsOptions = [command argumentAtIndex:1];
+    }
+
     if (appKey) {
-        [Localytics integrate:appKey];
+        [Localytics integrate:appKey withLocalyticsOptions:localyticsOptions];
         launchOptions = nil; // Clear launchOptions on integrate
     }
 }
 
 - (void)autoIntegrate:(CDVInvokedUrlCommand *)command {
     NSString *appKey = nil;
+    NSDictionary *localyticsOptions = nil;
+
     if ([command argumentAtIndex:0]) {
         appKey = [command argumentAtIndex:0];
     } else {
         appKey = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"LocalyticsAppKey"];
     }
 
+    if ([command argumentAtIndex:1]) {
+      localyticsOptions = [command argumentAtIndex:1];
+    }
+
     if (appKey) {
         localyticsIsAutoIntegrate = YES;
-        [Localytics autoIntegrate:appKey launchOptions: launchOptions];
+        [Localytics autoIntegrate:appKey withLocalyticsOptions:localyticsOptions launchOptions: launchOptions];
         launchOptions = nil; // Clear launchOptions on integrate
     }
 }
@@ -893,10 +898,6 @@ static NSDictionary *launchOptions;
     // No-Op
 }
 
-- (void)setDefaultNotificationChannel:(CDVInvokedUrlCommand *)command {
-    // No-Op
-}
-
 - (void)setPushMessageConfiguration:(CDVInvokedUrlCommand *)command {
     // No-Op
 }
@@ -1045,8 +1046,6 @@ static NSDictionary *launchOptions;
             LLInboxCampaign *campaign = self.inboxCampaignCache[@([campaignId integerValue])];
             if (campaign) {
                 [Localytics setInboxCampaign:campaign asRead:[enabled boolValue]];
-            } else {
-                [Localytics setInboxCampaignId:[campaignId integerValue] asRead:[enabled boolValue]];
             }
             [self updateInboxCampaignCache];
         }
@@ -1120,18 +1119,34 @@ static NSDictionary *launchOptions;
 }
 
 - (void)triggerRegion:(CDVInvokedUrlCommand *)command {
-    if ([command.arguments count] == 2) {
+    if ([command.arguments count] >= 2) {
         NSDictionary *region = [command argumentAtIndex:0];
         NSString *event = [command argumentAtIndex:1];
-        [Localytics triggerRegion:[self regionFromDictionary:region] withEvent:[self eventFrom:event]];
+        if ([command argumentAtIndex:2] && [command argumentAtIndex:3]) {
+          NSNumber *latitude = [command argumentAtIndex:2];
+          NSNumber *longitude = [command argumentAtIndex:3];
+          CLLocation *location = [[CLLocation alloc] initWithLatitude:latitude.doubleValue
+                                                            longitude:longitude.doubleValue];
+          [Localytics triggerRegion:[self regionFromDictionary:region] withEvent:[self eventFrom:event] atLocation:location];
+        } else {
+          [Localytics triggerRegion:[self regionFromDictionary:region] withEvent:[self eventFrom:event] atLocation:nil];
+        }
     }
 }
 
 - (void)triggerRegions:(CDVInvokedUrlCommand *)command {
-    if ([command.arguments count] == 2) {
+    if ([command.arguments count] >= 2) {
         NSArray *regions = [command argumentAtIndex:0];
         NSString *event = [command argumentAtIndex:1];
-        [Localytics triggerRegions:[self regionsFromDictionaryArray:regions] withEvent:[self eventFrom:event]];
+        if ([command argumentAtIndex:2] && [command argumentAtIndex:3]) {
+          NSNumber *latitude = [command argumentAtIndex:2];
+          NSNumber *longitude = [command argumentAtIndex:3];
+          CLLocation *location = [[CLLocation alloc] initWithLatitude:latitude.doubleValue
+                                                            longitude:longitude.doubleValue];
+          [Localytics triggerRegions:[self regionsFromDictionaryArray:regions] withEvent:[self eventFrom:event] atLocation:location];
+        } else {
+          [Localytics triggerRegions:[self regionsFromDictionaryArray:regions] withEvent:[self eventFrom:event] atLocation:nil];
+        }
     }
 }
 

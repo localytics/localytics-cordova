@@ -69,7 +69,6 @@ typedef NS_ENUM(NSUInteger, LLInAppMessageDismissButtonLocation);
 - (void)getPushToken:(CDVInvokedUrlCommand *)command;
 - (void)setNotificationsDisabled:(CDVInvokedUrlCommand *)command;
 - (void)areNotificationsDisabled:(CDVInvokedUrlCommand *)command;
-- (void)setDefaultNotificationChannel:(CDVInvokedUrlCommand *)command;
 - (void)setPushMessageConfiguration:(CDVInvokedUrlCommand *)command;
 - (void)setTestModeEnabled:(CDVInvokedUrlCommand *)command;
 - (void)isTestModeEnabled:(CDVInvokedUrlCommand *)command;
