@@ -32,6 +32,7 @@ static BOOL localyticsHandleActionWithIdentifierForRemoteNotificationWithRespons
 static BOOL localyticsHandleActionWithIdentifierForLocalNotificationCompletionHandlerSwizzled = NO;
 static BOOL localyticsHandleActionWithIdentifierForLocalNotificationWithResponseInfoCompletionHandlerSwizzled = NO;
 static BOOL localyticsDidReceiveLocalNotificationSwizzled = NO;
+static BOOL localyticsDidRegisterUserNotificationSettingsSwizzled = NO;
 
 BOOL MethodSwizzle(Class clazz, SEL originalSelector, SEL overrideSelector) {
     // Code by example from http://nshipster.com/method-swizzling/
@@ -61,6 +62,7 @@ BOOL MethodSwizzle(Class clazz, SEL originalSelector, SEL overrideSelector) {
         localyticsDidReceiveRemoteNotificationFetchCompletionHandlerSwizzled = MethodSwizzle(clazz, @selector(application:didReceiveRemoteNotification:fetchCompletionHandler:), @selector(localytics_swizzled_Application:didReceiveRemoteNotification:fetchCompletionHandler:));
         localyticsDidRegisterForRemoteNotificationsWithDeviceTokenSwizzled = MethodSwizzle(clazz, @selector(application:didRegisterForRemoteNotificationsWithDeviceToken:), @selector(localytics_swizzled_Application:didRegisterForRemoteNotificationsWithDeviceToken:));
         localyticsDidFailToRegisterForRemoteNotificationWithErrorSwizzled = MethodSwizzle(clazz, @selector(application:didFailToRegisterForRemoteNotificationsWithError:), @selector(localytics_swizzled_Application:didFailToRegisterForRemoteNotificationsWithError:));
+        localyticsDidRegisterUserNotificationSettingsSwizzled = MethodSwizzle(clazz, @selector(application:didRegisterUserNotificationSettings:), @selector(localytics_swizzled_Application:didRegisterUserNotificationSettings:));
         localyticsHandleOpenURLSwizzled = MethodSwizzle(clazz, @selector(application:handleOpenURL:), @selector(localytics_swizzled_Application:handleOpenURL:));
         localyticsOpenURLSourceApplicationAnnotationSwizzled = MethodSwizzle(clazz, @selector(application:openURL:sourceApplication:annotation:), @selector(localytics_swizzled_Application:openURL:sourceApplication:annotation:));
         localyticsOpenURLOptionsSwizzled = MethodSwizzle(clazz, @selector(application:openURL:options:), @selector(localytics_swizzled_Application:openURL:options:));
@@ -158,6 +160,14 @@ BOOL MethodSwizzle(Class clazz, SEL originalSelector, SEL overrideSelector) {
     NSLog(@"onRemoteRegisterFail: %@", [error description]);
     if (localyticsDidFailToRegisterForRemoteNotificationWithErrorSwizzled) {
         [self localytics_swizzled_Application:application didFailToRegisterForRemoteNotificationsWithError:error];
+    }
+}
+
+- (void)localytics_swizzled_Application:(UIApplication *)application didRegisterUserNotificationSettings:(UIUserNotificationSettings *)notificationSettings {
+    [Localytics didRegisterUserNotificationSettings];
+
+    if (localyticsDidRegisterUserNotificationSettingsSwizzled) {
+        [self localytics_swizzled_Application:application didRegisterUserNotificationSettings:notificationSettings];
     }
 }
 
@@ -469,6 +479,13 @@ static NSDictionary *launchOptions;
     [Localytics upload];
 }
 
+- (void)pauseDataUploading:(CDVInvokedUrlCommand *)command {
+    NSNumber *pause = [command argumentAtIndex:0];
+    if ([pause isKindOfClass:[NSNumber class]]) {
+        [Localytics pauseDataUploading:[pause boolValue]];
+    }
+}
+
 
 #pragma mark Analytics
 
@@ -482,6 +499,21 @@ static NSDictionary *launchOptions;
 - (void)isOptedOut:(CDVInvokedUrlCommand *)command {
     [self.commandDelegate runInBackground:^{
         BOOL value = [Localytics isOptedOut];
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsBool:value];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    }];
+}
+
+- (void)setPrivacyOptedOut:(CDVInvokedUrlCommand *)command {
+    NSNumber *enabled = [command argumentAtIndex:0];
+    if ([enabled isKindOfClass:[NSNumber class]]) {
+        [Localytics setPrivacyOptedOut:[enabled boolValue]];
+    }
+}
+
+- (void)isPrivacyOptedOut:(CDVInvokedUrlCommand *)command {
+    [self.commandDelegate runInBackground:^{
+        BOOL value = [Localytics isPrivacyOptedOut];
         CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsBool:value];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }];
@@ -824,6 +856,13 @@ static NSDictionary *launchOptions;
     [Localytics setCustomerId:customerId];
 }
 
+- (void)setCustomerIdWithPrivacyOptedOut:(CDVInvokedUrlCommand *)command {
+    NSString *customerId = [command argumentAtIndex:0];
+    NSNumber *optedOut = [command argumentAtIndex:1];
+
+    [Localytics setCustomerId:customerId privacyOptedOut:optedOut];
+}
+
 - (void)getCustomerId:(CDVInvokedUrlCommand *)command {
     [self.commandDelegate runInBackground:^{
         NSString *value = [Localytics customerId];
@@ -977,6 +1016,21 @@ static NSDictionary *launchOptions;
     NSNumber *enabled = [command argumentAtIndex:0];
     if ([enabled isKindOfClass:[NSNumber class]]) {
         [Localytics setInAppAdIdParameterEnabled:[enabled boolValue]];
+    }
+}
+
+- (void)isInboxAdIdParameterEnabled:(CDVInvokedUrlCommand *)command {
+    [self.commandDelegate runInBackground:^{
+        BOOL value = [Localytics isInboxAdIdParameterEnabled];
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsBool:value];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    }];
+}
+
+- (void)setInboxAdIdParameterEnabled:(CDVInvokedUrlCommand *)command {
+    NSNumber *enabled = [command argumentAtIndex:0];
+    if ([enabled isKindOfClass:[NSNumber class]]) {
+        [Localytics setInboxAdIdParameterEnabled:[enabled boolValue]];
     }
 }
 
@@ -1192,7 +1246,7 @@ static NSDictionary *launchOptions;
 }
 
 - (void)redirectLogsToDisk:(CDVInvokedUrlCommand *)command {
-    // No-Op
+    [Localytics redirectLoggingToDisk];
 }
 
 - (void)getInstallId:(CDVInvokedUrlCommand *)command {

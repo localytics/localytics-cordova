@@ -13,14 +13,23 @@ var Localytics = function () {
 
 // Initializes Localytics without opening a session
 // localyticsKey = Localytics App ID as a string
-Localytics.prototype.integrate = function (localyticsKey) {
-	cordova.exec(null, null, "LocalyticsPlugin", "integrate", [localyticsKey]);
+// localyticsOptions (iOS only) = A Hash containing values for ll_wifi_upload_interval_seconds,
+//       ll_great_network_upload_interval_seconds, ll_decent_network_upload_interval_seconds
+//       and ll_bad_network_upload_interval_seconds. See https://docs.localytics.com/dev/ios.html#initialize-sdk-ios
+//       for more details.
+
+Localytics.prototype.integrate = function (localyticsKey, localyticsOptions) {
+	cordova.exec(null, null, "LocalyticsPlugin", "integrate", [localyticsKey, localyticsOptions]);
 }
 
 // Initializes Localytics by hooking into the activity lifecycle events of the app
 // localyticsKey = Localytics App ID as a string
-Localytics.prototype.autoIntegrate = function(localyticsKey) {
-	cordova.exec(null, null, "LocalyticsPlugin", "autoIntegrate", [localyticsKey]);
+// localyticsOptions (iOS only) = A Hash containing values for ll_wifi_upload_interval_seconds,
+//       ll_great_network_upload_interval_seconds, ll_decent_network_upload_interval_seconds
+//       and ll_bad_network_upload_interval_seconds. See https://docs.localytics.com/dev/ios.html#initialize-sdk-ios
+//       for more details.
+Localytics.prototype.autoIntegrate = function(localyticsKey, localyticsOptions) {
+	cordova.exec(null, null, "LocalyticsPlugin", "autoIntegrate", [localyticsKey, localyticsOptions]);
 }
 
 // Initiates an upload
@@ -649,7 +658,7 @@ Localytics.prototype.setOption = function (key, value) {
 	cordova.exec(null, null, "LocalyticsPlugin", "setOption", [key, value]);
 }
 
-// Android only: No production builds should call this method.
+// No production builds should call this method.
 // Enable/Disable log rerouting to a file on disk.  Calling this method will allow logs to be
 // copied later. The method allows two options:
 //   * writeExternally set to true will write the logs to files/console.log within the app's directory
@@ -657,7 +666,7 @@ Localytics.prototype.setOption = function (key, value) {
 //     storage directory. This option requires requesting WRITE_EXTERNAL_STORAGE permissions from
 //     the user. On Android less than 2.3 this additionally requires requesting the READ_LOGS
 //     permission.
-// writeExternally = a boolean value to indicate where to write the logs.
+// writeExternally (Android only) = a boolean value to indicate where to write the logs.
 Localytics.prototype.redirectLogsToDisk = function (writeExternally) {
 	cordova.exec(null, null, "LocalyticsPlugin", "redirectLogsToDisk", [writeExternally]);
 }
