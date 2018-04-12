@@ -15,6 +15,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.SparseArray;
+import android.util.Log;
 import android.view.View;
 
 import org.apache.cordova.CordovaInterface;
@@ -52,6 +53,8 @@ import com.localytics.android.ConstantsHelper;
  */
 public class LocalyticsPlugin extends CordovaPlugin {
 
+    private static final String LOG_TAG = "Localytics-Cordova";
+
     private static final String PROP_SENDER_ID = "com.localytics.android_push_sender_id";
     private static final String ERROR_UNSUPPORTED_TYPE = "Unsupported type for attribute value.";
     private static final String ERROR_INVALID_ARRAY = "Invalid array type for attribute value.";
@@ -73,6 +76,8 @@ public class LocalyticsPlugin extends CordovaPlugin {
 
     @Override
     public boolean execute(String action, JSONArray args, final CallbackContext callbackContext) throws JSONException {
+        Log.i(LOG_TAG, String.format("Invoked with action %s and arguments %s", action, args));
+
         if (action.equals("integrate")) {
             Localytics.integrate(cordova.getActivity().getApplicationContext());
             Localytics.setInAppMessageDisplayActivity(cordova.getActivity());
@@ -134,6 +139,7 @@ public class LocalyticsPlugin extends CordovaPlugin {
                     Localytics.tagEvent(name, attributes, customerValueIncrease);
                     callbackContext.success();
                 } else {
+                    Log.i(LOG_TAG, "Call to tagEvent failed; Expected non-empty first argument.");
                     callbackContext.error("Expected non-empty name argument.");
                 }
             } else {
@@ -150,6 +156,7 @@ public class LocalyticsPlugin extends CordovaPlugin {
                 Localytics.tagPurchased(itemName, itemId, itemType, itemPrice, attributes);
                 callbackContext.success();
             } else {
+                Log.i(LOG_TAG, "Call to tagPurchased failed; Expected five arguments.");
                 callbackContext.error("Expected five arguments.");
             }
             return true;
@@ -163,6 +170,7 @@ public class LocalyticsPlugin extends CordovaPlugin {
                 Localytics.tagAddedToCart(itemName, itemId, itemType, itemPrice, attributes);
                 callbackContext.success();
             } else {
+                Log.i(LOG_TAG, "Call to tagAddedToCart failed; Expected five arguments.");
                 callbackContext.error("Expected five arguments.");
             }
             return true;
@@ -174,6 +182,7 @@ public class LocalyticsPlugin extends CordovaPlugin {
                 Localytics.tagStartedCheckout(totalPrice, itemCount, attributes);
                 callbackContext.success();
             } else {
+                Log.i(LOG_TAG, "Call to tagStartedCheckout failed; Expected three arguments.");
                 callbackContext.error("Expected three arguments.");
             }
             return true;
@@ -185,6 +194,7 @@ public class LocalyticsPlugin extends CordovaPlugin {
                 Localytics.tagCompletedCheckout(totalPrice, itemCount, attributes);
                 callbackContext.success();
             } else {
+                Log.i(LOG_TAG, "Call to tagCompletedCheckout failed; Expected three arguments.");
                 callbackContext.error("Expected three arguments.");
             }
             return true;
@@ -197,6 +207,7 @@ public class LocalyticsPlugin extends CordovaPlugin {
                 Localytics.tagContentViewed(contentName, contentId, contentType, attributes);
                 callbackContext.success();
             } else {
+                Log.i(LOG_TAG, "Call to tagContentViewed failed; Expected four arguments.");
                 callbackContext.error("Expected four arguments.");
             }
             return true;
@@ -209,6 +220,7 @@ public class LocalyticsPlugin extends CordovaPlugin {
                 Localytics.tagSearched(queryText, contentType, resultCount, attributes);
                 callbackContext.success();
             } else {
+                Log.i(LOG_TAG, "Call to tagSearched failed; Expected four arguments.");
                 callbackContext.error("Expected four arguments.");
             }
             return true;
@@ -222,6 +234,7 @@ public class LocalyticsPlugin extends CordovaPlugin {
                 Localytics.tagShared(contentName, contentId, contentType, methodName, attributes);
                 callbackContext.success();
             } else {
+                Log.i(LOG_TAG, "Call to tagShared failed; Expected five arguments.");
                 callbackContext.error("Expected five arguments.");
             }
             return true;
@@ -235,6 +248,7 @@ public class LocalyticsPlugin extends CordovaPlugin {
                 Localytics.tagContentRated(contentName, contentId, contentType, rating, attributes);
                 callbackContext.success();
             } else {
+                Log.i(LOG_TAG, "Call to tagContentRated failed; Expected five arguments.");
                 callbackContext.error("Expected five arguments.");
             }
             return true;
@@ -246,6 +260,7 @@ public class LocalyticsPlugin extends CordovaPlugin {
                 Localytics.tagCustomerRegistered(customer, methodName, attributes);
                 callbackContext.success();
             } else {
+                Log.i(LOG_TAG, "Call to tagCustomerRegistered failed; Expected three arguments.");
                 callbackContext.error("Expected three arguments.");
             }
             return true;
@@ -257,6 +272,7 @@ public class LocalyticsPlugin extends CordovaPlugin {
                 Localytics.tagCustomerLoggedIn(customer, methodName, attributes);
                 callbackContext.success();
             } else {
+                Log.i(LOG_TAG, "Call to tagCustomerLoggedIn failed; Expected three arguments.");
                 callbackContext.error("Expected three arguments.");
             }
             return true;
@@ -266,6 +282,7 @@ public class LocalyticsPlugin extends CordovaPlugin {
                 Localytics.tagCustomerLoggedOut(attributes);
                 callbackContext.success();
             } else {
+                Log.i(LOG_TAG, "Call to tagCustomerLoggedOut failed; Expected one arguments.");
                 callbackContext.error("Expected one argument.");
             }
             return true;
@@ -276,6 +293,7 @@ public class LocalyticsPlugin extends CordovaPlugin {
                 Localytics.tagInvited(methodName, attributes);
                 callbackContext.success();
             } else {
+                Log.i(LOG_TAG, "Call to tagInvited failed; Expected two arguments.");
                 callbackContext.error("Expected two arguments.");
             }
             return true;
@@ -294,9 +312,11 @@ public class LocalyticsPlugin extends CordovaPlugin {
                     }
                     callbackContext.success();
                 } else {
+                    Log.i(LOG_TAG, "Call to tagInAppImpression failed; Campaign couldn't be found for campaign ID " + campaignId);
                     callbackContext.error("Campaign not cached. Use setMessagingListener to ensure caching.");
                 }
             } else {
+                Log.i(LOG_TAG, "Call to tagInAppImpression failed; Expected two arguments.");
                 callbackContext.error("Expected two arguments.");
             }
             return true;
@@ -315,9 +335,11 @@ public class LocalyticsPlugin extends CordovaPlugin {
                     }
                     callbackContext.success();
                 } else {
+                    Log.i(LOG_TAG, "Call to tagInboxImpression failed; Campaign couldn't be found for campaign ID " + campaignId);
                     callbackContext.error("Campaign not cached. Use setMessagingListener to ensure caching.");
                 }
             } else {
+                Log.i(LOG_TAG, "Call to tagInboxImpression failed; Expected two arguments.");
                 callbackContext.error("Expected two arguments.");
             }
             return true;
@@ -328,6 +350,7 @@ public class LocalyticsPlugin extends CordovaPlugin {
                 Localytics.tagPushToInboxImpression(campaign);
                 callbackContext.success();
             } else {
+                Log.i(LOG_TAG, "Call to tagPushToInbox failed; Campaign couldn't be found for campaign ID " + campaignId);
                 callbackContext.error("Campaign not cached. Use setMessagingListener to ensure caching.");
             }
             return true;
@@ -338,6 +361,7 @@ public class LocalyticsPlugin extends CordovaPlugin {
                 Localytics.tagPlacesPushReceived(campaign);
                 callbackContext.success();
             } else {
+                Log.i(LOG_TAG, "Call to tagPlacesPushReceived failed; Campaign couldn't be found for campaign ID " + campaignId);
                 callbackContext.error("Campaign not cached. Use setMessagingListener to ensure caching.");
             }
             return true;
@@ -350,9 +374,11 @@ public class LocalyticsPlugin extends CordovaPlugin {
                     Localytics.tagPlacesPushOpened(campaign, impressionType);
                     callbackContext.success();
                 } else {
+                    Log.i(LOG_TAG, "Call to tagPlacesPushOpened failed; Campaign couldn't be found for campaign ID " + campaignId);
                     callbackContext.error("Campaign not cached. Use setMessagingListener to ensure caching.");
                 }
             } else {
+                Log.i(LOG_TAG, "Call to tagPlacesPushOpened failed; Expected two arguments.");
                 callbackContext.error("Expected two arguments.");
             }
             return true;
@@ -362,6 +388,7 @@ public class LocalyticsPlugin extends CordovaPlugin {
                 Localytics.tagScreen(name);
                 callbackContext.success();
             } else {
+                Log.i(LOG_TAG, "Call to tagScreen failed; Expected a non-empty first argument.");
                 callbackContext.error("Expected non-empty name argument.");
             }
             return true;
@@ -372,6 +399,7 @@ public class LocalyticsPlugin extends CordovaPlugin {
                 Localytics.setCustomDimension(index, value);
                 callbackContext.success();
             } else {
+                Log.i(LOG_TAG, "Call to setCustomDimension failed; Expected two arguments.");
                 callbackContext.error("Expected two arguments.");
             }
             return true;
@@ -415,6 +443,7 @@ public class LocalyticsPlugin extends CordovaPlugin {
                         if (longs != null) {
                             Localytics.setProfileAttribute(attributeName, longs, getProfileScope(scope));
                         } else {
+                            Log.i(LOG_TAG, "Call to setProfileAttribute failed; Array could not be transformed to longs.");
                             errorString = ERROR_INVALID_ARRAY;
                         }
                     } else if (item instanceof String) {
@@ -423,6 +452,7 @@ public class LocalyticsPlugin extends CordovaPlugin {
                             if (dates != null) {
                                 Localytics.addProfileAttributesToSet(attributeName, dates, getProfileScope(scope));
                             } else {
+                                Log.i(LOG_TAG, "Call to setProfileAttribute failed; Array could not be transformed to dates.");
                                 errorString = ERROR_INVALID_ARRAY;
                             }
                         } else {
@@ -430,11 +460,13 @@ public class LocalyticsPlugin extends CordovaPlugin {
                             if (strings != null) {
                                 Localytics.addProfileAttributesToSet(attributeName, strings, getProfileScope(scope));
                             } else {
+                                Log.i(LOG_TAG, "Call to setProfileAttribute failed; Array could not be transformed to Strings.");
                                 errorString = ERROR_INVALID_ARRAY;
                             }
                         }
                     }
                 } else {
+                    Log.i(LOG_TAG, "Call to setProfileAttribute failed; An unsupported profie type was passed.");
                     errorString = ERROR_UNSUPPORTED_TYPE;
                 }
 
@@ -444,6 +476,7 @@ public class LocalyticsPlugin extends CordovaPlugin {
                     callbackContext.success();
                 }
             } else {
+                Log.i(LOG_TAG, "Call to setProfileAttribute failed; Expected three arguments.");
                 callbackContext.error("Expected three arguments.");
             }
             return true;
@@ -463,6 +496,7 @@ public class LocalyticsPlugin extends CordovaPlugin {
                         if (longs != null) {
                             Localytics.addProfileAttributesToSet(attributeName, longs, getProfileScope(scope));
                         } else {
+                            Log.i(LOG_TAG, "Call to addProfileAttributesToSet failed; Array could not be transformed to longs.");
                             errorString = ERROR_INVALID_ARRAY;
                         }
                     } else if (item instanceof String) {
@@ -472,6 +506,7 @@ public class LocalyticsPlugin extends CordovaPlugin {
                             if (dates != null) {
                                 Localytics.addProfileAttributesToSet(attributeName, dates, getProfileScope(scope));
                             } else {
+                                Log.i(LOG_TAG, "Call to addProfileAttributesToSet failed; Array could not be transformed to dates.");
                                 errorString = ERROR_INVALID_ARRAY;
                             }
                         } else {
@@ -479,11 +514,13 @@ public class LocalyticsPlugin extends CordovaPlugin {
                             if (strings != null) {
                                 Localytics.addProfileAttributesToSet(attributeName, strings, getProfileScope(scope));
                             } else {
+                                Log.i(LOG_TAG, "Call to addProfileAttributesToSet failed; Array could not be transformed to Strings.");
                                 errorString = ERROR_INVALID_ARRAY;
                             }
                         }
                     }
                 } else {
+                    Log.i(LOG_TAG, "Call to addProfileAttributesToSet failed; An unsupported type was passed.");
                     errorString = ERROR_UNSUPPORTED_TYPE;
                 }
 
@@ -493,6 +530,7 @@ public class LocalyticsPlugin extends CordovaPlugin {
                     callbackContext.success();
                 }
             } else {
+                Log.i(LOG_TAG, "Call to addProfileAttributesToSet failed; Expected three arguments.");
                 callbackContext.error("Expected three arguments.");
             }
             return true;
@@ -511,6 +549,7 @@ public class LocalyticsPlugin extends CordovaPlugin {
                         if (longs != null) {
                             Localytics.removeProfileAttributesFromSet(attributeName, longs, getProfileScope(scope));
                         } else {
+                            Log.i(LOG_TAG, "Call to removeProfileAttributesFromSet failed; Array could not be transformed to Longs.");
                             errorString = ERROR_INVALID_ARRAY;
                         }
                     } else if (item instanceof String) {
@@ -519,6 +558,7 @@ public class LocalyticsPlugin extends CordovaPlugin {
                             if (dates != null) {
                                 Localytics.removeProfileAttributesFromSet(attributeName, dates, getProfileScope(scope));
                             } else {
+                                Log.i(LOG_TAG, "Call to removeProfileAttributesFromSet failed; Array could not be transformed to Dates.");
                                 errorString = ERROR_INVALID_ARRAY;
                             }
                         } else {
@@ -526,11 +566,13 @@ public class LocalyticsPlugin extends CordovaPlugin {
                             if (strings != null) {
                                 Localytics.removeProfileAttributesFromSet(attributeName, strings, getProfileScope(scope));
                             } else {
+                                Log.i(LOG_TAG, "Call to removeProfileAttributesFromSet failed; Array could not be transformed to Strings.");
                                 errorString = ERROR_INVALID_ARRAY;
                             }
                         }
                     }
                 } else {
+                    Log.i(LOG_TAG, "Call to removeProfileAttributesFromSet failed; An unsupported type was passed.");
                     errorString = ERROR_UNSUPPORTED_TYPE;
                 }
 
@@ -540,6 +582,7 @@ public class LocalyticsPlugin extends CordovaPlugin {
                     callbackContext.success();
                 }
             } else {
+                Log.i(LOG_TAG, "Call to removeProfileAttributesFromSet failed; Expected three arguments.");
                 callbackContext.error("Expected three arguments.");
             }
             return true;
@@ -551,6 +594,7 @@ public class LocalyticsPlugin extends CordovaPlugin {
 
                 Localytics.incrementProfileAttribute(attributeName, incrementValue, getProfileScope(scope));
             } else {
+                Log.i(LOG_TAG, "Call to incrementProfileAttribute failed; Expected three arguments.");
                 callbackContext.error("Expected three arguments.");
             }
             return true;
@@ -562,6 +606,7 @@ public class LocalyticsPlugin extends CordovaPlugin {
 
                 Localytics.decrementProfileAttribute(attributeName, decrementValue, getProfileScope(scope));
             } else {
+                Log.i(LOG_TAG, "Call to decrementProfileAttribute failed; Expected three arguments.");
                 callbackContext.error("Expected three arguments.");
             }
             return true;
@@ -572,6 +617,7 @@ public class LocalyticsPlugin extends CordovaPlugin {
 
                 Localytics.deleteProfileAttribute(attributeName, getProfileScope(scope));
             } else {
+                Log.i(LOG_TAG, "Call to deleteProfileAttribute failed; Expected three arguments.");
                 callbackContext.error("Expected three arguments.");
             }
             return true;
@@ -603,9 +649,11 @@ public class LocalyticsPlugin extends CordovaPlugin {
                     Localytics.setIdentifier(key, value);
                     callbackContext.success();
                 } else {
+                    Log.i(LOG_TAG, "Call to setIdentifier failed; First argument must be a non-empty String.");
                     callbackContext.error("Expected non-empty key argument.");
                 }
             } else {
+                Log.i(LOG_TAG, "Call to setIdentifier failed; Expected two arguments.");
                 callbackContext.error("Expected two arguments.");
             }
             return true;
@@ -646,6 +694,7 @@ public class LocalyticsPlugin extends CordovaPlugin {
                 Localytics.setLocation(location);
                 callbackContext.success();
             } else {
+                Log.i(LOG_TAG, "Call to setLocation failed; Expected three arguments.");
                 callbackContext.error("Expected two arguments.");
             }
             return true;
@@ -686,6 +735,7 @@ public class LocalyticsPlugin extends CordovaPlugin {
             if (messagingListener != null) {
                 messagingListener.setPushConfiguration(args.getJSONObject(0));
             } else {
+                Log.i(LOG_TAG, "Call to setPushMessagingConfiguration failed; Messaging Listener is null. Call setMessagingListener before setting configuration");
                 callbackContext.error("Call setMessagingListener before setting configuration.");
             }
             return true;
@@ -730,6 +780,7 @@ public class LocalyticsPlugin extends CordovaPlugin {
                 Localytics.triggerInAppMessage(triggerName, attributes);
                 callbackContext.success();
             } else {
+                Log.i(LOG_TAG, "Call to triggerInAppMessage failed; Expected two arguments.");
                 callbackContext.error("Expected two arguments.");
             }
             return true;
@@ -745,6 +796,8 @@ public class LocalyticsPlugin extends CordovaPlugin {
             if (messagingListener != null) {
                 messagingListener.setInAppConfiguration(args.getJSONObject(0));
             } else {
+                Log.i(LOG_TAG, "Call to setInAppMessagingConfiguration failed; Messaging Listener is null. " +
+                        "Call setMessagingListener before setting configuration");
                 callbackContext.error("Call setMessagingListener before setting configuration.");
             }
             return true;
@@ -861,10 +914,12 @@ public class LocalyticsPlugin extends CordovaPlugin {
                     Localytics.setInboxCampaignRead(campaign, read);
                     callbackContext.success();
                 } else {
+                    Log.i(LOG_TAG, "Call to setInboxCampaignRead failed; Couldn't find Inbox campaign with ID " + campaignId);
                     callbackContext.error("Campaign not cached. Couldn't find Inbox campaign with ID " + campaignId);
                 }
                 updateInboxCampaignCache();
             } else {
+                Log.i(LOG_TAG, "Call to setInboxCampaignRead failed; Expected two arguments.");
                 callbackContext.error("Expected two arguments.");
             }
             return true;
@@ -876,6 +931,7 @@ public class LocalyticsPlugin extends CordovaPlugin {
                 updateInboxCampaignCache();
                 callbackContext.success();
             } else {
+                Log.i(LOG_TAG, "Call to inboxListItemTapped failed; Couldn't find Inbox campaign with ID " + campaignId);
                 callbackContext.error("Campaign not cached. Call getInboxCampaigns or getAllInboxCampaigns before this method.");
             }
             return true;
@@ -886,6 +942,7 @@ public class LocalyticsPlugin extends CordovaPlugin {
                 Localytics.triggerPlacesNotification(campaign);
                 callbackContext.success();
             } else {
+                Log.i(LOG_TAG, "Call to triggerPlacesNotification failed; Couldn't find Places campaign with ID " + campaignId);
                 callbackContext.error("Campaign not cached. Use setMessagingListener to ensure caching.");
             }
             return true;
@@ -893,6 +950,8 @@ public class LocalyticsPlugin extends CordovaPlugin {
             if (messagingListener != null) {
                 messagingListener.setPlacesConfiguration(args.getJSONObject(0));
             } else {
+                Log.i(LOG_TAG, "Call to setPlacesMessagingConfiguration failed; Messaging Listener is null. " +
+                        "Call setMessagingListener before setting configuration");
                 callbackContext.error("Call setMessagingListener before setting configuration.");
             }
             return true;
@@ -919,11 +978,13 @@ public class LocalyticsPlugin extends CordovaPlugin {
                             JSONArray result = toCircularRegionJSON(circularRegions);
                             callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK, result));
                         } catch (JSONException e) {
+                            Log.i(LOG_TAG, "Call to getGeofencesToMonitor failed; JSONException occured while converting regions.");
                             callbackContext.error("JSONException while converting regions.");
                         }
                     }
                 });
             } else {
+                Log.i(LOG_TAG, "Call to getGeofencesToMonitor failed; Expected two arguments.");
                 callbackContext.error("Expected two arguments.");
             }
             return true;
@@ -939,11 +1000,13 @@ public class LocalyticsPlugin extends CordovaPlugin {
                   location.setLongitude(longitude);
                   Localytics.triggerRegion(toCircularRegion(region), toEvent(event), location);
                 } else {
+                    Log.i(LOG_TAG, "Call to triggerRegion couldn't find latitude and longitude values. Defaulting to null.");
                   Localytics.triggerRegion(toCircularRegion(region), toEvent(event), null);
                 }
                 callbackContext.success();
             } else {
-                callbackContext.error("Expected two arguments.");
+                Log.i(LOG_TAG, "Call to triggerRegion failed; Expected two or four arguments.");
+                callbackContext.error("Expected two or four arguments.");
             }
             return true;
         } else if (action.equals("triggerRegions")) {
@@ -958,11 +1021,13 @@ public class LocalyticsPlugin extends CordovaPlugin {
                   location.setLongitude(longitude);
                   Localytics.triggerRegions(toCircularRegions(regions), toEvent(event), location);
                 } else {
+                    Log.i(LOG_TAG, "Call to triggerRegions couldn't find latitude and longitude values. Defaulting to null.");
                   Localytics.triggerRegions(toCircularRegions(regions), toEvent(event), null);
                 }
                 callbackContext.success();
             } else {
-                callbackContext.error("Expected two arguments.");
+                Log.i(LOG_TAG, "Call to triggerRegions failed; Expected two or four arguments.");
+                callbackContext.error("Expected two or four arguments.");
             }
             return true;
         } else if (action.equals("setLocationListener")) {
@@ -999,6 +1064,7 @@ public class LocalyticsPlugin extends CordovaPlugin {
                 Localytics.setOption(key, value);
                 callbackContext.success();
             } else {
+                Log.i(LOG_TAG, "Call to setOption failed; Expected two arguments.");
                 callbackContext.error("Expected two arguments.");
             }
             return true;
