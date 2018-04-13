@@ -55,7 +55,6 @@ public class LocalyticsPlugin extends CordovaPlugin {
 
     private static final String LOG_TAG = "Localytics-Cordova";
 
-    private static final String PROP_SENDER_ID = "com.localytics.android_push_sender_id";
     private static final String ERROR_UNSUPPORTED_TYPE = "Unsupported type for attribute value.";
     private static final String ERROR_INVALID_ARRAY = "Invalid array type for attribute value.";
 
@@ -992,12 +991,12 @@ public class LocalyticsPlugin extends CordovaPlugin {
             if (args.length() >= 2) {
                 JSONObject region = args.getJSONObject(0);
                 String event = args.getString(1);
-                double latitude = args.optDouble(2);
-                double longitude = args.getDouble(3);
-                if (latitude != Double.NaN && longitude != Double.NaN) {
-                  Location location = new Location("");
-                  location.setLatitude(latitude);
-                  location.setLongitude(longitude);
+                Object latitude = args.opt(2);
+                Object longitude = args.opt(3);
+                if (latitude != JSONObject.NULL && longitude != JSONObject.NULL) {
+                    Location location = new Location("");
+                    location.setLatitude(Double.parseDouble((String) latitude));
+                    location.setLongitude(Double.parseDouble((String) longitude));
                   Localytics.triggerRegion(toCircularRegion(region), toEvent(event), location);
                 } else {
                     Log.i(LOG_TAG, "Call to triggerRegion couldn't find latitude and longitude values. Defaulting to null.");
@@ -1013,12 +1012,12 @@ public class LocalyticsPlugin extends CordovaPlugin {
             if (args.length() >= 2) {
                 JSONArray regions = args.getJSONArray(0);
                 String event = args.getString(1);
-                double latitude = args.optDouble(2);
-                double longitude = args.getDouble(3);
-                if (latitude != Double.NaN && longitude != Double.NaN) {
+                Object latitude = args.opt(2);
+                Object longitude = args.opt(3);
+                if (latitude != JSONObject.NULL && longitude != JSONObject.NULL) {
                   Location location = new Location("");
-                  location.setLatitude(latitude);
-                  location.setLongitude(longitude);
+                  location.setLatitude(Double.parseDouble((String) latitude));
+                  location.setLongitude(Double.parseDouble((String) longitude));
                   Localytics.triggerRegions(toCircularRegions(regions), toEvent(event), location);
                 } else {
                     Log.i(LOG_TAG, "Call to triggerRegions couldn't find latitude and longitude values. Defaulting to null.");
