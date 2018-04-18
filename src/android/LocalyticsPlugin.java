@@ -1366,6 +1366,9 @@ public class LocalyticsPlugin extends CordovaPlugin {
         Uri thumbnailUri = campaign.getThumbnailUri();
         json.put("thumbnailUrl", thumbnailUri != null ? thumbnailUri.toString() : "");
         json.put("hasCreative", campaign.hasCreative());
+        json.put("deeplink", campaign.getDeepLinkUrl());
+        json.put("isPushToInboxCampaign", campaign.isPushToInboxCampaign());
+        json.put("isVisible", campaign.isVisible());
 
         return json;
     }
@@ -1411,6 +1414,7 @@ public class LocalyticsPlugin extends CordovaPlugin {
         json.put("creativeId", (int) campaign.getCreativeId());
         json.put("creativeType", campaign.getCreativeType());
         json.put("message", campaign.getMessage());
+        json.put("title", campaign.getTitle());
         json.put("soundFilename", campaign.getSoundFilename());
         json.put("attachmentUrl", campaign.getAttachmentUrl());
 
@@ -1429,6 +1433,7 @@ public class LocalyticsPlugin extends CordovaPlugin {
         json.put("creativeId", (int) campaign.getCreativeId());
         json.put("creativeType", campaign.getCreativeType());
         json.put("message", campaign.getMessage());
+        json.put("title", campaign.getTitle());
         json.put("soundFilename", campaign.getSoundFilename());
         json.put("attachmentUrl", campaign.getAttachmentUrl());
         json.put("region", toCircularRegionJSON((CircularRegion) campaign.getRegion()));

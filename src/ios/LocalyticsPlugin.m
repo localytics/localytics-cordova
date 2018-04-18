@@ -283,7 +283,9 @@ static NSDictionary *launchOptions;
         @"thumbnailUrl": [campaign.thumbnailUrl absoluteString] ?: [NSNull null],
         @"hasCreative": @(campaign.hasCreative),
         @"sortOrder": @(campaign.sortOrder),
-        @"receivedDate": @(campaign.receivedDate)
+        @"receivedDate": @(campaign.receivedDate),
+        @"deeplink": campaign.deepLinkURL,
+        @"isPushToInboxCampaign": @(campaign.isPushToInboxCampaign)
     };
 }
 
