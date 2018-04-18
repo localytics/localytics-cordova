@@ -368,7 +368,7 @@ Localytics.prototype.setCustomerId = function (id) {
 	cordova.exec(null, null, "LocalyticsPlugin", "setCustomerId", [id]);
 }
 
-// Set customer ID
+// Set customer ID and opted out status
 // id = unique customer id as a string (ie, "12345")
 // enabled = Privacy opt out state of user
 Localytics.prototype.setCustomerIdWithPrivacyOptedOut = function (id, enabled) {
