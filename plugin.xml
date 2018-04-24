@@ -30,7 +30,7 @@
         <header-file src="src/ios/CDMessagingDelegate.h" />
         <source-file src="src/ios/CDMessagingDelegate.m" />
 
-        <framework src="LocalyticsStaticFramework" type="podspec" spec="~> 4.4" />
+        <framework src="Localytics" type="podspec" spec="~> 5.1" />
         <framework src="UserNotifications" type="framework" />
 
     </platform>
@@ -48,6 +48,7 @@
         <source-file src="src/android/CDAnalyticsListener.java" target-dir="src/com/localytics/phonegap/" />
         <source-file src="src/android/CDLocationListener.java" target-dir="src/com/localytics/phonegap/" />
         <source-file src="src/android/CDMessagingListener.java" target-dir="src/com/localytics/phonegap/" />
+        <source-file src="src/android/ConstantsHelper.java" target-dir="src/com/localytics/android/" />
 
     </platform>
 

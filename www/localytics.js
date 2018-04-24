@@ -13,20 +13,35 @@ var Localytics = function () {
 
 // Initializes Localytics without opening a session
 // localyticsKey = Localytics App ID as a string
-Localytics.prototype.integrate = function (localyticsKey) {
-	cordova.exec(null, null, "LocalyticsPlugin", "integrate", [localyticsKey]);
+// localyticsOptions (iOS only) = A Hash containing values for ll_wifi_upload_interval_seconds,
+//       ll_great_network_upload_interval_seconds, ll_decent_network_upload_interval_seconds
+//       and ll_bad_network_upload_interval_seconds. See https://docs.localytics.com/dev/ios.html#initialize-sdk-ios
+//       for more details.
+
+Localytics.prototype.integrate = function (localyticsKey, localyticsOptions) {
+	cordova.exec(null, null, "LocalyticsPlugin", "integrate", [localyticsKey, localyticsOptions]);
 }
 
 // Initializes Localytics by hooking into the activity lifecycle events of the app
 // localyticsKey = Localytics App ID as a string
-Localytics.prototype.autoIntegrate = function(localyticsKey) {
-	cordova.exec(null, null, "LocalyticsPlugin", "autoIntegrate", [localyticsKey]);
+// localyticsOptions (iOS only) = A Hash containing values for ll_wifi_upload_interval_seconds,
+//       ll_great_network_upload_interval_seconds, ll_decent_network_upload_interval_seconds
+//       and ll_bad_network_upload_interval_seconds. See https://docs.localytics.com/dev/ios.html#initialize-sdk-ios
+//       for more details.
+Localytics.prototype.autoIntegrate = function(localyticsKey, localyticsOptions) {
+	cordova.exec(null, null, "LocalyticsPlugin", "autoIntegrate", [localyticsKey, localyticsOptions]);
 }
 
 // Initiates an upload
 // This should typically be called on deviceready, resume, and pause events
 Localytics.prototype.upload = function() {
 	cordova.exec(null, null, "LocalyticsPlugin", "upload", []);
+}
+
+// Halts uploads to the Localytics backend (while still allowing Localytics to collect data.)
+// pause = a Boolean indicating wether to pause or resume uploading
+Localytics.prototype.pauseDataUploading = function(pause) {
+	cordova.exec(null, null, "LocalyticsPlugin", "pauseDataUploading", [pause]);
 }
 
 // Opens a session
@@ -55,6 +70,18 @@ Localytics.prototype.setOptedOut = function (enabled) {
 // successCallback = callback function for result
 Localytics.prototype.isOptedOut = function (successCallback) {
 	cordova.exec(successCallback, null, "LocalyticsPlugin", "isOptedOut", []);
+}
+
+// Sets opted out
+// enabled = boolean
+Localytics.prototype.setPrivacyOptedOut = function (enabled) {
+	cordova.exec(null, null, "LocalyticsPlugin", "setPrivacyOptedOut", [enabled]);
+}
+
+// Gets opted out status
+// successCallback = callback function for result
+Localytics.prototype.isPrivacyOptedOut = function (successCallback) {
+	cordova.exec(successCallback, null, "LocalyticsPlugin", "isPrivacyOptedOut", []);
 }
 
 // Tags an event
@@ -341,6 +368,13 @@ Localytics.prototype.setCustomerId = function (id) {
 	cordova.exec(null, null, "LocalyticsPlugin", "setCustomerId", [id]);
 }
 
+// Set customer ID and opted out status
+// id = unique customer id as a string (ie, "12345")
+// enabled = Privacy opt out state of user
+Localytics.prototype.setCustomerIdWithPrivacyOptedOut = function (id, enabled) {
+	cordova.exec(null, null, "LocalyticsPlugin", "setCustomerIdWithPrivacyOptedOut", [id, enabled]);
+}
+
 // Set a user's location
 // latitude = The latitude value
 // longitude = The longitude value
@@ -379,13 +413,6 @@ Localytics.prototype.setNotificationsDisabled = function (disabled) {
 // successCallback = callback function for result
 Localytics.prototype.areNotificationsDisabled = function (successCallback) {
 	cordova.exec(successCallback, null, "LocalyticsPlugin", "areNotificationsDisabled", []);
-}
-
-// Android only: Set the default Localytics notification channel and description
-// name = The name of the default notification channel
-// description = The description of the default notification channel
-Localytics.prototype.setDefaultNotificationChannel = function (name, description) {
-	cordova.exec(null, null, "LocalyticsPlugin", "setDefaultNotificationChannel", [name, description]);
 }
 
 // Set a configuration object for push message display
@@ -453,17 +480,30 @@ Localytics.prototype.setInAppMessageConfiguration = function (config) {
 	cordova.exec(null, null, "LocalyticsPlugin", "setInAppMessageConfiguration", [config]);
 }
 
-// iOS only: Returns whether the ADID parameter is added to In-App call to action URLs
+// Returns whether the ADID parameter is added to In-App call to action URLs
 // successCallback = callback function for result
 Localytics.prototype.isInAppAdIdParameterEnabled = function (successCallback) {
 	cordova.exec(successCallback, null, "LocalyticsPlugin", "isInAppAdIdParameterEnabled", []);
 }
 
-// iOS only: Set whether ADID parameter is added to In-App call to action URLs. By default
+// Set whether ADID parameter is added to In-App call to action URLs. By default
 // the ADID parameter will be added to call to action URLs.
 // enabled = true to enable the ADID parameter or false to disable it
 Localytics.prototype.setInAppAdIdParameterEnabled = function (enabled) {
 	cordova.exec(null, null, "LocalyticsPlugin", "setInAppAdIdParameterEnabled", [enabled]);
+}
+
+// Returns whether the ADID parameter is added to Inbox call to action URLs
+// successCallback = callback function for result
+Localytics.prototype.isInboxAdIdParameterEnabled = function (successCallback) {
+	cordova.exec(successCallback, null, "LocalyticsPlugin", "isInboxAdIdParameterEnabled", []);
+}
+
+// Set whether ADID parameter is added to Inbox call to action URLs. By default
+// the ADID parameter will be added to call to action URLs.
+// enabled = true to enable the ADID parameter or false to disable it
+Localytics.prototype.setInboxAdIdParameterEnabled = function (enabled) {
+	cordova.exec(null, null, "LocalyticsPlugin", "setInboxAdIdParameterEnabled", [enabled]);
 }
 
 // Get all Inbox campaigns that can be displayed
@@ -557,15 +597,19 @@ Localytics.prototype.getGeofencesToMonitor = function (latitude, longitude, succ
 // Trigger a region with a certain event
 // region = The region that was triggered
 // event = The event that triggered the region ("enter" or "exit")
-Localytics.prototype.triggerRegion = function (region, event) {
-	cordova.exec(null, null, "LocalyticsPlugin", "triggerRegion", [region, event]);
+// latitude = The latitude where the region was triggered
+// longitude = The longitude where the region was triggered
+Localytics.prototype.triggerRegion = function (region, event, latitude, longitude) {
+	cordova.exec(null, null, "LocalyticsPlugin", "triggerRegion", [region, event, latitude, longitude]);
 }
 
 // Trigger a list of regions with a certain event
 // regions = A list of regions that were triggered
 // event = The event that triggered the region ("enter" or "exit")
+// latitude = The latitude where the region was triggered
+// longitude = The longitude where the region was triggered
 Localytics.prototype.triggerRegions = function (regions, event) {
-	cordova.exec(null, null, "LocalyticsPlugin", "triggerRegions", [regions, event]);
+	cordova.exec(null, null, "LocalyticsPlugin", "triggerRegions", [regions, event, latitude, longitude]);
 }
 
 // Set a listener that will be notified of certain location callbacks:
@@ -614,7 +658,7 @@ Localytics.prototype.setOption = function (key, value) {
 	cordova.exec(null, null, "LocalyticsPlugin", "setOption", [key, value]);
 }
 
-// Android only: No production builds should call this method.
+// No production builds should call this method.
 // Enable/Disable log rerouting to a file on disk.  Calling this method will allow logs to be
 // copied later. The method allows two options:
 //   * writeExternally set to true will write the logs to files/console.log within the app's directory
@@ -622,7 +666,7 @@ Localytics.prototype.setOption = function (key, value) {
 //     storage directory. This option requires requesting WRITE_EXTERNAL_STORAGE permissions from
 //     the user. On Android less than 2.3 this additionally requires requesting the READ_LOGS
 //     permission.
-// writeExternally = a boolean value to indicate where to write the logs.
+// writeExternally (Android only) = a boolean value to indicate where to write the logs.
 Localytics.prototype.redirectLogsToDisk = function (writeExternally) {
 	cordova.exec(null, null, "LocalyticsPlugin", "redirectLogsToDisk", [writeExternally]);
 }
@@ -644,6 +688,5 @@ Localytics.prototype.getAppKey = function (successCallback) {
 Localytics.prototype.getLibraryVersion = function (successCallback) {
 	cordova.exec(successCallback, null, "LocalyticsPlugin", "getLibraryVersion", []);
 }
-
 
 module.exports = new Localytics();
