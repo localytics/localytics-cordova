@@ -46,7 +46,6 @@ import com.localytics.android.Localytics;
 import com.localytics.android.PlacesCampaign;
 import com.localytics.android.PushCampaign;
 import com.localytics.android.Region;
-import com.localytics.android.ConstantsHelper;
 
 /**
  * This class echoes a string called from JavaScript.
@@ -66,11 +65,12 @@ public class LocalyticsPlugin extends CordovaPlugin {
     private CDAnalyticsListener analyticsListener;
     private CDLocationListener locationListener;
     private CDMessagingListener messagingListener;
+    private CDCTAListener ctaListener;
 
     @Override
     public void initialize(CordovaInterface cordova, CordovaWebView webView) {
         super.initialize(cordova, webView);
-        com.localytics.android.ConstantsHelper.updatePluginVersion();
+        Localytics.setOption("plugin_library", "Cordova_5.2.0");
     }
 
     @Override
@@ -844,6 +844,24 @@ public class LocalyticsPlugin extends CordovaPlugin {
                 }
             });
             return true;
+        } else if (action.equals("getDisplayableInboxCampaigns")) {
+            cordova.getThreadPool().execute(new Runnable() {
+                public void run() {
+                    try {
+                        List<InboxCampaign> campaigns = Localytics.getDisplayableInboxCampaigns();
+
+                        // Cache campaigns
+                        for (InboxCampaign campaign : campaigns) {
+                            inboxCampaignCache.put((int) campaign.getCampaignId(), campaign);
+                        }
+
+                        callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK, toInboxJSON(campaigns)));
+                    } catch (JSONException e) {
+                        callbackContext.error("JSONException while converting campaigns.");
+                    }
+                }
+            });
+            return true;
         } else if (action.equals("getAllInboxCampaigns")) {
             cordova.getThreadPool().execute(new Runnable() {
                 public void run() {
@@ -920,6 +938,23 @@ public class LocalyticsPlugin extends CordovaPlugin {
             } else {
                 Log.i(LOG_TAG, "Call to setInboxCampaignRead failed; Expected two arguments.");
                 callbackContext.error("Expected two arguments.");
+            }
+            return true;
+        } else if (action.equals("deleteInboxCampaign")) {
+            if (args.length() == 1) {
+                int campaignId = args.getInt(0);
+                InboxCampaign campaign = inboxCampaignCache.get(campaignId);
+                if (campaign != null) {
+                    Localytics.deleteInboxCampaign(campaign);
+                    callbackContext.success();
+                } else {
+                    Log.i(LOG_TAG, "Call to deleteInboxCampaign failed; Couldn't find Inbox campaign with ID " + campaignId);
+                    callbackContext.error("Campaign not cached. Couldn't find Inbox campaign with ID " + campaignId);
+                }
+                updateInboxCampaignCache();
+            } else {
+                Log.i(LOG_TAG, "Call to deleteInboxCampaign failed; Expected one argument.");
+                callbackContext.error("Expected one argument.");
             }
             return true;
         } else if (action.equals("inboxListItemTapped")) {
@@ -1036,6 +1071,15 @@ public class LocalyticsPlugin extends CordovaPlugin {
         } else if (action.equals("removeLocationListener")) {
             locationListener = null;
             Localytics.setLocationListener(null);
+            callbackContext.success();
+            return true;
+        } else if (action.equals("setCallToActionListener")) {
+            ctaListener = new CDCTAListener(callbackContext);
+            Localytics.setCallToActionListener(ctaListener);
+            return true;
+        } else if (action.equals("removeCallToActionListener")) {
+            ctaListener = null;
+            Localytics.setCallToActionListener(null);
             callbackContext.success();
             return true;
         } else if (action.equals("setLoggingEnabled")) {
@@ -1369,6 +1413,7 @@ public class LocalyticsPlugin extends CordovaPlugin {
         json.put("deeplink", campaign.getDeepLinkUrl());
         json.put("isPushToInboxCampaign", campaign.isPushToInboxCampaign());
         json.put("isVisible", campaign.isVisible());
+        json.put("deleted", campaign.isDeleted());
 
         return json;
     }

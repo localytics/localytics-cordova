@@ -10,6 +10,7 @@
 #import "CDAnalyticsDelegate.h"
 #import "CDLocationDelegate.h"
 #import "CDMessagingDelegate.h"
+#import "CDCTADelegate.h"
 
 @import UserNotifications;
 @import Localytics;
@@ -196,6 +197,7 @@ BOOL MethodSwizzle(Class clazz, SEL originalSelector, SEL overrideSelector) {
 
 @property (nonatomic, strong) CDAnalyticsDelegate *analyticsDelegate;
 @property (nonatomic, strong) CDLocationDelegate *locationDelegate;
+@property (nonatomic, strong) CDCTADelegate *ctaDelegate;
 @property (nonatomic, strong) CDMessagingDelegate *messagingDelegate;
 
 @end
@@ -284,8 +286,9 @@ static NSDictionary *launchOptions;
         @"hasCreative": @(campaign.hasCreative),
         @"sortOrder": @(campaign.sortOrder),
         @"receivedDate": @(campaign.receivedDate),
-        @"deeplink": campaign.deepLinkURL,
-        @"isPushToInboxCampaign": @(campaign.isPushToInboxCampaign)
+        @"deeplink": campaign.deepLinkURL ?: [NSNull null],
+        @"isPushToInboxCampaign": @(campaign.isPushToInboxCampaign),
+        @"deleted": @(campaign.isDeleted)
     };
 }
 
@@ -1214,6 +1217,22 @@ static NSDictionary *launchOptions;
     }];
 }
 
+- (void)getDisplayableInboxCampaigns:(CDVInvokedUrlCommand *)command {
+    [self logInput:@"getDisplayableInboxCampaigns" withCommand:command];
+    [self.commandDelegate runInBackground:^{
+        NSArray<LLInboxCampaign *> *inboxCampaigns = [Localytics displayableInboxCampaigns];
+
+        // Cache campaigns
+        for (LLInboxCampaign *campaign in inboxCampaigns) {
+            [self.inboxCampaignCache setObject:campaign forKey:@(campaign.campaignId)];
+        }
+
+        NSArray *value = [self dictionaryArrayFromInboxCampaigns:inboxCampaigns];
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:value];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    }];
+}
+
 - (void)getAllInboxCampaigns:(CDVInvokedUrlCommand *)command {
     [self logInput:@"getAllInboxCampaigns" withCommand:command];
     [self.commandDelegate runInBackground:^{
@@ -1278,6 +1297,22 @@ static NSDictionary *launchOptions;
         }
     } else {
         NSLog(@"Localytics Cordova wrapper received bad input in call to setInboxCampaignRead; 2 arguments expected.");
+    }
+}
+
+- (void)deleteInboxCampaign:(CDVInvokedUrlCommand *)command {
+    [self logInput:@"deleteInboxCampaign" withCommand:command];
+    if ([command.arguments count] == 1) {
+        NSNumber *campaignId = [command argumentAtIndex:0];
+        LLInboxCampaign *campaign = self.inboxCampaignCache[@([campaignId integerValue])];
+        if (campaign) {
+            [Localytics deleteInboxCampaign:campaign];
+        } else {
+            NSLog(@"Localytics Cordova wrapper received bad input in call to setInboxCampaignRead; Campaign ID didn't map to any campaigns.");
+        }
+        [self updateInboxCampaignCache];
+    } else {
+        NSLog(@"Localytics Cordova wrapper received bad input in call to deleteInboxCampaign; 1 arguments expected.");
     }
 }
 
@@ -1416,6 +1451,19 @@ static NSDictionary *launchOptions;
     [self logInput:@"removeLocationListener" withCommand:command];
     self.locationDelegate = nil;
     [Localytics setLocationDelegate:nil];
+}
+
+- (void)setCallToActionListener:(CDVInvokedUrlCommand *)command {
+    [self logInput:@"setCallToActionListener" withCommand:command];
+    self.ctaDelegate = [[CDCTADelegate alloc] initWithCommandDelegate:self.commandDelegate
+                                                              invokedUrlCommand:command];
+    [Localytics setCallToActionDelegate:self.ctaDelegate];
+}
+
+- (void)removeCallToActionListener:(CDVInvokedUrlCommand *)command {
+    [self logInput:@"removeCallToActionListener" withCommand:command];
+    self.ctaDelegate = nil;
+    [Localytics setCallToActionDelegate:nil];
 }
 
 #pragma mark Developer Options
