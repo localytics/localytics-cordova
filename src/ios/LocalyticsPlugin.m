@@ -37,20 +37,6 @@
 
 #pragma mark Private
 
-static NSDictionary *launchOptions;
-
-+ (void)load {
-    // Listen for UIApplicationDidFinishLaunchingNotification to get a hold of launchOptions
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onDidFinishLaunchingNotification:) name:UIApplicationDidFinishLaunchingNotification object:nil];
-}
-
-+ (void)onDidFinishLaunchingNotification:(NSNotification *)notification {
-    launchOptions = notification.userInfo;
-    if (launchOptions && launchOptions[UIApplicationLaunchOptionsRemoteNotificationKey]) {
-        [Localytics handleNotification:launchOptions[UIApplicationLaunchOptionsRemoteNotificationKey]];
-    }
-}
-
 - (NSUInteger)getProfileScope:(NSString *)scope {
     if ([scope caseInsensitiveCompare:PROFILE_SCOPE_ORG] == NSOrderedSame) {
         return LLProfileScopeOrganization;
@@ -281,7 +267,6 @@ static NSDictionary *launchOptions;
 
     if (appKey) {
       [Localytics integrate:appKey withLocalyticsOptions:localyticsOptions];
-      launchOptions = nil; // Clear launchOptions on integrate
     } else {
       NSLog(@"Localytics Cordova wrapper can't integrate. No App Key found.");
     }
@@ -305,9 +290,7 @@ static NSDictionary *launchOptions;
     }
 
     if (appKey) {
-      localyticsIsAutoIntegrate = YES;
-      [Localytics autoIntegrate:appKey withLocalyticsOptions:localyticsOptions launchOptions: launchOptions];
-      launchOptions = nil; // Clear launchOptions on integrate
+      [Localytics autoIntegrate:appKey withLocalyticsOptions:localyticsOptions launchOptions:nil];
     } else {
       NSLog(@"Localytics Cordova wrapper can't integrate. No App Key found.");
     }
