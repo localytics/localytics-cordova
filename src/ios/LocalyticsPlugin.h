@@ -10,6 +10,7 @@
 @class LLGeofence;
 @class LLInAppCampaign;
 @class LLPlacesCampaign;
+@class LLInboxCampaign;
 
 typedef NS_ENUM(NSUInteger, LLInAppMessageDismissButtonLocation);
 
@@ -123,7 +124,7 @@ typedef NS_ENUM(NSUInteger, LLInAppMessageDismissButtonLocation);
 + (NSArray<NSDictionary<NSString *, NSObject *> *> *)dictionaryArrayFromRegions:(NSArray<LLRegion *> *)regions;
 + (NSDictionary<NSString *, NSObject *> *)dictionaryFromGeofence:(LLGeofence *)geofence;
 + (NSDictionary<NSString *, NSObject *> *)dictionaryFromInAppCampaign:(LLInAppCampaign *)campaign;
-+ (NSDictionary<NSString *, NSObject *> *)dictionaryFromInboxCampaign:(LLInAppCampaign *)campaign;
++ (NSDictionary<NSString *, NSObject *> *)dictionaryFromInboxCampaign:(LLInboxCampaign *)campaign;
 + (NSDictionary<NSString *, NSObject *> *)dictionaryFromPlacesCampaign:(LLPlacesCampaign *)campaign;
 + (LLInAppMessageDismissButtonLocation)locationFrom:(NSString *)location;
 
