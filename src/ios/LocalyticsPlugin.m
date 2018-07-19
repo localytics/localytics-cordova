@@ -79,13 +79,13 @@
 - (NSArray<NSDictionary<NSString *, NSObject *> *> *)dictionaryArrayFromInboxCampaigns:(NSArray<LLInboxCampaign *> *)campaigns {
     NSMutableArray *array = [NSMutableArray new];
     for (LLInboxCampaign *campaign in campaigns) {
-        [array addObject:[self dictionaryFromInboxCampaign:campaign]];
+        [array addObject:[LocalyticsPlugin dictionaryFromInboxCampaign:campaign]];
     }
 
     return [array copy];
 }
 
-- (NSDictionary<NSString *, NSObject *> *)dictionaryFromInboxCampaign:(LLInboxCampaign *)campaign {
++ (NSDictionary<NSString *, NSObject *> *)dictionaryFromInboxCampaign:(LLInboxCampaign *)campaign {
     return @{
         // LLCampaignBase
         @"campaignId": @(campaign.campaignId),
@@ -800,7 +800,7 @@
     NSString *customerId = [command argumentAtIndex:0];
     NSNumber *optedOut = [command argumentAtIndex:1];
 
-    [Localytics setCustomerId:customerId privacyOptedOut:optedOut];
+    [Localytics setCustomerId:customerId privacyOptedOut:[optedOut boolValue]];
 }
 
 - (void)getCustomerId:(CDVInvokedUrlCommand *)command {
