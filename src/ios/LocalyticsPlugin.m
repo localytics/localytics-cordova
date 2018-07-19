@@ -800,7 +800,7 @@
     NSString *customerId = [command argumentAtIndex:0];
     NSNumber *optedOut = [command argumentAtIndex:1];
 
-    [Localytics setCustomerId:customerId privacyOptedOut:optedOut];
+    [Localytics setCustomerId:customerId privacyOptedOut:[optedOut boolValue]];
 }
 
 - (void)getCustomerId:(CDVInvokedUrlCommand *)command {
