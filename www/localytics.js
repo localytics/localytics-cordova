@@ -512,6 +512,12 @@ Localytics.prototype.getInboxCampaigns = function (successCallback) {
 	cordova.exec(successCallback, null, "LocalyticsPlugin", "getInboxCampaigns", []);
 }
 
+// Get all Inbox campaigns that can be displayed
+// successCallback = callback function for result
+Localytics.prototype.getDisplayableInboxCampaigns = function (successCallback) {
+	cordova.exec(successCallback, null, "LocalyticsPlugin", "getDisplayableInboxCampaigns", []);
+}
+
 // Get all Inbox campaigns. The return value will include Inbox campaigns with no listing title,
 // and thus no visible UI element.
 // successCallback = callback function for result
@@ -539,6 +545,12 @@ Localytics.prototype.refreshAllInboxCampaigns = function (successCallback) {
 // read = true to mark the campaign as read, false to mark it as unread
 Localytics.prototype.setInboxCampaignRead = function (campaignId, read) {
 	cordova.exec(null, null, "LocalyticsPlugin", "setInboxCampaignRead", [campaignId, read]);
+}
+
+// Delete an Inbox Campaign.
+// campaignId = the campaign Id of the Inbox campaign
+Localytics.prototype.deleteInboxCampaign = function (campaignId) {
+	cordova.exec(null, null, "LocalyticsPlugin", "deleteInboxCampaign", [campaignId]);
 }
 
 // Get the count of unread inbox messages
@@ -621,6 +633,18 @@ Localytics.prototype.setLocationListener = function (successCallback) {
 // Remove the listener and no longer be notified of certain location callbacks:
 Localytics.prototype.removeLocationListener = function () {
 	cordova.exec(null, null, "LocalyticsPlugin", "removeLocationListener", []);
+}
+
+// Set a listener that will be notified of certain location callbacks:
+// successCallback = callback function for result
+Localytics.prototype.setCallToActionListener = function (successCallback) {
+	cordova.exec(successCallback, null, "LocalyticsPlugin", "setCallToActionListener", []);
+}
+
+// Set a listener that will be notified of certain location callbacks:
+// successCallback = callback function for result
+Localytics.prototype.removeCallToActionListener = function (successCallback) {
+	cordova.exec(successCallback, null, "LocalyticsPlugin", "removeCallToActionListener", []);
 }
 
 /*******************

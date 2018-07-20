@@ -2,3 +2,4 @@
 *.xcuserstate
 SampleApp/platforms/android/CordovaLib/build/
 SampleApp/platforms/android/.gradle/
+src/.DS_Store

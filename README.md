@@ -3,7 +3,11 @@ Localytics for PhoneGap/Cordova
 
 ## Version
 
-This version of the PhoneGap/Cordova SDK wraps v5.1.1 of the Localytics Android and v5.1.0 of the Localytics iOS SDKs.
+This version of the PhoneGap/Cordova SDK wraps v5.2.0 of the Localytics Android and v5.2.0 of the Localytics iOS SDKs.
+
+> Cordova SDK 5.2.0 has some drastic changes to the manual integration (Localytics.integrate) workflow for iOS.
+> Push Messaging and Test Mode can begin to fail upon upgrade if the proper workflow is not followed.
+> Please consult the manual integration section to ensure you're app is still behaving appropriately.
 
 ## Supported Versions
 
@@ -119,6 +123,8 @@ Localytics.registerPush();
 
 > registerPush relies on "CDVRemoteNotification", "CDVRemoteNotificationError" and "CDVPluginHandleOpenURLNotification" broadcasted by cordova's AppDelegate.m class. If you change the AppDelegate, ensure to rebroadcast these events from the appropriate handlers to ensure correct behavior. Alternatively, you can also integrate manually through native code instead.
 
+Finally, if you are using manual integration, make sure to follow steps 5 and onwards of the (manual integration guide)[https://docs.localytics.com/dev/ios.html#manual-integration-ios].
+
 #### Android
 
 [Follow these instructions to set up push notifications for your app.](https://docs.localytics.com/dev/android.html#fcm-integration-android)
@@ -136,6 +142,8 @@ Localytics.registerPush();
 [Follow these instructions to add the proper location prompt messages to your Info.plist.](https://docs.localytics.com/dev/ios.html#add-location-always-usage-plist-places-ios)
 
 Next, [ensure you request notification permissions by following these steps.](https://docs.localytics.com/dev/ios.html#register-for-places-notifications-ios).
+
+If you are using manual integration, make sure you handle the opened notification by [following these steps](https://docs.localytics.com/dev/ios.html#handle-places-notification-ios).
 
 > Note: If you already call registerPush() in your app then you won't need to follow the second step to request notification permissions.
 
@@ -272,7 +280,12 @@ Localytics.isInboxAdIdParameterEnabled(
 	function success(result) {
 		var enabled = result;
 });
+//Deprecated in 5.2 in favor of getDisplayableInboxCampaigns
 Localytics.getInboxCampaigns(
+	function success(result) {
+		var campaigns = result;
+});
+Localytics.getDisplayableInboxCampaigns(
 	function success(result) {
 		var campaigns = result;
 });
@@ -289,6 +302,7 @@ Localytics.refreshAllInboxCampaigns(
 		var campaigns = result;
 });
 Localytics.setInboxCampaignRead(72613, true);
+Localytics.deleteInboxCampaign(72613);
 Localytics.getInboxCampaignsUnreadCount(
 	function success(result) {
 		var count = result;
@@ -368,6 +382,21 @@ Localytics.setLocationListener(
 		// - {"method": "localyticsDidTriggerRegions", "params": {"regions": [...], "event": "enter"}}
 });
 Localytics.removeLocationListener();
+// Location
+Localytics.setCallToActionListener(
+	function success(result) {
+		// result can be one of:
+		// - {"method": "localyticsShouldDeeplink", "params": {"url": "http://www.google.com", "campaign": {"name": "Campaign Name", ...}}}
+		// - {"method": "localyticsDidOptOut", "params": {"optedOut": true/false, "campaign": {"name": "Campaign Name", ...}
+		// - {"method": "localyticsDidPrivacyOptOut", "params": {"privacyOptedOut": true/false, "campaign": {"name": "Campaign Name", ...}
+		//Android Only
+		// - {"method": "localyticsShouldPromptForLocationPermissions", "params": {"campaign": {"name": "Campaign Name", ...}
+		//iOS Only
+		// - {"method": "localyticsShouldPromptForLocationWhenInUsePermissions", "params": {"campaign": {"name": "Campaign Name", ...}
+		// - {"method": "localyticsShouldPromptForLocationAlwaysPermissions", "params": {"campaign": {"name": "Campaign Name", ...}
+		// - {"method": "localyticsShouldPromptForNotificationPermissions", "params": {"campaign": {"name": "Campaign Name", ...}
+});
+Localytics.removeCallToActionListener();
 ```
 
 ### Messaging Configuration

@@ -10,6 +10,7 @@
 @class LLGeofence;
 @class LLInAppCampaign;
 @class LLPlacesCampaign;
+@class LLInboxCampaign;
 
 typedef NS_ENUM(NSUInteger, LLInAppMessageDismissButtonLocation);
 
@@ -89,10 +90,12 @@ typedef NS_ENUM(NSUInteger, LLInAppMessageDismissButtonLocation);
 - (void)isInboxAdIdParameterEnabled:(CDVInvokedUrlCommand *)command;
 - (void)setInboxAdIdParameterEnabled:(CDVInvokedUrlCommand *)command;
 - (void)getInboxCampaigns:(CDVInvokedUrlCommand *)command;
+- (void)getDisplayableInboxCampaigns:(CDVInvokedUrlCommand *)command;
 - (void)getAllInboxCampaigns:(CDVInvokedUrlCommand *)command;
 - (void)refreshInboxCampaigns:(CDVInvokedUrlCommand *)command;
 - (void)refreshAllInboxCampaigns:(CDVInvokedUrlCommand *)command;
 - (void)setInboxCampaignRead:(CDVInvokedUrlCommand *)command;
+- (void)deleteInboxCampaign:(CDVInvokedUrlCommand *)command;
 - (void)getInboxCampaignsUnreadCount:(CDVInvokedUrlCommand *)command;
 - (void)inboxListItemTapped:(CDVInvokedUrlCommand *)command;
 - (void)triggerPlacesNotification:(CDVInvokedUrlCommand *)command;
@@ -106,6 +109,8 @@ typedef NS_ENUM(NSUInteger, LLInAppMessageDismissButtonLocation);
 - (void)triggerRegions:(CDVInvokedUrlCommand *)command;
 - (void)setLocationListener:(CDVInvokedUrlCommand *)command;
 - (void)removeLocationListener:(CDVInvokedUrlCommand *)command;
+- (void)setCallToActionListener:(CDVInvokedUrlCommand *)command;
+- (void)removeCallToActionListener:(CDVInvokedUrlCommand *)command;
 
 - (void)setLoggingEnabled:(CDVInvokedUrlCommand *)command;
 - (void)isLoggingEnabled:(CDVInvokedUrlCommand *)command;
@@ -119,6 +124,7 @@ typedef NS_ENUM(NSUInteger, LLInAppMessageDismissButtonLocation);
 + (NSArray<NSDictionary<NSString *, NSObject *> *> *)dictionaryArrayFromRegions:(NSArray<LLRegion *> *)regions;
 + (NSDictionary<NSString *, NSObject *> *)dictionaryFromGeofence:(LLGeofence *)geofence;
 + (NSDictionary<NSString *, NSObject *> *)dictionaryFromInAppCampaign:(LLInAppCampaign *)campaign;
++ (NSDictionary<NSString *, NSObject *> *)dictionaryFromInboxCampaign:(LLInboxCampaign *)campaign;
 + (NSDictionary<NSString *, NSObject *> *)dictionaryFromPlacesCampaign:(LLPlacesCampaign *)campaign;
 + (LLInAppMessageDismissButtonLocation)locationFrom:(NSString *)location;
 
