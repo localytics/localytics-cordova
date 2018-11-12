@@ -15,7 +15,7 @@
 @import UserNotifications;
 @import Localytics;
 
-#define PLUGIN_VERSION @"Cordova_5.2.0"
+#define PLUGIN_VERSION @"Cordova_5.4.0"
 
 #define PROFILE_SCOPE_ORG @"org"
 #define PROFILE_SCOPE_APP @"app"
@@ -34,6 +34,36 @@
 @end
 
 @implementation LocalyticsPlugin
+
+LocalyticsPlugin *shared;
+
+- (instancetype)init {
+    if (self = [super init]) {
+        shared = self;
+        _ctaDelegate = [[CDCTADelegate alloc] init];
+        self.ctaDelegate.commandDelegate = self.commandDelegate;
+        [Localytics setOptions:@{@"plugin_library": PLUGIN_VERSION}];
+        [Localytics setCallToActionDelegate:_ctaDelegate];
+    }
+    return self;
+}
+
++ (LocalyticsPlugin *)sharedInstance {
+    if (!shared) {
+        shared = [[LocalyticsPlugin alloc] init];
+    }
+    return shared;
+}
+
+#pragma mark Native Cordova Specific
+
++ (void)setLocationMonitoringDelegate:(nullable id<LLLocationMonitoringDelegate>)delegate {
+    [[LocalyticsPlugin sharedInstance] setLocationMonitoringDelegate:delegate];
+}
+
+- (void)setLocationMonitoringDelegate:(nullable id<LLLocationMonitoringDelegate>)delegate {
+    self.ctaDelegate.monitoringDelegate = delegate;
+}
 
 #pragma mark Private
 
@@ -1191,10 +1221,24 @@
 - (void)setLocationMonitoringEnabled:(CDVInvokedUrlCommand *)command {
     [self logInput:@"setLocationMonitoringEnabled" withCommand:command];
     NSNumber *enabled = [command argumentAtIndex:0];
+    NSNumber *persist = [command argumentAtIndex:1];
+    if ([persist isKindOfClass:[NSNumber class]]) {
+        [Localytics persistLocationMonitoring:persist];
+    }
     if ([enabled isKindOfClass:[NSNumber class]]) {
         [Localytics setLocationMonitoringEnabled:[enabled boolValue]];
     } else {
         NSLog(@"Localytics Cordova wrapper received bad input to setLocationMonitoringEnabled; argument is of the wrong type.");
+    }
+}
+
+- (void)persistLocationMonitoring:(CDVInvokedUrlCommand *)command {
+    [self logInput:@"persistLocationMonitoring" withCommand:command];
+    NSNumber *enabled = [command argumentAtIndex:0];
+    if ([enabled isKindOfClass:[NSNumber class]]) {
+        [Localytics persistLocationMonitoring:[enabled boolValue]];
+    } else {
+        NSLog(@"Localytics Cordova wrapper received bad input to persistLocationMonitoring; argument is of the wrong type.");
     }
 }
 
@@ -1269,15 +1313,12 @@
 
 - (void)setCallToActionListener:(CDVInvokedUrlCommand *)command {
     [self logInput:@"setCallToActionListener" withCommand:command];
-    self.ctaDelegate = [[CDCTADelegate alloc] initWithCommandDelegate:self.commandDelegate
-                                                              invokedUrlCommand:command];
-    [Localytics setCallToActionDelegate:self.ctaDelegate];
+    self.ctaDelegate.invokedUrlCommand = command;
 }
 
 - (void)removeCallToActionListener:(CDVInvokedUrlCommand *)command {
     [self logInput:@"removeCallToActionListener" withCommand:command];
-    self.ctaDelegate = nil;
-    [Localytics setCallToActionDelegate:nil];
+    self.ctaDelegate.invokedUrlCommand = nil;
 }
 
 #pragma mark Developer Options

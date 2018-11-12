@@ -6,6 +6,8 @@
 
 package com.localytics.phonegap;
 
+import android.content.Intent;
+
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.PluginResult;
 
@@ -19,9 +21,9 @@ import com.localytics.android.InboxCampaign;
 import com.localytics.android.PlacesCampaign;
 import com.localytics.android.PushCampaign;
 import com.localytics.android.Campaign;
-import com.localytics.android.CallToActionListener;
+import com.localytics.android.CallToActionListenerV2;
 
-public class CDCTAListener implements CallToActionListener {
+public class CDCTAListener implements CallToActionListenerV2 {
 
     private CallbackContext callbackContext;
 
@@ -97,6 +99,23 @@ public class CDCTAListener implements CallToActionListener {
             // ignore
         }
 
+        PluginResult result = new PluginResult(PluginResult.Status.OK, object);
+        result.setKeepCallback(true);
+        callbackContext.sendPluginResult(result);
+        return true;
+    }
+
+    @Override
+    public boolean localyticsShouldDeeplinkToSettings(Intent intent, Campaign campaign) {
+        JSONObject object = new JSONObject();
+        try {
+            object.put("method", "localyticsShouldDeeplinkToSettings");
+
+            JSONObject params = new JSONObject();
+            params.put("campaign", getJSONFromGenericCampaign(campaign));
+        } catch (JSONException e) {
+            // ignore
+        }
         PluginResult result = new PluginResult(PluginResult.Status.OK, object);
         result.setKeepCallback(true);
         callbackContext.sendPluginResult(result);

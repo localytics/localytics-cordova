@@ -9,11 +9,13 @@
 @import Localytics;
 
 @protocol CDVCommandDelegate;
+@protocol LLLocationMonitoringDelegate;
 @class CDVInvokedUrlCommand;
 
 @interface CDCTADelegate : NSObject <LLCallToActionDelegate>
 
-- (instancetype)initWithCommandDelegate:(id<CDVCommandDelegate>)commandDelegate
-                      invokedUrlCommand:(CDVInvokedUrlCommand *)invokedUrlCommand;
+@property (nonatomic, weak, nullable) id<CDVCommandDelegate> commandDelegate;
+@property (nonatomic, strong, nullable) CDVInvokedUrlCommand *invokedUrlCommand;
+@property (nonatomic, strong, nullable) id<LLLocationMonitoringDelegate> monitoringDelegate;
 
 @end

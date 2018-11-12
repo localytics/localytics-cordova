@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0" id="com.localytics.phonegap.LocalyticsPlugin"  xmlns:android="http://schemas.android.com/apk/res/android" version="5.2.0">
+<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0" id="com.localytics.phonegap.LocalyticsPlugin"  xmlns:android="http://schemas.android.com/apk/res/android" version="5.4.0">
     <name>Localytics</name>
     <description>Localytics Plugin for Cordova/PhoneGap</description>
     <license>Apache 2.0</license>
@@ -32,7 +32,7 @@
         <header-file src="src/ios/CDCTADelegate.h" />
         <source-file src="src/ios/CDCTADelegate.m" />
 
-        <framework src="Localytics" type="podspec" spec="~> 5.2"/>
+        <framework src="Localytics" type="podspec" spec="~> 5.4"/>
         <framework src="UserNotifications" type="framework" />
 
     </platform>

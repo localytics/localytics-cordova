@@ -7,81 +7,120 @@
 #import "CDCTADelegate.h"
 #import "LocalyticsPlugin.h"
 
-@interface CDCTADelegate ()
-
-@property (nonatomic, weak) id<CDVCommandDelegate> commandDelegate;
-@property (nonatomic, strong) CDVInvokedUrlCommand *invokedUrlCommand;
-
-@end
-
 @implementation CDCTADelegate
 
-- (instancetype)initWithCommandDelegate:(id<CDVCommandDelegate>)commandDelegate
-                      invokedUrlCommand:(CDVInvokedUrlCommand *)invokedUrlCommand {
-    if (self = [super init]) {
-        _commandDelegate = commandDelegate;
-        _invokedUrlCommand = invokedUrlCommand;
-    }
-
-    return self;
-}
-
 - (BOOL)localyticsShouldDeeplink:(nonnull NSURL *)url campaign:(LLCampaignBase *)campaign {
-    NSDictionary *params = @{@"url": [url absoluteString], @"campaign": [self dictionaryFromGenericCampaign:campaign]};
-    NSDictionary *object = @{@"method": @"localyticsShouldDeeplink", @"params": params};
+    if ([self canTransmitToJS]) {
+        NSDictionary *params = @{@"url": [url absoluteString], @"campaign": [self dictionaryFromGenericCampaign:campaign]};
+        NSDictionary *object = @{@"method": @"localyticsShouldDeeplink", @"params": params};
 
-    CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:object];
-    [pluginResult setKeepCallbackAsBool:YES];
-    [self.commandDelegate sendPluginResult:pluginResult callbackId:self.invokedUrlCommand.callbackId];
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:object];
+        [pluginResult setKeepCallbackAsBool:YES];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:self.invokedUrlCommand.callbackId];
+    }
     return YES;
 }
 
 - (void)localyticsDidOptOut:(BOOL)optedOut campaign:(LLCampaignBase *)campaign {
-    NSDictionary *params = @{@"optedOut": @(optedOut), @"campaign": [self dictionaryFromGenericCampaign:campaign]};
-    NSDictionary *object = @{@"method": @"localyticsDidOptOut", @"params": params};
+    if ([self canTransmitToJS]) {
+        NSDictionary *params = @{@"optedOut": @(optedOut), @"campaign": [self dictionaryFromGenericCampaign:campaign]};
+        NSDictionary *object = @{@"method": @"localyticsDidOptOut", @"params": params};
 
-    CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:object];
-    [pluginResult setKeepCallbackAsBool:YES];
-    [self.commandDelegate sendPluginResult:pluginResult callbackId:self.invokedUrlCommand.callbackId];
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:object];
+        [pluginResult setKeepCallbackAsBool:YES];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:self.invokedUrlCommand.callbackId];
+    }
 }
 
 - (void)localyticsDidPrivacyOptOut:(BOOL)privacyOptedOut campaign:(LLCampaignBase *)campaign {
-    NSDictionary *params = @{@"privacyOptedOut": @(privacyOptedOut), @"campaign": [self dictionaryFromGenericCampaign:campaign]};
-    NSDictionary *object = @{@"method": @"localyticsDidPrivacyOptOut", @"params": params};
+    if ([self canTransmitToJS]) {
+        NSDictionary *params = @{@"privacyOptedOut": @(privacyOptedOut), @"campaign": [self dictionaryFromGenericCampaign:campaign]};
+        NSDictionary *object = @{@"method": @"localyticsDidPrivacyOptOut", @"params": params};
 
-    CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:object];
-    [pluginResult setKeepCallbackAsBool:YES];
-    [self.commandDelegate sendPluginResult:pluginResult callbackId:self.invokedUrlCommand.callbackId];
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:object];
+        [pluginResult setKeepCallbackAsBool:YES];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:self.invokedUrlCommand.callbackId];
+    }
 }
 
 - (BOOL)localyticsShouldPromptForLocationWhenInUsePermissions:(LLCampaignBase *)campaign {
-    NSDictionary *params = @{@"campaign": [self dictionaryFromGenericCampaign:campaign]};
-    NSDictionary *object = @{@"method": @"localyticsShouldPromptForLocationWhenInUsePermissions", @"params": params};
+    if ([self canTransmitToJS]) {
+        NSDictionary *params = @{@"campaign": [self dictionaryFromGenericCampaign:campaign]};
+        NSDictionary *object = @{@"method": @"localyticsShouldPromptForLocationWhenInUsePermissions", @"params": params};
 
-    CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:object];
-    [pluginResult setKeepCallbackAsBool:YES];
-    [self.commandDelegate sendPluginResult:pluginResult callbackId:self.invokedUrlCommand.callbackId];
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:object];
+        [pluginResult setKeepCallbackAsBool:YES];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:self.invokedUrlCommand.callbackId];
+    }
     return YES;
 }
 
 - (BOOL)localyticsShouldPromptForLocationAlwaysPermissions:(LLCampaignBase *)campaign {
-    NSDictionary *params = @{@"campaign": [self dictionaryFromGenericCampaign:campaign]};
-    NSDictionary *object = @{@"method": @"localyticsShouldPromptForLocationAlwaysPermissions", @"params": params};
+    if ([self canTransmitToJS]) {
+        NSDictionary *params = @{@"campaign": [self dictionaryFromGenericCampaign:campaign]};
+        NSDictionary *object = @{@"method": @"localyticsShouldPromptForLocationAlwaysPermissions", @"params": params};
 
-    CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:object];
-    [pluginResult setKeepCallbackAsBool:YES];
-    [self.commandDelegate sendPluginResult:pluginResult callbackId:self.invokedUrlCommand.callbackId];
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:object];
+        [pluginResult setKeepCallbackAsBool:YES];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:self.invokedUrlCommand.callbackId];
+    }
     return YES;
 }
 
 - (BOOL)localyticsShouldPromptForNotificationPermissions:(LLCampaignBase *)campaign {
-    NSDictionary *params = @{@"campaign": [self dictionaryFromGenericCampaign:campaign]};
-    NSDictionary *object = @{@"method": @"localyticsShouldPromptForNotificationPermissions", @"params": params};
+    if ([self canTransmitToJS]) {
+        NSDictionary *params = @{@"campaign": [self dictionaryFromGenericCampaign:campaign]};
+        NSDictionary *object = @{@"method": @"localyticsShouldPromptForNotificationPermissions", @"params": params};
 
-    CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:object];
-    [pluginResult setKeepCallbackAsBool:YES];
-    [self.commandDelegate sendPluginResult:pluginResult callbackId:self.invokedUrlCommand.callbackId];
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:object];
+        [pluginResult setKeepCallbackAsBool:YES];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:self.invokedUrlCommand.callbackId];
+    }
     return YES;
+}
+
+- (BOOL)localyticsShouldDeeplinkToSettings:(LLCampaignBase *)campaign {
+    if ([self canTransmitToJS]) {
+        NSDictionary *params = @{@"campaign": [self dictionaryFromGenericCampaign:campaign]};
+        NSDictionary *object = @{@"method": @"localyticsShouldDeeplinkToSettings", @"params": params};
+
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:object];
+        [pluginResult setKeepCallbackAsBool:YES];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:self.invokedUrlCommand.callbackId];
+    }
+    return YES;
+}
+
+ - (void)requestAlwaysAuthorization:(CLLocationManager *)manager {
+    if (self.monitoringDelegate != nil) {
+        [self.monitoringDelegate requestAlwaysAuthorization:manager];
+    }
+    if ([self canTransmitToJS]) {
+        NSDictionary *object = @{@"method": @"requestAlwaysAuthorization"};
+
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:object];
+        [pluginResult setKeepCallbackAsBool:YES];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:self.invokedUrlCommand.callbackId];
+    }
+}
+
+ - (void)requestWhenInUseAuthorization:(CLLocationManager *)manager {
+    if (self.monitoringDelegate != nil) {
+        [self.monitoringDelegate requestWhenInUseAuthorization:manager];
+    }
+    if ([self canTransmitToJS]) {
+        NSDictionary *object = @{@"method": @"requestAlwaysAuthorization"};
+
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:object];
+        [pluginResult setKeepCallbackAsBool:YES];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:self.invokedUrlCommand.callbackId];
+    }
+}
+
+#pragma mark private methods
+
+- (BOOL)canTransmitToJS {
+    return self.commandDelegate != nil && self.invokedUrlCommand != nil;
 }
 
 - (NSDictionary<NSString *, NSObject *>  *)dictionaryFromGenericCampaign:(LLCampaignBase *)campaign {

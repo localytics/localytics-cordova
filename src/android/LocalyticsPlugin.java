@@ -70,7 +70,7 @@ public class LocalyticsPlugin extends CordovaPlugin {
     @Override
     public void initialize(CordovaInterface cordova, CordovaWebView webView) {
         super.initialize(cordova, webView);
-        Localytics.setOption("plugin_library", "Cordova_5.2.0");
+        Localytics.setOption("plugin_library", "Cordova_5.4.0");
     }
 
     @Override
@@ -1000,7 +1000,14 @@ public class LocalyticsPlugin extends CordovaPlugin {
             return true;
         } else if (action.equals("setLocationMonitoringEnabled")) {
             boolean enabled = args.getBoolean(0);
-            Localytics.setLocationMonitoringEnabled(enabled);
+            boolean persist = false;
+            if (args.length() == 2) {
+                persist = args.getBoolean(1);    
+            }
+            Localytics.setLocationMonitoringEnabled(enabled, persist);
+        } else if (action.equals("persistLocationMonitoring")) {
+            boolean enabled = args.getBoolean(0);
+            Localytics.setLocationMonitoringEnabled(true, enabled);
         } else if (action.equals("getGeofencesToMonitor")) {
             if (args.length() == 2) {
                 final double latitude = args.getDouble(0);
