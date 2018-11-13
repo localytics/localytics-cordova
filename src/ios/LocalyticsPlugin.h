@@ -106,7 +106,6 @@ typedef NS_ENUM(NSUInteger, LLInAppMessageDismissButtonLocation);
 - (void)removeMessagingListener:(CDVInvokedUrlCommand *)command;
 
 - (void)setLocationMonitoringEnabled:(CDVInvokedUrlCommand *)command;
-- (void)setLocationMonitoringEnabled:(CDVInvokedUrlCommand *)command;
 - (void)persistLocationMonitoring:(CDVInvokedUrlCommand *)command;
 - (void)getGeofencesToMonitor:(CDVInvokedUrlCommand *)command;
 - (void)triggerRegion:(CDVInvokedUrlCommand *)command;

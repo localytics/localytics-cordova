@@ -501,7 +501,7 @@ As of Cordova SDK 5.4.0 (Localytics SDK 5.4.0), any app requesting for location 
 ```objc
 #import "LocalyticsPlugin.h"
 ```
-2. Set the delegate on the Localytics Cordova library:
+3. Set the delegate on the Localytics Cordova library:
 ```objc
 - (BOOL)application:(UIApplication*)application didFinishLaunchingWithOptions:(NSDictionary*)launchOptions
 {
@@ -510,7 +510,7 @@ As of Cordova SDK 5.4.0 (Localytics SDK 5.4.0), any app requesting for location 
     [LocalyticsPlugin setLocationMonitoringDelegate:self];
     ...
 ```
-3. Implement the relevant methods: 
+4. Implement the relevant methods: 
 ```objc
 - (void)requestAlwaysAuthorization:(CLLocationManager *)manager {
     [manager requestAlwaysAuthorization];

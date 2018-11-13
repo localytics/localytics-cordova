@@ -40,10 +40,7 @@ LocalyticsPlugin *shared;
 - (instancetype)init {
     if (self = [super init]) {
         shared = self;
-        _ctaDelegate = [[CDCTADelegate alloc] init];
-        self.ctaDelegate.commandDelegate = self.commandDelegate;
         [Localytics setOptions:@{@"plugin_library": PLUGIN_VERSION}];
-        [Localytics setCallToActionDelegate:_ctaDelegate];
     }
     return self;
 }
@@ -62,6 +59,10 @@ LocalyticsPlugin *shared;
 }
 
 - (void)setLocationMonitoringDelegate:(nullable id<LLLocationMonitoringDelegate>)delegate {
+    if (!self.ctaDelegate) {
+        self.ctaDelegate = [CDCTADelegate new];
+        [Localytics setCallToActionDelegate:self.ctaDelegate];
+    }
     self.ctaDelegate.monitoringDelegate = delegate;
 }
 
@@ -1313,11 +1314,17 @@ LocalyticsPlugin *shared;
 
 - (void)setCallToActionListener:(CDVInvokedUrlCommand *)command {
     [self logInput:@"setCallToActionListener" withCommand:command];
+    if (!self.ctaDelegate) {
+        self.ctaDelegate = [CDCTADelegate new];
+        [Localytics setCallToActionDelegate:self.ctaDelegate];
+    }
+    self.ctaDelegate.commandDelegate = self.commandDelegate;
     self.ctaDelegate.invokedUrlCommand = command;
 }
 
 - (void)removeCallToActionListener:(CDVInvokedUrlCommand *)command {
     [self logInput:@"removeCallToActionListener" withCommand:command];
+    self.ctaDelegate.commandDelegate = nil;
     self.ctaDelegate.invokedUrlCommand = nil;
 }
 
