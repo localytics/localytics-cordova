@@ -95,6 +95,7 @@ public class LocalyticsPlugin extends CordovaPlugin {
             boolean pause = args.getBoolean(0);
             Localytics.pauseDataUploading(pause);
             callbackContext.success();
+            return true;
         } else if (action.equals("openSession")) {
             Localytics.openSession();
             callbackContext.success();
@@ -414,6 +415,9 @@ public class LocalyticsPlugin extends CordovaPlugin {
         } else if (action.equals("setAnalyticsListener")) {
             analyticsListener = new CDAnalyticsListener(callbackContext);
             Localytics.setAnalyticsListener(analyticsListener);
+            PluginResult result = new PluginResult(PluginResult.Status.OK);
+            result.setKeepCallback(true);
+            callbackContext.sendPluginResult(result);
             return true;
         } else if (action.equals("removeAnalyticsListener")) {
             analyticsListener = null;
@@ -592,6 +596,7 @@ public class LocalyticsPlugin extends CordovaPlugin {
                 String scope = args.getString(2);
 
                 Localytics.incrementProfileAttribute(attributeName, incrementValue, getProfileScope(scope));
+                callbackContext.success();
             } else {
                 Log.i(LOG_TAG, "Call to incrementProfileAttribute failed; Expected three arguments.");
                 callbackContext.error("Expected three arguments.");
@@ -604,6 +609,7 @@ public class LocalyticsPlugin extends CordovaPlugin {
                 String scope = args.getString(2);
 
                 Localytics.decrementProfileAttribute(attributeName, decrementValue, getProfileScope(scope));
+                callbackContext.success();
             } else {
                 Log.i(LOG_TAG, "Call to decrementProfileAttribute failed; Expected three arguments.");
                 callbackContext.error("Expected three arguments.");
@@ -615,6 +621,7 @@ public class LocalyticsPlugin extends CordovaPlugin {
                 String scope = args.getString(1);
 
                 Localytics.deleteProfileAttribute(attributeName, getProfileScope(scope));
+                callbackContext.success();
             } else {
                 Log.i(LOG_TAG, "Call to deleteProfileAttribute failed; Expected three arguments.");
                 callbackContext.error("Expected three arguments.");
@@ -733,6 +740,7 @@ public class LocalyticsPlugin extends CordovaPlugin {
         } else if (action.equals("setPushMessageConfiguration")) {
             if (messagingListener != null) {
                 messagingListener.setPushConfiguration(args.getJSONObject(0));
+                callbackContext.success();
             } else {
                 Log.i(LOG_TAG, "Call to setPushMessagingConfiguration failed; Messaging Listener is null. Call setMessagingListener before setting configuration");
                 callbackContext.error("Call setMessagingListener before setting configuration.");
@@ -753,6 +761,7 @@ public class LocalyticsPlugin extends CordovaPlugin {
             return true;
         } else if (action.equals("setInAppMessageDismissButtonImageWithName")) {
             //No-op (iOS only)
+            callbackContext.success();
             return true;
         } else if (action.equals("setInAppMessageDismissButtonLocation")) {
             String location = args.getString(0);
@@ -794,6 +803,7 @@ public class LocalyticsPlugin extends CordovaPlugin {
         } else if (action.equals("setInAppMessageConfiguration")) {
             if (messagingListener != null) {
                 messagingListener.setInAppConfiguration(args.getJSONObject(0));
+                callbackContext.success();
             } else {
                 Log.i(LOG_TAG, "Call to setInAppMessagingConfiguration failed; Messaging Listener is null. " +
                         "Call setMessagingListener before setting configuration");
@@ -983,6 +993,7 @@ public class LocalyticsPlugin extends CordovaPlugin {
         } else if (action.equals("setPlacesMessageConfiguration")) {
             if (messagingListener != null) {
                 messagingListener.setPlacesConfiguration(args.getJSONObject(0));
+                callbackContext.success();
             } else {
                 Log.i(LOG_TAG, "Call to setPlacesMessagingConfiguration failed; Messaging Listener is null. " +
                         "Call setMessagingListener before setting configuration");
@@ -992,6 +1003,9 @@ public class LocalyticsPlugin extends CordovaPlugin {
         } else if (action.equals("setMessagingListener")) {
             messagingListener = new CDMessagingListener(callbackContext, inAppCampaignCache, pushCampaignCache, placesCampaignCache);
             Localytics.setMessagingListener(messagingListener);
+            PluginResult result = new PluginResult(PluginResult.Status.OK);
+            result.setKeepCallback(true);
+            callbackContext.sendPluginResult(result);
             return true;
         } else if (action.equals("removeMessagingListener")) {
             messagingListener = null;
@@ -1005,9 +1019,13 @@ public class LocalyticsPlugin extends CordovaPlugin {
                 persist = args.getBoolean(1);    
             }
             Localytics.setLocationMonitoringEnabled(enabled, persist);
+            callbackContext.success();
+            return true;
         } else if (action.equals("persistLocationMonitoring")) {
             boolean enabled = args.getBoolean(0);
             Localytics.setLocationMonitoringEnabled(true, enabled);
+            callbackContext.success();
+            return true;
         } else if (action.equals("getGeofencesToMonitor")) {
             if (args.length() == 2) {
                 final double latitude = args.getDouble(0);
@@ -1039,10 +1057,10 @@ public class LocalyticsPlugin extends CordovaPlugin {
                     Location location = new Location("");
                     location.setLatitude(Double.parseDouble((String) latitude));
                     location.setLongitude(Double.parseDouble((String) longitude));
-                  Localytics.triggerRegion(toCircularRegion(region), toEvent(event), location);
+                    Localytics.triggerRegion(toCircularRegion(region), toEvent(event), location);
                 } else {
                     Log.i(LOG_TAG, "Call to triggerRegion couldn't find latitude and longitude values. Defaulting to null.");
-                  Localytics.triggerRegion(toCircularRegion(region), toEvent(event), null);
+                    Localytics.triggerRegion(toCircularRegion(region), toEvent(event), null);
                 }
                 callbackContext.success();
             } else {
@@ -1074,6 +1092,9 @@ public class LocalyticsPlugin extends CordovaPlugin {
         } else if (action.equals("setLocationListener")) {
             locationListener = new CDLocationListener(callbackContext);
             Localytics.setLocationListener(locationListener);
+            PluginResult result = new PluginResult(PluginResult.Status.OK);
+            result.setKeepCallback(true);
+            callbackContext.sendPluginResult(result);
             return true;
         } else if (action.equals("removeLocationListener")) {
             locationListener = null;
@@ -1083,11 +1104,14 @@ public class LocalyticsPlugin extends CordovaPlugin {
         } else if (action.equals("setCallToActionListener")) {
             ctaListener = new CDCTAListener(callbackContext);
             Localytics.setCallToActionListener(ctaListener);
+            callbackContext.success();
             return true;
         } else if (action.equals("removeCallToActionListener")) {
             ctaListener = null;
             Localytics.setCallToActionListener(null);
-            callbackContext.success();
+            PluginResult result = new PluginResult(PluginResult.Status.OK);
+            result.setKeepCallback(true);
+            callbackContext.sendPluginResult(result);
             return true;
         } else if (action.equals("setLoggingEnabled")) {
             boolean enabled = args.getBoolean(0);
