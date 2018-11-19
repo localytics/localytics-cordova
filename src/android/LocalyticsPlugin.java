@@ -1104,14 +1104,14 @@ public class LocalyticsPlugin extends CordovaPlugin {
         } else if (action.equals("setCallToActionListener")) {
             ctaListener = new CDCTAListener(callbackContext);
             Localytics.setCallToActionListener(ctaListener);
-            callbackContext.success();
+            PluginResult result = new PluginResult(PluginResult.Status.OK);
+            result.setKeepCallback(true);
+            callbackContext.sendPluginResult(result);
             return true;
         } else if (action.equals("removeCallToActionListener")) {
             ctaListener = null;
             Localytics.setCallToActionListener(null);
-            PluginResult result = new PluginResult(PluginResult.Status.OK);
-            result.setKeepCallback(true);
-            callbackContext.sendPluginResult(result);
+            callbackContext.success();
             return true;
         } else if (action.equals("setLoggingEnabled")) {
             boolean enabled = args.getBoolean(0);

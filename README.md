@@ -389,15 +389,15 @@ Localytics.setCallToActionListener(
 	function success(result) {
 		// result can be one of:
 		// - {"method": "localyticsShouldDeeplink", "params": {"url": "http://www.google.com", "campaign": {"name": "Campaign Name", ...}}}
-		// - {"method": "localyticsDidOptOut", "params": {"optedOut": true/false, "campaign": {"name": "Campaign Name", ...}}
-		// - {"method": "localyticsDidPrivacyOptOut", "params": {"privacyOptedOut": true/false, "campaign": {"name": "Campaign Name", ...}
+		// - {"method": "localyticsDidOptOut", "params": {"optedOut": true/false, "campaign": {"name": "Campaign Name", ...}}}
+		// - {"method": "localyticsDidPrivacyOptOut", "params": {"privacyOptedOut": true/false, "campaign": {"name": "Campaign Name", ...}}}
 		// - {"method": "localyticsShouldDeeplinkToSettings", "campaign": {"name": "Campaign Name", ...}}
 		//Android Only
-		// - {"method": "localyticsShouldPromptForLocationPermissions", "params": {"campaign": {"name": "Campaign Name", ...}
+		// - {"method": "localyticsShouldPromptForLocationPermissions", "params": {"campaign": {"name": "Campaign Name", ...}}}
 		//iOS Only
-		// - {"method": "localyticsShouldPromptForLocationWhenInUsePermissions", "params": {"campaign": {"name": "Campaign Name", ...}
-		// - {"method": "localyticsShouldPromptForLocationAlwaysPermissions", "params": {"campaign": {"name": "Campaign Name", ...}
-		// - {"method": "localyticsShouldPromptForNotificationPermissions", "params": {"campaign": {"name": "Campaign Name", ...}
+		// - {"method": "localyticsShouldPromptForLocationWhenInUsePermissions", "params": {"campaign": {"name": "Campaign Name", ...}}}
+		// - {"method": "localyticsShouldPromptForLocationAlwaysPermissions", "params": {"campaign": {"name": "Campaign Name", ...}}}
+		// - {"method": "localyticsShouldPromptForNotificationPermissions", "params": {"campaign": {"name": "Campaign Name", ...}}}
 		// - {"method": "requestAlwaysAuthorization"}
 		// - {"method": "requestWhenInUseAuthorization"}
 });
@@ -422,7 +422,7 @@ var inAppConfig = {
   "backgroundAlpha": 0.75,
   "offset": 20,
   "notchFullScreen": true, // Should the In App message render outside of the safe area (eg. around the Notch on iPHone X)
-  "autoHideHomeScreenIndicator": true // Should the home screen indicator be shown
+  "autoHideHomeScreenIndicator": true // Should the home screen indicator be hidden when there is no touch detected.
 };
 var placesConfig = {
   "alertAction": "Tap Here",
