@@ -298,8 +298,12 @@ LocalyticsPlugin *shared;
 
     if (appKey) {
       [Localytics integrate:appKey withLocalyticsOptions:localyticsOptions];
+      CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     } else {
       NSLog(@"Localytics Cordova wrapper can't integrate. No App Key found.");
+      CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
+      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }
 }
 
@@ -322,24 +326,34 @@ LocalyticsPlugin *shared;
 
     if (appKey) {
       [Localytics autoIntegrate:appKey withLocalyticsOptions:localyticsOptions launchOptions:nil];
+      CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     } else {
       NSLog(@"Localytics Cordova wrapper can't integrate. No App Key found.");
+      CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
+      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }
 }
 
 - (void)openSession:(CDVInvokedUrlCommand *)command {
     [self logInput:@"openSession" withCommand:command];
     [Localytics openSession];
+    CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
 - (void)closeSession:(CDVInvokedUrlCommand *)command {
     [self logInput:@"closeSession" withCommand:command];
     [Localytics closeSession];
+    CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
 - (void)upload:(CDVInvokedUrlCommand *)command {
     [self logInput:@"upload" withCommand:command];
     [Localytics upload];
+    CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
 - (void)pauseDataUploading:(CDVInvokedUrlCommand *)command {
@@ -347,8 +361,12 @@ LocalyticsPlugin *shared;
     NSNumber *pause = [command argumentAtIndex:0];
     if ([pause isKindOfClass:[NSNumber class]]) {
       [Localytics pauseDataUploading:[pause boolValue]];
+      CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     } else {
       NSLog(@"Localytics Cordova wrapper received bad input in call to pauseDataUploading.");
+      CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
+      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }
 }
 
@@ -360,8 +378,12 @@ LocalyticsPlugin *shared;
     NSNumber *enabled = [command argumentAtIndex:0];
     if ([enabled isKindOfClass:[NSNumber class]]) {
       [Localytics setOptedOut:[enabled boolValue]];
+      CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     } else {
       NSLog(@"Localytics Cordova wrapper received bad input in call to setOptedOut.");
+      CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
+      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }
 }
 
@@ -379,8 +401,12 @@ LocalyticsPlugin *shared;
     NSNumber *enabled = [command argumentAtIndex:0];
     if ([enabled isKindOfClass:[NSNumber class]]) {
       [Localytics setPrivacyOptedOut:[enabled boolValue]];
+      CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     } else {
       NSLog(@"Localytics Cordova wrapper received bad input in call to setPrivacyOptedOut.");
+      CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
+      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }
 }
 
@@ -402,8 +428,12 @@ LocalyticsPlugin *shared;
 
         if ([eventName isKindOfClass:[NSString class]] && eventName.length > 0) {
             [Localytics tagEvent:eventName attributes:attributes customerValueIncrease:customerValueIncrease];
+            CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+            [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
         } else {
             NSLog(@"Localytics Cordova wrapper received bad input in call to tagEvent; Event name is invalid.");
+            CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
+            [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
         }
     }
 }
@@ -417,8 +447,12 @@ LocalyticsPlugin *shared;
         NSNumber *itemPrice = [command argumentAtIndex:3];
         NSDictionary *attributes = [command argumentAtIndex:4];
         [Localytics tagPurchased:itemName itemId:itemId itemType:itemType itemPrice:itemPrice attributes:attributes];
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     } else {
         NSLog(@"Localytics Cordova wrapper received bad input in call to tagPurchased; 5 arguments required.");
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }
 }
 
@@ -431,8 +465,12 @@ LocalyticsPlugin *shared;
         NSNumber *itemPrice = [command argumentAtIndex:3];
         NSDictionary *attributes = [command argumentAtIndex:4];
         [Localytics tagAddedToCart:itemName itemId:itemId itemType:itemType itemPrice:itemPrice attributes:attributes];
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     } else {
         NSLog(@"Localytics Cordova wrapper received bad input in call to tagAddedToCart; 5 arguments required.");
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }
 }
 
@@ -443,8 +481,12 @@ LocalyticsPlugin *shared;
         NSNumber *itemCount = [command argumentAtIndex:1];
         NSDictionary *attributes = [command argumentAtIndex:2];
         [Localytics tagStartedCheckout:totalPrice itemCount:itemCount attributes:attributes];
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     } else {
         NSLog(@"Localytics Cordova wrapper received bad input in call to tagStartedCheckout; 3 arguments required.");
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }
 }
 
@@ -455,8 +497,12 @@ LocalyticsPlugin *shared;
         NSNumber *itemCount = [command argumentAtIndex:1];
         NSDictionary *attributes = [command argumentAtIndex:2];
         [Localytics tagCompletedCheckout:totalPrice itemCount:itemCount attributes:attributes];
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     } else {
         NSLog(@"Localytics Cordova wrapper received bad input in call to tagCompletedCheckout; 3 arguments required.");
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }
 }
 
@@ -468,8 +514,12 @@ LocalyticsPlugin *shared;
         NSString *contentType = [command argumentAtIndex:2];
         NSDictionary *attributes = [command argumentAtIndex:3];
         [Localytics tagContentViewed:contentName contentId:contentId contentType:contentType attributes:attributes];
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     } else {
         NSLog(@"Localytics Cordova wrapper received bad input in call to tagContentViewed; 4 arguments required.");
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }
 }
 
@@ -481,8 +531,12 @@ LocalyticsPlugin *shared;
         NSNumber *resultCount = [command argumentAtIndex:2];
         NSDictionary *attributes = [command argumentAtIndex:3];
         [Localytics tagSearched:queryText contentType:contentType resultCount:resultCount attributes:attributes];
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     } else {
         NSLog(@"Localytics Cordova wrapper received bad input in call to tagSearched; 4 arguments required.");
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }
 }
 
@@ -495,8 +549,12 @@ LocalyticsPlugin *shared;
         NSString *methodName = [command argumentAtIndex:3];
         NSDictionary *attributes = [command argumentAtIndex:4];
         [Localytics tagShared:contentName contentId:contentId contentType:contentType methodName:methodName attributes:attributes];
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     } else {
         NSLog(@"Localytics Cordova wrapper received bad input in call to tagShared; 5 arguments required.");
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }
 }
 
@@ -509,8 +567,12 @@ LocalyticsPlugin *shared;
         NSNumber *rating = [command argumentAtIndex:3];
         NSDictionary *attributes = [command argumentAtIndex:4];
         [Localytics tagContentRated:contentName contentId:contentId contentType:contentType rating:rating attributes:attributes];
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     } else {
         NSLog(@"Localytics Cordova wrapper received bad input in call to tagContentRated; 5 arguments required.");
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }
 }
 
@@ -521,8 +583,12 @@ LocalyticsPlugin *shared;
         NSString *methodName = [command argumentAtIndex:1];
         NSDictionary *attributes = [command argumentAtIndex:2];
         [Localytics tagCustomerRegistered:customer methodName:methodName attributes:attributes];
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     } else {
         NSLog(@"Localytics Cordova wrapper received bad input in call to tagCustomerRegistered; 3 arguments required.");
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }
 }
 
@@ -533,8 +599,12 @@ LocalyticsPlugin *shared;
         NSString *methodName = [command argumentAtIndex:1];
         NSDictionary *attributes = [command argumentAtIndex:2];
         [Localytics tagCustomerLoggedIn:customer methodName:methodName attributes:attributes];
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     } else {
         NSLog(@"Localytics Cordova wrapper received bad input in call to tagCustomerLoggedIn; 3 arguments required.");
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }
 }
 
@@ -542,6 +612,8 @@ LocalyticsPlugin *shared;
     [self logInput:@"tagCustomerLoggedOut" withCommand:command];
     NSDictionary *attributes = [command argumentAtIndex:0];
     [Localytics tagCustomerLoggedOut:attributes];
+    CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
 - (void)tagInvited:(CDVInvokedUrlCommand *)command {
@@ -550,8 +622,12 @@ LocalyticsPlugin *shared;
         NSString *methodName = [command argumentAtIndex:0];
         NSDictionary *attributes = [command argumentAtIndex:1];
         [Localytics tagInvited:methodName attributes:attributes];
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     } else {
         NSLog(@"Localytics Cordova wrapper received bad input in call to tagInvited; 2 arguments required.");
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }
 }
 
@@ -569,12 +645,17 @@ LocalyticsPlugin *shared;
             } else {
                 [Localytics tagImpressionForInAppCampaign:campaign withCustomAction:impressionType];
             }
+            CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+            [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+            return;
         } else {
             NSLog(@"Localytics Cordova wrapper received bad input in call to tagInAppImpression; No campaign found matching ID.");
         }
     } else {
         NSLog(@"Localytics Cordova wrapper received bad input in call to tagInAppImpression; 2 arguments required.");
     }
+    CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
 - (void)tagInboxImpression:(CDVInvokedUrlCommand *)command {
@@ -591,12 +672,17 @@ LocalyticsPlugin *shared;
             } else {
                 [Localytics tagImpressionForInboxCampaign:campaign withCustomAction:impressionType];
             }
+            CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+            [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+            return;
         } else {
             NSLog(@"Localytics Cordova wrapper received bad input in call to tagInboxImpression; No campaign found matching ID.");
         }
     } else {
         NSLog(@"Localytics Cordova wrapper received bad input in call to tagInboxImpression; 2 arguments required.");
     }
+    CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
 - (void)tagPushToInboxImpression:(CDVInvokedUrlCommand *)command {
@@ -607,12 +693,17 @@ LocalyticsPlugin *shared;
         LLInboxCampaign *campaign = self.inboxCampaignCache[@([campaignId integerValue])];
         if (campaign && [success isKindOfClass:[NSNumber class]]) {
             [Localytics tagImpressionForPushToInboxCampaign:campaign success:[success boolValue]];
+            CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+            [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+            return;
         } else {
             NSLog(@"Localytics Cordova wrapper received bad input in call to tagPushToInboxImpression; Campaign not found or success is of incorrect type.");
         }
     } else {
         NSLog(@"Localytics Cordova wrapper received bad input in call to tagPushToInboxImpression; 2 arguments required.");
     }
+    CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
 - (void)tagPlacesPushReceived:(CDVInvokedUrlCommand *)command {
@@ -621,8 +712,12 @@ LocalyticsPlugin *shared;
     LLPlacesCampaign *campaign = self.placesCampaignCache[@([campaignId integerValue])];
     if (campaign) {
         [Localytics tagPlacesPushReceived:campaign];
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     } else {
         NSLog(@"Localytics Cordova wrapper received bad input in call to tagPlacesPushReceived; Campaign not found.");
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }
 }
 
@@ -638,12 +733,17 @@ LocalyticsPlugin *shared;
             } else {
                 [Localytics tagPlacesPushOpened:campaign];
             }
+            CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+            [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+            return;
         } else {
             NSLog(@"Localytics Cordova wrapper received bad input in call to tagPlacesPushOpened; Campaign not found.");
         }
     } else {
         NSLog(@"Localytics Cordova wrapper received bad input in call to tagPlacesPushOpened; 2 arguments required.");
     }
+    CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
 - (void)tagScreen:(CDVInvokedUrlCommand *)command {
@@ -651,8 +751,12 @@ LocalyticsPlugin *shared;
     NSString *screenName = [command argumentAtIndex:0];
     if ([screenName length] > 0) {
         [Localytics tagScreen:screenName];
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     } else {
         NSLog(@"Localytics Cordova wrapper received bad input in call to tagScreen; Screen name must not be empty.");
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }
 }
 
@@ -662,8 +766,12 @@ LocalyticsPlugin *shared;
     NSString *value = [command argumentAtIndex:1];
     if ([dimension isKindOfClass:[NSNumber class]]) {
         [Localytics setValue:value forCustomDimension:[dimension intValue]];
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     } else {
         NSLog(@"Localytics Cordova wrapper received bad input in call to setCustomDimension; dimension must be a Number.");
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }
 }
 
@@ -683,12 +791,17 @@ LocalyticsPlugin *shared;
     self.analyticsDelegate = [[CDAnalyticsDelegate alloc] initWithCommandDelegate:self.commandDelegate
                                                                 invokedUrlCommand:command];
     [Localytics setAnalyticsDelegate:self.analyticsDelegate];
+    CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [pluginResult setKeepCallbackAsBool:YES];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
 - (void)removeAnalyticsListener:(CDVInvokedUrlCommand *)command {
     [self logInput:@"removeAnalyticsListener" withCommand:command];
     self.analyticsDelegate = nil;
     [Localytics setAnalyticsDelegate:nil];
+    CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
 #pragma mark Profiles
@@ -701,8 +814,12 @@ LocalyticsPlugin *shared;
         NSUInteger scope = [self getProfileScope:[command argumentAtIndex:2]];
 
         [Localytics setValue:value forProfileAttribute:attribute withScope:scope];
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     } else {
         NSLog(@"Localytics Cordova wrapper received bad input in call to setProfileAttribute; attribute must be non-empty.");
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }
 }
 
@@ -715,8 +832,12 @@ LocalyticsPlugin *shared;
         NSUInteger scope = [self getProfileScope:[command argumentAtIndex:2]];
 
         [Localytics addValues:values toSetForProfileAttribute:attribute withScope:scope];
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     } else {
         NSLog(@"Localytics Cordova wrapper received bad input in call to addProfileAttributesToSet; attribute must be non-empty.");
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }
 }
 
@@ -729,8 +850,12 @@ LocalyticsPlugin *shared;
         NSUInteger scope = [self getProfileScope:[command argumentAtIndex:2]];
 
         [Localytics removeValues:values fromSetForProfileAttribute:attribute withScope:scope];
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     } else {
         NSLog(@"Localytics Cordova wrapper received bad input in call to removeProfileAttributesToSet; attribute must be non-empty.");
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }
 }
 
@@ -742,8 +867,12 @@ LocalyticsPlugin *shared;
         NSUInteger scope = [self getProfileScope:[command argumentAtIndex:2]];
 
         [Localytics incrementValueBy:value forProfileAttribute:attribute withScope:scope];
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     } else {
         NSLog(@"Localytics Cordova wrapper received bad input in call to incrementProfileAttribute; attribute must be non-empty.");
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }
 
 }
@@ -756,8 +885,12 @@ LocalyticsPlugin *shared;
         NSUInteger scope = [self getProfileScope:[command argumentAtIndex:2]];
 
         [Localytics decrementValueBy:value forProfileAttribute:attribute withScope:scope];
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     } else {
         NSLog(@"Localytics Cordova wrapper received bad input in call to decrementProfileAttribute; attribute must be non-empty.");
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }
 }
 
@@ -768,8 +901,12 @@ LocalyticsPlugin *shared;
         NSUInteger scope = [self getProfileScope:[command argumentAtIndex:1]];
 
         [Localytics deleteProfileAttribute:attribute withScope:scope];
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     } else {
         NSLog(@"Localytics Cordova wrapper received bad input in call to deleteProfileAttribute; attribute must be non-empty.");
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }
 }
 
@@ -777,24 +914,32 @@ LocalyticsPlugin *shared;
     [self logInput:@"setCustomerEmail" withCommand:command];
     NSString *email = [command argumentAtIndex:0];
     [Localytics setCustomerEmail:email];
+    CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
 - (void)setCustomerFirstName:(CDVInvokedUrlCommand *)command {
     [self logInput:@"setCustomerFirstName" withCommand:command];
     NSString *firstName = [command argumentAtIndex:0];
     [Localytics setCustomerFirstName:firstName];
+    CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
 - (void)setCustomerLastName:(CDVInvokedUrlCommand *)command {
     [self logInput:@"setCustomerLastName" withCommand:command];
     NSString *lastName = [command argumentAtIndex:0];
     [Localytics setCustomerLastName:lastName];
+    CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
 - (void)setCustomerFullName:(CDVInvokedUrlCommand *)command {
     [self logInput:@"setCustomerFullName" withCommand:command];
     NSString *fullName = [command argumentAtIndex:0];
     [Localytics setCustomerFullName:fullName];
+    CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
 #pragma mark Customer Information
@@ -805,8 +950,12 @@ LocalyticsPlugin *shared;
     NSString *value = [command argumentAtIndex:1];
     if ([identifier length] > 0) {
         [Localytics setValue:value forIdentifier:identifier];
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     } else {
         NSLog(@"Localytics Cordova wrapper received bad input in call to setIdentifier; identifier must be non-empty.");
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }
 }
 
@@ -824,6 +973,8 @@ LocalyticsPlugin *shared;
     [self logInput:@"setCustomerId" withCommand:command];
     NSString *customerId = [command argumentAtIndex:0];
     [Localytics setCustomerId:customerId];
+    CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
 - (void)setCustomerIdWithPrivacyOptedOut:(CDVInvokedUrlCommand *)command {
@@ -832,6 +983,8 @@ LocalyticsPlugin *shared;
     NSNumber *optedOut = [command argumentAtIndex:1];
 
     [Localytics setCustomerId:customerId privacyOptedOut:[optedOut boolValue]];
+    CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
 - (void)getCustomerId:(CDVInvokedUrlCommand *)command {
@@ -852,8 +1005,12 @@ LocalyticsPlugin *shared;
         location.latitude = latitude.doubleValue;
         location.longitude = longitude.doubleValue;
         [Localytics setLocation:location];
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     } else {
         NSLog(@"Localytics Cordova wrapper received bad input in call to setLocation; 2 arguments required.");
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }
 }
 
@@ -880,6 +1037,8 @@ LocalyticsPlugin *shared;
     } else {
         [[UIApplication sharedApplication] registerForRemoteNotificationTypes:(UIRemoteNotificationTypeAlert | UIRemoteNotificationTypeBadge | UIRemoteNotificationTypeSound)];
     }
+    CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
 - (void)setPushToken:(CDVInvokedUrlCommand *)command {
@@ -898,8 +1057,12 @@ LocalyticsPlugin *shared;
             [deviceToken appendBytes:&byte length:1];
         }
         [Localytics setPushToken:deviceToken];
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     } else {
         NSLog(@"Localytics Cordova wrapper received bad input in call to setPushToken; pushToken was nil.");
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }
 }
 
@@ -914,13 +1077,19 @@ LocalyticsPlugin *shared;
 
 - (void)setNotificationsDisabled:(CDVInvokedUrlCommand *)command {
     // No-Op
+    CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 - (void)areNotificationsDisabled:(CDVInvokedUrlCommand *)command {
     // No-Op
+    CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
 - (void)setPushMessageConfiguration:(CDVInvokedUrlCommand *)command {
     // No-Op
+    CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
 - (void)setTestModeEnabled:(CDVInvokedUrlCommand *)command {
@@ -928,8 +1097,12 @@ LocalyticsPlugin *shared;
     NSNumber *enabled = [command argumentAtIndex:0];
     if ([enabled isKindOfClass:[NSNumber class]]) {
         [Localytics setTestModeEnabled:[enabled boolValue]];
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     } else {
         NSLog(@"Localytics Cordova wrapper received bad input in call to setTestModeEnabled; Enabled is of wrong type.");
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }
 }
 
@@ -946,6 +1119,8 @@ LocalyticsPlugin *shared;
     [self logInput:@"setInAppMessageDismissButtonImageWithName" withCommand:command];
     NSString *imageName = [command argumentAtIndex:0];
     [Localytics setInAppMessageDismissButtonImageWithName:imageName];
+    CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
 - (void)setInAppMessageDismissButtonHidden:(CDVInvokedUrlCommand *)command {
@@ -963,8 +1138,12 @@ LocalyticsPlugin *shared;
     NSString *value = [command argumentAtIndex:0];
     if (value) {
         [Localytics setInAppMessageDismissButtonLocation:[self getDismissButtonLocation:value]];
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     } else {
         NSLog(@"Localytics Cordova wrapper received bad input in call to setInAppMessageDismissButtonLocation; Argument is nil.");
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }
 }
 
@@ -984,27 +1163,39 @@ LocalyticsPlugin *shared;
 
     if ([triggerName isKindOfClass:[NSString class]] && [triggerName length] > 0) {
         [Localytics triggerInAppMessage:triggerName withAttributes:attributes];
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     } else {
         NSLog(@"Localytics Cordova wrapper received bad input in call to triggerInAppMessage; the first argument must be a non-empty String.");
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }
 }
 
 - (void)triggerInAppMessagesForSessionStart:(CDVInvokedUrlCommand *)command {
     [self logInput:@"triggerInAppMessagesForSessionStart" withCommand:command];
     [Localytics triggerInAppMessagesForSessionStart];
+    CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
 - (void)dismissCurrentInAppMessage:(CDVInvokedUrlCommand *)command {
     [self logInput:@"dismissCurrentInAppMessage" withCommand:command];
     [Localytics dismissCurrentInAppMessage];
+    CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
 - (void)setInAppMessageConfiguration:(CDVInvokedUrlCommand *)command {
     [self logInput:@"setInAppMessageConfiguration" withCommand:command];
     if (self.messagingDelegate) {
         self.messagingDelegate.inAppConfig = [command argumentAtIndex:0];
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     } else {
         NSLog(@"Localytics Cordova wrapper received call to setInAppMessageConfiguration but no messaging delegate is initialized.");
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }
 }
 
@@ -1022,8 +1213,12 @@ LocalyticsPlugin *shared;
     NSNumber *enabled = [command argumentAtIndex:0];
     if ([enabled isKindOfClass:[NSNumber class]]) {
         [Localytics setInAppAdIdParameterEnabled:[enabled boolValue]];
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     } else {
         NSLog(@"Localytics Cordova wrapper received call to setInAppAdIdParameterEnabled but argument is of the wrong type.");
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }
 }
 
@@ -1041,8 +1236,12 @@ LocalyticsPlugin *shared;
     NSNumber *enabled = [command argumentAtIndex:0];
     if ([enabled isKindOfClass:[NSNumber class]]) {
         [Localytics setInboxAdIdParameterEnabled:[enabled boolValue]];
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     } else {
         NSLog(@"Localytics Cordova wrapper received call to setInboxAdIdParameterEnabled but argument is of the wrong type.");
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }
 }
 
@@ -1133,16 +1332,23 @@ LocalyticsPlugin *shared;
             LLInboxCampaign *campaign = self.inboxCampaignCache[@([campaignId integerValue])];
             if (campaign) {
                 [Localytics setInboxCampaign:campaign asRead:[enabled boolValue]];
+                CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+                [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
             } else {
                 NSLog(@"Localytics Cordova wrapper received bad input in call to setInboxCampaignRead; Campaign ID didn't map to any campaigns.");
+                CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
+                [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
             }
             [self updateInboxCampaignCache];
+            return;
         } else {
             NSLog(@"Localytics Cordova wrapper received bad input in call to setInboxCampaignRead; second argument is of wrong type.");
         }
     } else {
         NSLog(@"Localytics Cordova wrapper received bad input in call to setInboxCampaignRead; 2 arguments expected.");
     }
+    CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
 - (void)deleteInboxCampaign:(CDVInvokedUrlCommand *)command {
@@ -1152,12 +1358,18 @@ LocalyticsPlugin *shared;
         LLInboxCampaign *campaign = self.inboxCampaignCache[@([campaignId integerValue])];
         if (campaign) {
             [Localytics deleteInboxCampaign:campaign];
+            CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+            [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
         } else {
             NSLog(@"Localytics Cordova wrapper received bad input in call to setInboxCampaignRead; Campaign ID didn't map to any campaigns.");
+            CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
+            [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
         }
         [self updateInboxCampaignCache];
     } else {
         NSLog(@"Localytics Cordova wrapper received bad input in call to deleteInboxCampaign; 1 arguments expected.");
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }
 }
 
@@ -1177,8 +1389,12 @@ LocalyticsPlugin *shared;
     if (campaign) {
         [Localytics inboxListItemTapped:campaign];
         [self updateInboxCampaignCache];
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     } else {
         NSLog(@"Localytics Cordova wrapper received bad input in call to inboxListItemTapped; Campaign ID didn't map to any campaigns.");
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }
 }
 
@@ -1188,8 +1404,12 @@ LocalyticsPlugin *shared;
     LLPlacesCampaign *campaign = self.placesCampaignCache[@([campaignId integerValue])];
     if (campaign) {
         [Localytics triggerPlacesNotificationForCampaign:campaign];
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     } else {
         NSLog(@"Localytics Cordova wrapper received bad input in call to triggerPlacesNotification; Campaign ID didn't map to any campaigns.");
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }
 }
 
@@ -1197,8 +1417,12 @@ LocalyticsPlugin *shared;
     [self logInput:@"setPlacesMessageConfiguration" withCommand:command];
     if (self.messagingDelegate) {
         self.messagingDelegate.placesConfig = [command argumentAtIndex:0];
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     } else {
         NSLog(@"Localytics Cordova wrapper received call to setPlacesMessageConfiguration but no messaging delegate is initialized.");
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }
 }
 
@@ -1209,12 +1433,17 @@ LocalyticsPlugin *shared;
                                                                inAppCampaignCache:self.inAppCampaignCache
                                                               placesCampaignCache:self.placesCampaignCache];
     [Localytics setMessagingDelegate:self.messagingDelegate];
+    CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [pluginResult setKeepCallbackAsBool:YES];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
 - (void)removeMessagingListener:(CDVInvokedUrlCommand *)command {
     [self logInput:@"removeMessagingListener" withCommand:command];
     self.messagingDelegate = nil;
     [Localytics setMessagingDelegate:nil];
+    CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
 #pragma mark Location
@@ -1228,8 +1457,12 @@ LocalyticsPlugin *shared;
     }
     if ([enabled isKindOfClass:[NSNumber class]]) {
         [Localytics setLocationMonitoringEnabled:[enabled boolValue]];
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     } else {
         NSLog(@"Localytics Cordova wrapper received bad input to setLocationMonitoringEnabled; argument is of the wrong type.");
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }
 }
 
@@ -1238,8 +1471,12 @@ LocalyticsPlugin *shared;
     NSNumber *enabled = [command argumentAtIndex:0];
     if ([enabled isKindOfClass:[NSNumber class]]) {
         [Localytics persistLocationMonitoring:[enabled boolValue]];
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     } else {
         NSLog(@"Localytics Cordova wrapper received bad input to persistLocationMonitoring; argument is of the wrong type.");
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }
 }
 
@@ -1256,6 +1493,8 @@ LocalyticsPlugin *shared;
         }];
     } else {
         NSLog(@"Localytics Cordova wrapper received bad input to getGeofencesToMonitor; expected 2 arguments.");
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }
 }
 
@@ -1274,8 +1513,12 @@ LocalyticsPlugin *shared;
           NSLog(@"Localytics Cordova wrapper couldn't determine a location for call to triggerRegion. Defaulting to nil");
           [Localytics triggerRegion:[self regionFromDictionary:region] withEvent:[self eventFrom:event] atLocation:nil];
         }
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     } else {
         NSLog(@"Localytics Cordova wrapper received bad input to triggerRegion; expected 2 or 4 arguments.");
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }
 }
 
@@ -1294,8 +1537,12 @@ LocalyticsPlugin *shared;
           NSLog(@"Localytics Cordova wrapper couldn't determine a location for call to triggerRegions. Defaulting to nil");
           [Localytics triggerRegions:[self regionsFromDictionaryArray:regions] withEvent:[self eventFrom:event] atLocation:nil];
         }
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     } else {
         NSLog(@"Localytics Cordova wrapper received bad input for call to triggerRegions. expected 2 or 4 arguments");
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }
 }
 
@@ -1304,12 +1551,17 @@ LocalyticsPlugin *shared;
     self.locationDelegate = [[CDLocationDelegate alloc] initWithCommandDelegate:self.commandDelegate
                                                               invokedUrlCommand:command];
     [Localytics setLocationDelegate:self.locationDelegate];
+    CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [pluginResult setKeepCallbackAsBool:YES];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
 - (void)removeLocationListener:(CDVInvokedUrlCommand *)command {
     [self logInput:@"removeLocationListener" withCommand:command];
     self.locationDelegate = nil;
     [Localytics setLocationDelegate:nil];
+    CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
 - (void)setCallToActionListener:(CDVInvokedUrlCommand *)command {
@@ -1320,12 +1572,17 @@ LocalyticsPlugin *shared;
     }
     self.ctaDelegate.commandDelegate = self.commandDelegate;
     self.ctaDelegate.invokedUrlCommand = command;
+    CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [pluginResult setKeepCallbackAsBool:YES];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
 - (void)removeCallToActionListener:(CDVInvokedUrlCommand *)command {
     [self logInput:@"removeCallToActionListener" withCommand:command];
     self.ctaDelegate.commandDelegate = nil;
     self.ctaDelegate.invokedUrlCommand = nil;
+    CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
 #pragma mark Developer Options
@@ -1335,7 +1592,13 @@ LocalyticsPlugin *shared;
     NSNumber *enabled = [command argumentAtIndex:0];
     if ([enabled isKindOfClass:[NSNumber class]]) {
         [Localytics setLoggingEnabled:[enabled boolValue]];
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    } else {
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }
+    
 }
 
 - (void)isLoggingEnabled:(CDVInvokedUrlCommand *)command {
@@ -1351,6 +1614,8 @@ LocalyticsPlugin *shared;
     [self logInput:@"setOptions" withCommand:command];
     NSDictionary *options = [command argumentAtIndex:0];
     [Localytics setOptions:options];
+    CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
 - (void)setOption:(CDVInvokedUrlCommand *)command {
@@ -1359,14 +1624,20 @@ LocalyticsPlugin *shared;
         NSString *key = [command argumentAtIndex:0];
         NSObject *value = [command argumentAtIndex:1];
         [Localytics setOptions:@{key: value}];
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     } else {
         NSLog(@"Localytics Cordova wrapper received bad input to setOption; expected 2 arguments.");
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }
 }
 
 - (void)redirectLogsToDisk:(CDVInvokedUrlCommand *)command {
     [self logInput:@"redirectLogsToDisk" withCommand:command];
     [Localytics redirectLoggingToDisk];
+    CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
 - (void)getInstallId:(CDVInvokedUrlCommand *)command {
