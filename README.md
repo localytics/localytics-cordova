@@ -3,7 +3,7 @@ Localytics for PhoneGap/Cordova
 
 ## Version
 
-This version of the PhoneGap/Cordova SDK wraps v5.2.0 of the Localytics Android and v5.2.0 of the Localytics iOS SDKs.
+This version of the PhoneGap/Cordova SDK wraps v5.4.0 of the Localytics Android and v5.4.0 of the Localytics iOS SDKs.
 
 > Cordova SDK 5.2.0 has some drastic changes to the manual integration (Localytics.integrate) workflow for iOS.
 > Push Messaging and Test Mode can begin to fail upon upgrade if the proper workflow is not followed.
@@ -11,7 +11,7 @@ This version of the PhoneGap/Cordova SDK wraps v5.2.0 of the Localytics Android 
 
 ## Supported Versions
 
-The PhoneGap/Cordova SDK was tested on Cordova v8.0.0.
+The PhoneGap/Cordova SDK was tested on Cordova v8.1.2 with Android NDK 17.
 
 ## Installation
 
@@ -312,6 +312,8 @@ Localytics.triggerPlacesNotification(228329);
 
 // Location
 Localytics.setLocationMonitoringEnabled(true);
+Localytics.setLocationMonitoringEnabled(true, true);
+Localytics.persistLocationMonitoring(true);
 Localytics.getGeofencesToMonitor(-120.72, 76.85,
 	function success(result) {
 		var geofences = result;
@@ -387,14 +389,17 @@ Localytics.setCallToActionListener(
 	function success(result) {
 		// result can be one of:
 		// - {"method": "localyticsShouldDeeplink", "params": {"url": "http://www.google.com", "campaign": {"name": "Campaign Name", ...}}}
-		// - {"method": "localyticsDidOptOut", "params": {"optedOut": true/false, "campaign": {"name": "Campaign Name", ...}
-		// - {"method": "localyticsDidPrivacyOptOut", "params": {"privacyOptedOut": true/false, "campaign": {"name": "Campaign Name", ...}
+		// - {"method": "localyticsDidOptOut", "params": {"optedOut": true/false, "campaign": {"name": "Campaign Name", ...}}}
+		// - {"method": "localyticsDidPrivacyOptOut", "params": {"privacyOptedOut": true/false, "campaign": {"name": "Campaign Name", ...}}}
+		// - {"method": "localyticsShouldDeeplinkToSettings", "campaign": {"name": "Campaign Name", ...}}
 		//Android Only
-		// - {"method": "localyticsShouldPromptForLocationPermissions", "params": {"campaign": {"name": "Campaign Name", ...}
+		// - {"method": "localyticsShouldPromptForLocationPermissions", "params": {"campaign": {"name": "Campaign Name", ...}}}
 		//iOS Only
-		// - {"method": "localyticsShouldPromptForLocationWhenInUsePermissions", "params": {"campaign": {"name": "Campaign Name", ...}
-		// - {"method": "localyticsShouldPromptForLocationAlwaysPermissions", "params": {"campaign": {"name": "Campaign Name", ...}
-		// - {"method": "localyticsShouldPromptForNotificationPermissions", "params": {"campaign": {"name": "Campaign Name", ...}
+		// - {"method": "localyticsShouldPromptForLocationWhenInUsePermissions", "params": {"campaign": {"name": "Campaign Name", ...}}}
+		// - {"method": "localyticsShouldPromptForLocationAlwaysPermissions", "params": {"campaign": {"name": "Campaign Name", ...}}}
+		// - {"method": "localyticsShouldPromptForNotificationPermissions", "params": {"campaign": {"name": "Campaign Name", ...}}}
+		// - {"method": "requestAlwaysAuthorization"}
+		// - {"method": "requestWhenInUseAuthorization"}
 });
 Localytics.removeCallToActionListener();
 ```
@@ -415,7 +420,9 @@ var inAppConfig = {
   /*"dismissButtonImageName": "custom_image", // Must be in app's Bundle */
   "aspectRatio": 0.7,
   "backgroundAlpha": 0.75,
-  "offset": 20
+  "offset": 20,
+  "notchFullScreen": true, // Should the In App message render outside of the safe area (eg. around the Notch on iPHone X)
+  "autoHideHomeScreenIndicator": true // Should the home screen indicator be hidden when there is no touch detected.
 };
 var placesConfig = {
   "alertAction": "Tap Here",
@@ -482,6 +489,38 @@ Localytics.setInAppMessageConfiguration(inAppConfig);
 Localytics.setPushMessageConfiguration(pushConfig);
 Localytics.setPlacesMessageConfiguration(placesConfig);
 ```
+
+### Requesting Location permissions
+As of Cordova SDK 5.4.0 (Localytics SDK 5.4.0), any app requesting for location permissions of any sort will need to implement two callbacks to ensure that any location prompts triggered by Localytics are shown to the user.  To do this, make sure to implement the `LLLocationMonitoringDelegate` and pass it to Localytics.  An example may look like: 
+1. Implement the delegate: 
+```objc
+@interface AppDelegate : CDVAppDelegate <UNUserNotificationCenterDelegate, LLLocationMonitoringDelegate>
+
+```
+2. Import the LocalyticsPlugin file:
+```objc
+#import "LocalyticsPlugin.h"
+```
+3. Set the delegate on the Localytics Cordova library:
+```objc
+- (BOOL)application:(UIApplication*)application didFinishLaunchingWithOptions:(NSDictionary*)launchOptions
+{
+    self.viewController = [[MainViewController alloc] init];
+    [Localytics autoIntegrate:@"977e844f5a33e2d198849bb-091fca20-aeaf-11e3-1c46-004a77f8b47f" withLocalyticsOptions:nil launchOptions:launchOptions];
+    [LocalyticsPlugin setLocationMonitoringDelegate:self];
+    ...
+```
+4. Implement the relevant methods: 
+```objc
+- (void)requestAlwaysAuthorization:(CLLocationManager *)manager {
+    [manager requestAlwaysAuthorization];
+}
+
+- (void)requestWhenInUseAuthorization:(CLLocationManager *)manager {
+    [manager requestWhenInUseAuthorization];
+}
+```
+
 
 ## Sample App
 

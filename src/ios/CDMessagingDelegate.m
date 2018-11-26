@@ -109,6 +109,13 @@
         if (self.inAppConfig[@"backgroundAlpha"]) {
             configuration.backgroundAlpha = [self.inAppConfig[@"backgroundAlpha"] floatValue];
         }
+        if (self.inAppConfig[@"autoHideHomeScreenIndicator"]) {
+            configuration.autoHideHomeScreenIndicator = [self.inAppConfig[@"autoHideHomeScreenIndicator"] boolValue];   
+        }
+        if (self.inAppConfig[@"notchFullScreen"]) {
+            configuration.notchFullScreen = [self.inAppConfig[@"notchFullScreen"] boolValue];   
+        }
+
     }
 
     NSDictionary *params = @{@"campaign": [LocalyticsPlugin dictionaryFromInAppCampaign:campaign]};

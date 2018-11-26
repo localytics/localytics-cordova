@@ -594,8 +594,23 @@ Localytics.prototype.removeMessagingListener = function () {
 
 // Enable or disable location monitoring for geofence monitoring
 // enabled = Flag to indicate whether the monitoring should be enabled or disabled
+// DEPRECATED - please use setLocationMonitoringEnabled(enabled, persist) instead.
 Localytics.prototype.setLocationMonitoringEnabled = function (enabled) {
-	cordova.exec(null, null, "LocalyticsPlugin", "setLocationMonitoringEnabled", [enabled]);
+	cordova.exec(null, null, "LocalyticsPlugin", "setLocationMonitoringEnabled", [enabled, false]);
+}
+
+// Android only: Enable or disable location monitoring for geofence monitoring and persist monitoring on startup.
+// enabled = Flag to indicate whether the monitoring should be enabled or disabled
+Localytics.prototype.setLocationMonitoringEnabled = function (enabled, persist) {
+	cordova.exec(null, null, "LocalyticsPlugin", "setLocationMonitoringEnabled", [enabled, persist]);
+}
+
+// IOS only: Persist location monitoring on app startup
+// If called from android - the default is to enable and start monitoring.
+// Enable or disable location monitoring for geofence monitoring
+// enabled = Flag to indicate whether the monitoring should be enabled or disabled
+Localytics.prototype.persistLocationMonitoring = function (enabled) {
+	cordova.exec(null, null, "LocalyticsPlugin", "persistLocationMonitoring", [enabled]);
 }
 
 // Get a list of geofences to monitor for enter/exit events

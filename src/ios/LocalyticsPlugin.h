@@ -5,12 +5,14 @@
 //
 
 #import <Cordova/CDVPlugin.h>
+#import <CoreLocation/CoreLocation.h>
 
 @class LLRegion;
 @class LLGeofence;
 @class LLInAppCampaign;
 @class LLPlacesCampaign;
 @class LLInboxCampaign;
+@protocol LLLocationMonitoringDelegate;
 
 typedef NS_ENUM(NSUInteger, LLInAppMessageDismissButtonLocation);
 
@@ -104,6 +106,7 @@ typedef NS_ENUM(NSUInteger, LLInAppMessageDismissButtonLocation);
 - (void)removeMessagingListener:(CDVInvokedUrlCommand *)command;
 
 - (void)setLocationMonitoringEnabled:(CDVInvokedUrlCommand *)command;
+- (void)persistLocationMonitoring:(CDVInvokedUrlCommand *)command;
 - (void)getGeofencesToMonitor:(CDVInvokedUrlCommand *)command;
 - (void)triggerRegion:(CDVInvokedUrlCommand *)command;
 - (void)triggerRegions:(CDVInvokedUrlCommand *)command;
@@ -128,4 +131,29 @@ typedef NS_ENUM(NSUInteger, LLInAppMessageDismissButtonLocation);
 + (NSDictionary<NSString *, NSObject *> *)dictionaryFromPlacesCampaign:(LLPlacesCampaign *)campaign;
 + (LLInAppMessageDismissButtonLocation)locationFrom:(NSString *)location;
 
++ (void)setLocationMonitoringDelegate:(nullable id<LLLocationMonitoringDelegate>)delegate;
+
+@end
+
+@protocol LLLocationMonitoringDelegate <NSObject>
+@optional
+ /**
+ * Callback to request the Always Authorization. Localytics setLocationMonitoringEnabled API requires implementation of this callback.
+ * @param locationManager CLLocationManager instance to request Authorization
+ @Discussion
+ * Sample Implementation\: [locationManager requestAlwaysAuthorization];
+ 
+ @Note Apple requires application developers to be aware and request permissions needed by SDK.
+ @Version SDK 5.3
+ */
+- (void)requestAlwaysAuthorization:(nonnull CLLocationManager *)locationManager;
+ /**
+ * Callback to request When in Use Authorization.
+ @param locationManager CLLocationManager instance to request Authorization
+ *
+ * Sample Implementation \: [locationManager requestWhenInUseAuthorization];
+ @Note Apple requires application developers to be aware and request permissions needed by SDK.
+ @Version SDK 5.3
+ */
+- (void)requestWhenInUseAuthorization:(nonnull CLLocationManager *)locationManager;
 @end
