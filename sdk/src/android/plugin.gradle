@@ -2,11 +2,19 @@ repositories {
     maven {
         url 'https://maven.localytics.com/public'
     }
+
+    maven {
+        credentials {
+            username NEXUS_USERNAME
+            password NEXUS_PASSWORD
+        }
+        url "https://localytics.jfrog.io/localytics/sdk-android-release-candidates"
+    }
 }
 
 dependencies {
     compile 'com.android.support:support-v4:26.0.2'
     compile 'com.google.android.gms:play-services-ads:11.4.2'
     compile 'com.google.android.gms:play-services-gcm:11.4.2'
-    compile 'com.localytics.android:library:5.4.0'
+    compile 'com.localytics.android:library:5.5.0'
 }

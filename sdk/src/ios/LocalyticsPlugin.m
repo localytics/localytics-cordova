@@ -15,7 +15,7 @@
 @import UserNotifications;
 @import Localytics;
 
-#define PLUGIN_VERSION @"Cordova_5.4.0"
+#define PLUGIN_VERSION @"Cordova_5.5.0"
 
 #define PROFILE_SCOPE_ORG @"org"
 #define PROFILE_SCOPE_APP @"app"
@@ -1599,6 +1599,13 @@ LocalyticsPlugin *shared;
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }
     
+}
+
+- (void)enableLiveDeviceLogging:(CDVInvokedUrlCommand *)command {
+    [self logInput:@"enableLiveDeviceLogging" withCommand:command];
+    [Localytics enableLiveDeviceLogging];
+    CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
 - (void)isLoggingEnabled:(CDVInvokedUrlCommand *)command {

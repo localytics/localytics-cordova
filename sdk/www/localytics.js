@@ -672,6 +672,11 @@ Localytics.prototype.setLoggingEnabled = function (enabled) {
 	cordova.exec(null, null, "LocalyticsPlugin", "setLoggingEnabled", [enabled]);
 }
 
+// Enables Localytics Live device logging (disabled by default)
+Localytics.prototype.enableLiveDeviceLogging = function () {
+	cordova.exec(null, null, "LocalyticsPlugin", "enableLiveDeviceLogging", []);
+}
+
 // Gets logging status
 // successCallback = callback function for result
 Localytics.prototype.isLoggingEnabled = function (successCallback) {

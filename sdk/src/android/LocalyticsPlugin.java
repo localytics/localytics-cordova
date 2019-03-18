@@ -70,7 +70,7 @@ public class LocalyticsPlugin extends CordovaPlugin {
     @Override
     public void initialize(CordovaInterface cordova, CordovaWebView webView) {
         super.initialize(cordova, webView);
-        Localytics.setOption("plugin_library", "Cordova_5.4.0");
+        Localytics.setOption("plugin_library", "Cordova_5.5.0");
     }
 
     @Override
@@ -1116,6 +1116,10 @@ public class LocalyticsPlugin extends CordovaPlugin {
         } else if (action.equals("setLoggingEnabled")) {
             boolean enabled = args.getBoolean(0);
             Localytics.setLoggingEnabled(enabled);
+            callbackContext.success();
+            return true;
+        } else if (action.equals("enableLiveDeviceLogging")) {
+            Localytics.enableLiveDeviceLogging();
             callbackContext.success();
             return true;
         } else if (action.equals("isLoggingEnabled")) {
