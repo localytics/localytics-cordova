@@ -70,7 +70,7 @@ public class LocalyticsPlugin extends CordovaPlugin {
     @Override
     public void initialize(CordovaInterface cordova, CordovaWebView webView) {
         super.initialize(cordova, webView);
-        Localytics.setOption("plugin_library", "Cordova_5.4.0");
+        Localytics.setOption("plugin_library", "Cordova_5.5.0");
     }
 
     @Override
@@ -135,7 +135,7 @@ public class LocalyticsPlugin extends CordovaPlugin {
                 String name = args.getString(0);
                 if (!TextUtils.isEmpty(name)) {
                     HashMap<String, String> attributes = optStringMap(args, 1);
-                    int customerValueIncrease = args.getInt(2);
+                    int customerValueIncrease = args.optInt(2, 0);
                     Localytics.tagEvent(name, attributes, customerValueIncrease);
                     callbackContext.success();
                 } else {
@@ -302,7 +302,7 @@ public class LocalyticsPlugin extends CordovaPlugin {
                 int campaignId = args.getInt(0);
                 InAppCampaign campaign = inAppCampaignCache.get(campaignId);
                 if (campaign != null) {
-                    String impressionType = args.getString(1);
+                    String impressionType = args.optString(1);
                     if ("click".equalsIgnoreCase(impressionType)) {
                         Localytics.tagInAppImpression(campaign, Localytics.ImpressionType.CLICK);
                     } else if ("dismiss".equalsIgnoreCase(impressionType)) {
@@ -325,7 +325,7 @@ public class LocalyticsPlugin extends CordovaPlugin {
                 int campaignId = args.getInt(0);
                 InboxCampaign campaign = inboxCampaignCache.get(campaignId);
                 if (campaign != null) {
-                    String impressionType = args.getString(1);
+                    String impressionType = args.optString(1);
                     if ("click".equalsIgnoreCase(impressionType)) {
                         Localytics.tagInboxImpression(campaign, Localytics.ImpressionType.CLICK);
                     } else if ("dismiss".equalsIgnoreCase(impressionType)) {
@@ -430,7 +430,7 @@ public class LocalyticsPlugin extends CordovaPlugin {
 
                 String attributeName = args.getString(0);
                 Object attributeValue = args.get(1);
-                String scope = args.getString(2);
+                String scope = args.optString(2);
 
                 if (attributeValue instanceof Integer) {
                     Localytics.setProfileAttribute(attributeName, (Integer) attributeValue, getProfileScope(scope));
@@ -489,7 +489,7 @@ public class LocalyticsPlugin extends CordovaPlugin {
 
                 String attributeName = args.getString(0);
                 Object attributeValue = args.get(1);
-                String scope = args.getString(2);
+                String scope = args.optString(2);
 
                 if (attributeValue instanceof JSONArray) {
                     JSONArray array = (JSONArray) attributeValue;
@@ -543,7 +543,7 @@ public class LocalyticsPlugin extends CordovaPlugin {
 
                 String attributeName = args.getString(0);
                 Object attributeValue = args.get(1);
-                String scope = args.getString(2);
+                String scope = args.optString(2);
                 if (attributeValue instanceof JSONArray) {
                     JSONArray array = (JSONArray) attributeValue;
                     Object item = getInitialItem(array);
@@ -593,7 +593,7 @@ public class LocalyticsPlugin extends CordovaPlugin {
             if (args.length() == 3) {
                 String attributeName = args.getString(0);
                 long incrementValue = args.getLong(1);
-                String scope = args.getString(2);
+                String scope = args.optString(2);
 
                 Localytics.incrementProfileAttribute(attributeName, incrementValue, getProfileScope(scope));
                 callbackContext.success();
@@ -606,7 +606,7 @@ public class LocalyticsPlugin extends CordovaPlugin {
             if (args.length() == 3) {
                 String attributeName = args.getString(0);
                 long decrementValue = args.getLong(1);
-                String scope = args.getString(2);
+                String scope = args.optString(2);
 
                 Localytics.decrementProfileAttribute(attributeName, decrementValue, getProfileScope(scope));
                 callbackContext.success();
@@ -618,7 +618,7 @@ public class LocalyticsPlugin extends CordovaPlugin {
         } else if (action.equals("deleteProfileAttribute")) {
             if (args.length() == 2) {
                 String attributeName = args.getString(0);
-                String scope = args.getString(1);
+                String scope = args.optString(1);
 
                 Localytics.deleteProfileAttribute(attributeName, getProfileScope(scope));
                 callbackContext.success();
@@ -1016,7 +1016,7 @@ public class LocalyticsPlugin extends CordovaPlugin {
             boolean enabled = args.getBoolean(0);
             boolean persist = false;
             if (args.length() == 2) {
-                persist = args.getBoolean(1);    
+                persist = args.optBoolean(1, false);
             }
             Localytics.setLocationMonitoringEnabled(enabled, persist);
             callbackContext.success();
@@ -1116,6 +1116,10 @@ public class LocalyticsPlugin extends CordovaPlugin {
         } else if (action.equals("setLoggingEnabled")) {
             boolean enabled = args.getBoolean(0);
             Localytics.setLoggingEnabled(enabled);
+            callbackContext.success();
+            return true;
+        } else if (action.equals("enableLiveDeviceLogging")) {
+            Localytics.enableLiveDeviceLogging();
             callbackContext.success();
             return true;
         } else if (action.equals("isLoggingEnabled")) {

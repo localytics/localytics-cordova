@@ -3,7 +3,7 @@ Localytics for PhoneGap/Cordova
 
 ## Version
 
-This version of the PhoneGap/Cordova SDK wraps v5.4.0 of the Localytics Android and v5.4.0 of the Localytics iOS SDKs.
+This version of the PhoneGap/Cordova SDK wraps v5.5.0 of the Localytics Android and v5.5.0 of the Localytics iOS SDKs.
 
 > Cordova SDK 5.2.0 has some drastic changes to the manual integration (Localytics.integrate) workflow for iOS.
 > Push Messaging and Test Mode can begin to fail upon upgrade if the proper workflow is not followed.
