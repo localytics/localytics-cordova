@@ -40,7 +40,6 @@ LocalyticsPlugin *shared;
 - (instancetype)init {
     if (self = [super init]) {
         shared = self;
-        [Localytics setOptions:@{@"plugin_library": PLUGIN_VERSION}];
     }
     return self;
 }
@@ -297,6 +296,7 @@ LocalyticsPlugin *shared;
     }
 
     if (appKey) {
+      [Localytics setOptions:@{@"plugin_library": PLUGIN_VERSION}];
       [Localytics integrate:appKey withLocalyticsOptions:localyticsOptions];
       CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
       [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
@@ -325,6 +325,7 @@ LocalyticsPlugin *shared;
     }
 
     if (appKey) {
+      [Localytics setOptions:@{@"plugin_library": PLUGIN_VERSION}];
       [Localytics autoIntegrate:appKey withLocalyticsOptions:localyticsOptions launchOptions:nil];
       CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
       [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];

@@ -2,14 +2,6 @@ repositories {
     maven {
         url 'https://maven.localytics.com/public'
     }
-
-    maven {
-        credentials {
-            username NEXUS_USERNAME
-            password NEXUS_PASSWORD
-        }
-        url "https://localytics.jfrog.io/localytics/sdk-android-release-candidates"
-    }
 }
 
 dependencies {
