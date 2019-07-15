@@ -70,7 +70,7 @@ public class LocalyticsPlugin extends CordovaPlugin {
     @Override
     public void initialize(CordovaInterface cordova, CordovaWebView webView) {
         super.initialize(cordova, webView);
-        Localytics.setOption("plugin_library", "Cordova_5.5.0");
+        Localytics.setOption("plugin_library", "Cordova_5.6.0");
     }
 
     @Override

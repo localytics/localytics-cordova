@@ -15,7 +15,7 @@
 @import UserNotifications;
 @import Localytics;
 
-#define PLUGIN_VERSION @"Cordova_5.5.0"
+#define PLUGIN_VERSION @"Cordova_5.6.0"
 
 #define PROFILE_SCOPE_ORG @"org"
 #define PROFILE_SCOPE_APP @"app"
